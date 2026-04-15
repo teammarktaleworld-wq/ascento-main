@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ascento Abacus Homepage</title>
+<!-- Google Fonts: Lexend -->
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#197fe6",
+              "secondary": "#f59e0b", /* Soft orange for accents */
+              "background-light": "#f6f7f8",
+              "background-dark": "#111921",
+              "navy-deep": "#0e141b",
+            },
+            fontFamily: {
+              "display": ["Lexend", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-navy-deep dark:text-slate-100 antialiased">
+<!-- Main Container -->
+<div class="relative flex flex-col min-h-screen w-full overflow-x-hidden">
+<!-- Navigation -->
+<header class="sticky top-0 z-50 bg-white/90 dark:bg-background-dark/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-20">
+<!-- Logo -->
+<div class="flex items-center gap-3">
+<div class="text-primary size-10 flex items-center justify-center">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-navy-deep dark:text-white">Ascento Abacus</h1>
+</div>
+<!-- Desktop Nav -->
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Home</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">About</a>
+<div class="group relative">
+<button class="text-sm font-medium flex items-center gap-1 hover:text-primary transition-colors">
+                                Programs <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Brain Gym</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Franchise</a>
+<a class="text-sm font-medium hover:text-primary transition-colors" href="#">Contact</a>
+</nav>
+<!-- CTA -->
+<div class="flex items-center gap-4">
+<button class="hidden lg:flex bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-lg text-sm font-bold transition-all shadow-md shadow-primary/20">
+                            Book a Demo
+                        </button>
+<button class="md:hidden text-navy-deep dark:text-white">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1">
+<!-- Hero Section -->
+<section class="relative py-16 lg:py-24 overflow-hidden">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid lg:grid-cols-2 gap-12 items-center">
+<div class="flex flex-col gap-8">
+<div class="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full w-fit">
+<span class="material-symbols-outlined text-sm">workspace_premium</span>
+<span class="text-xs font-bold uppercase tracking-wider">India's Leading Brain Development Program</span>
+</div>
+<h1 class="text-4xl lg:text-6xl font-black leading-[1.1] text-navy-deep dark:text-white tracking-tight">
+                                Unlock Your Child’s <span class="text-primary">Brain Power</span>
+</h1>
+<p class="text-lg text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed">
+                                Empowering young minds through specialized abacus and cognitive training. Join 10,000+ students on a journey toward lifelong mathematical and mental excellence.
+                            </p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl text-base font-bold transition-all shadow-lg shadow-primary/20 flex items-center gap-2">
+                                    Enroll Your Child <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-secondary text-navy-deep dark:text-white px-8 py-4 rounded-xl text-base font-bold transition-all flex items-center gap-2 group">
+<span class="text-secondary material-symbols-outlined">storefront</span>
+                                    Explore Franchise Opportunity
+                                </button>
+</div>
+<div class="flex items-center gap-4 text-sm text-slate-500">
+<div class="flex -space-x-2">
+<div class="size-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Student profile photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD89qL2sG8XTu7FgZs3JP8cPv1W2Ih7MpbMaQW-rKsX6ZUruFibjUWPX89d0rUZH4YgKTLzEtenucYWUX6VRlkIu9rrCD5PO6eO2pmgHeysPNd2-qfPAlOZawHsGw6wnPnnEh4gKcPKWE5gzNAeFPRDSf_gE9nNFB3K57JKGPvynbLyGCplcogEqgnsIncls0XWi0ZRqR4bMXG24SboyS8RE5L7SrgPLwDNjNWd7gBqX-Gk7PHCDBFGxA-Su8f-Y8mUtHqMCjEPqSE"/>
+</div>
+<div class="size-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Student profile photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBT-dNnrXBSF8K_aGSC-llX4lImaHpCak0JpUiFJLsV9RJyruQOIGKz-K2B-gkzsVDAChVn8yGlu4JvTezqcEMa1wzTBhYNUOBQtm3xCQV0HSVDg1cLGsFEHHCT_mMqA_yuVBYUzRZyKo0ZHvO3Dq6_FuhGqzxv9bpcCD4HasUbDAhGCphBB2IAHqh4nGGywN1rsKoEdZYEN-we55Q5XYq0qBP3tYPn0CEyDuiL4NxG1n4O6nwUlzlk43PvSEGYdAjnScod6rbQD_k"/>
+</div>
+<div class="size-8 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Student profile photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSSx6n6xp7mPGrM8eOq_c45TKAWioQxvVwRToCu3lDSwGngEeQXkhiKjB4jVILHW-L9HjctprCEvav1-FJuh_2vdFD8Fg8crB7_aFKA337SuEHK3E13d4LJHKl5PE7GIowWoT9gZHwiR4l-Y-VLPNzwSVMugWCcYa31gcWzYCbd4CNIzI3aCQFxa2zatYDyaqE1FogHEdJsr7RcylGyUOuamK1838K5CiqlRB5v6H_7hDHkUVU8bF46s19UFIP6xpvtJzi8JiiLqc"/>
+</div>
+</div>
+<span>Trusted by 2,500+ Parents this month</span>
+</div>
+</div>
+<div class="relative">
+<div class="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary/5 rounded-full blur-3xl"></div>
+<div class="rounded-3xl overflow-hidden shadow-2xl transform lg:rotate-2">
+<img class="w-full aspect-[4/3] object-cover" data-alt="Young child learning with colorful abacus" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBewo1avpta46C5FKjcVXLRDCczZknlz6FSmy6NCgT0jYvQiQeQwG8vPPrPcaGkJHp1N-HJmUiQTQUBx-fB64zKrS-si2fmZz_-wSrFdVXNMXHuKpG6YzCAVV8D_F8T3L66nBr0DLRiMgKbMIK12pYUncLx8kexn7NvxoZVtbPlp3EFC8cKoudFUqE44yuWYXlPL8M72uBioBMz5DJjJtXmIGl4kYrB2K__ZdzlHD-HZcovUkqvzpWFvWdpynnz48ARlM4iT16sNPs"/>
+</div>
+<!-- Floating Card -->
+<div class="absolute -bottom-6 -left-6 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 hidden sm:block">
+<div class="flex items-center gap-4">
+<div class="size-12 bg-secondary/20 text-secondary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined font-bold">trending_up</span>
+</div>
+<div>
+<p class="text-xs text-slate-500 uppercase font-bold tracking-widest">IQ Improvement</p>
+<p class="text-xl font-black text-navy-deep dark:text-white">+45% Avg.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Strip -->
+<section class="bg-white dark:bg-navy-deep py-12 border-y border-slate-100 dark:border-slate-800">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+<div class="text-center">
+<p class="text-4xl font-black text-primary mb-1">10K+</p>
+<p class="text-sm font-medium text-slate-500 uppercase tracking-widest">Active Students</p>
+</div>
+<div class="text-center">
+<p class="text-4xl font-black text-primary mb-1">145K+</p>
+<p class="text-sm font-medium text-slate-500 uppercase tracking-widest">Growth Impact</p>
+</div>
+<div class="text-center">
+<p class="text-4xl font-black text-primary mb-1">50+</p>
+<p class="text-sm font-medium text-slate-500 uppercase tracking-widest">Learning Centers</p>
+</div>
+<div class="text-center">
+<p class="text-4xl font-black text-primary mb-1">15+</p>
+<p class="text-sm font-medium text-slate-500 uppercase tracking-widest">Years Excellence</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Programs Overview -->
+<section class="py-20 bg-background-light dark:bg-background-dark">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="text-center mb-16">
+<h2 class="text-secondary font-bold text-sm uppercase tracking-[0.2em] mb-4">Our Curriculum</h2>
+<h3 class="text-3xl lg:text-4xl font-black text-navy-deep dark:text-white">Empowering Every Learning Stage</h3>
+</div>
+<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Abacus Card -->
+<div class="group bg-white dark:bg-slate-800 p-2 rounded-2xl border border-transparent hover:border-primary/20 transition-all hover:shadow-xl hover:-translate-y-1">
+<div class="aspect-square rounded-xl overflow-hidden mb-6">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Abacus tool on a wooden desk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdFhqG9a9-fBgKLgbNPqwnO5voA87LfZmXLxHt4dmOHXmsnYUEXMdg322k0PM-pKokF0DIHWmxw1O8JPpF_3a3W1oFpRGZC-u9f_xx3VVSu5Whbhf3kVsk_QJxoa-n8MyBzqIDsApK3bkk4a3Y8DfASHrkxFWGvvYNW7rhMvN6-1zEqR70uqtHtPDG6BYeCZGDlNTn9rTKRXy39mFzO8xucea9PwtU5_R8gTVe0iaA1FH0M9VvyMbeoVlcvsdrFYO5IOR98aqeCks"/>
+</div>
+<div class="px-4 pb-6">
+<h4 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">Abacus Mastery</h4>
+<p class="text-slate-500 dark:text-slate-400 text-sm mb-6 leading-relaxed">
+                                    Foundation for mental arithmetic and lightning-fast calculations without calculators.
+                                </p>
+<a class="text-primary font-bold text-sm flex items-center gap-2 group/link" href="#">
+                                    Explore Program 
+                                    <span class="material-symbols-outlined text-base group-hover/link:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Brain Gym Card -->
+<div class="group bg-white dark:bg-slate-800 p-2 rounded-2xl border border-transparent hover:border-primary/20 transition-all hover:shadow-xl hover:-translate-y-1">
+<div class="aspect-square rounded-xl overflow-hidden mb-6">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Children doing focus exercises in classroom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-KjGhIH5UWuoRzqykSXECuHJmSwiEhAg1Pq887ETL2CeXteE6zGQ2FmtE2TIQwE4pwpg9hWAqDpwaFIBU9FdWSb3QOh4rF1hEW_oweHQLZTbFxf1vSuiJPxoKbU5xfLxI5asllsPal1BMqRbe9nECVYcLxXos4YjvUhKB2d-UgwyY7UAiWyT6rW0J_r4gERaSLMKrDRi2joKGeEYPHLiYYfL6csQ10V89jKjrqKsl8Q4rE5h7zq3eFhgfRanDOaonuHsG9Q3Amu0"/>
+</div>
+<div class="px-4 pb-6">
+<h4 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">Brain Gym</h4>
+<p class="text-slate-500 dark:text-slate-400 text-sm mb-6 leading-relaxed">
+                                    Cognitive enhancement exercises designed to improve focus, memory, and coordination.
+                                </p>
+<a class="text-primary font-bold text-sm flex items-center gap-2 group/link" href="#">
+                                    Explore Program 
+                                    <span class="material-symbols-outlined text-base group-hover/link:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Vedic Maths Card -->
+<div class="group bg-white dark:bg-slate-800 p-2 rounded-2xl border border-transparent hover:border-primary/20 transition-all hover:shadow-xl hover:-translate-y-1">
+<div class="aspect-square rounded-xl overflow-hidden mb-6">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Mathematical equations on a chalkboard" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD9c0zn9HjZO8j8qoRm3yqdDDmrkV5RGqYcp01fHh5-lEbey_uFdVmnceNDbSu91Q6J8N86hpnq1fohRhAkEJOYxuambigsDjfRS5P50w8fXsQXYI_7LltFP1pRdwnWyiVYTKOvLkpV1vSRWw2nj0qRI-FTVhCwI879qqV2xzG1DathRr4ZYppLEAKML_qyEAb5kRrsOBDVz8PLFkgnw3PdzN_sHycV6m2K0q_SE3_LOErGva_Fz24W9x1P4s4U2qUy0gXZm2elxi8"/>
+</div>
+<div class="px-4 pb-6">
+<h4 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">Vedic Maths</h4>
+<p class="text-slate-500 dark:text-slate-400 text-sm mb-6 leading-relaxed">
+                                    Ancient speed math techniques for solving complex problems with high accuracy and speed.
+                                </p>
+<a class="text-primary font-bold text-sm flex items-center gap-2 group/link" href="#">
+                                    Explore Program 
+                                    <span class="material-symbols-outlined text-base group-hover/link:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Pre-Abacus Card -->
+<div class="group bg-white dark:bg-slate-800 p-2 rounded-2xl border border-transparent hover:border-primary/20 transition-all hover:shadow-xl hover:-translate-y-1">
+<div class="aspect-square rounded-xl overflow-hidden mb-6">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Toddler playing with counting blocks" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8pGSOA7YE4IVngIktlp5rjhrt7XPSh2zZ6GtLBmkn2xv9057mWdDTVPPLuUqDjIvVmwjXQUMT_kVuP38Vkqh6Rp1AlbFakAaUrijdhtdKzAC1Of90EtBpD2-ealyMghqaNvujnaKoP0tExkJM_arDCuEaCussJased2VrOm8wq5ZJ0f7OmgU5smKtPQ6IDgIWM3tqPBVZr4wzEgDFNmNFgzII0jalKaGhYs8zzoE0Ys5yqm0iwm7xlvbDjSNBuTTLb8W5yfxKTdw"/>
+</div>
+<div class="px-4 pb-6">
+<h4 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">Pre-Abacus</h4>
+<p class="text-slate-500 dark:text-slate-400 text-sm mb-6 leading-relaxed">
+                                    Gentle introduction to numbers and visualization for toddlers aged 4 to 6 years.
+                                </p>
+<a class="text-primary font-bold text-sm flex items-center gap-2 group/link" href="#">
+                                    Explore Program 
+                                    <span class="material-symbols-outlined text-base group-hover/link:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Value Prop / Why Us Section -->
+<section class="py-24 bg-white dark:bg-navy-deep">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col lg:flex-row items-center gap-16">
+<div class="lg:w-1/2 order-2 lg:order-1">
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-4">
+<div class="h-64 rounded-2xl overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Student practicing abacus" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLqYt-nran1bIhAOcvpY9Lfhff-r_ju8lZewK2eE4YFper4KH4ydZ3ERpHfq5R_7-vMt7v7ESHYULelc7Hw3wkyfvS6GYuBj1A-GlvCvRc9ia1jrVoF8XZ2yBLh8WQNLtV-ekd7jOLjSqSAOVS0_M02FlRBw10QpG9K4siij_NIAu4wOGFmR3zPsOa_tnczNHP_GGBMCU0vlvHON5g2rRc2Ak0RVczdVGScRxfkR8h5pXwP5oqekMdfZ3XEMhqZl7DWYk6T0LdpAY"/>
+</div>
+<div class="h-40 bg-secondary/10 rounded-2xl p-6 flex flex-col justify-end">
+<p class="text-secondary font-bold text-2xl">98%</p>
+<p class="text-navy-deep dark:text-white text-sm font-medium">Retention Rate</p>
+</div>
+</div>
+<div class="space-y-4 pt-8">
+<div class="h-40 bg-primary/10 rounded-2xl p-6 flex flex-col justify-end">
+<p class="text-primary font-bold text-2xl">Expert</p>
+<p class="text-navy-deep dark:text-white text-sm font-medium">Certified Trainers</p>
+</div>
+<div class="h-64 rounded-2xl overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Teacher explaining math concept" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEcsbyTB3YQ4avcEDPiNsQKXIP1J0XQvPa-K08gMSKXiYEMlqcPouMGRf4vaK9LUbuTqQn7wb51ZakB2-4KhugYOuafW_PiFA-MCWWQz15XqBGI6P0t-0uSKDFzQ910w7sx-iaWiD_dwxgHasR6vYyxwxIWifW6moRBDIgOEMS6pX0VtERFiOXUfYB4Ds6C25QcvzsaDG621EPDND8ZLMzMojAHLz4gdzoF--texRpuPEGEkTlU1mT_76se4UQplQM5FoIHZuUCqQ"/>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:w-1/2 order-1 lg:order-2 space-y-8">
+<h2 class="text-4xl font-black text-navy-deep dark:text-white leading-tight">Why Parents Choose <br/><span class="text-primary">Ascento Abacus?</span></h2>
+<div class="space-y-6">
+<div class="flex gap-4">
+<div class="shrink-0 size-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined">psychology</span>
+</div>
+<div>
+<h4 class="text-lg font-bold mb-1">Whole Brain Development</h4>
+<p class="text-slate-500 dark:text-slate-400">Our syllabus stimulates both left (logical) and right (creative) brain hemispheres simultaneously.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="shrink-0 size-12 bg-secondary/10 text-secondary rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined">emoji_events</span>
+</div>
+<div>
+<h4 class="text-lg font-bold mb-1">Globally Recognized</h4>
+<p class="text-slate-500 dark:text-slate-400">Certification that is respected worldwide, giving your child a competitive edge in global exams.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="shrink-0 size-12 bg-green-500/10 text-green-500 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined">diversity_3</span>
+</div>
+<div>
+<h4 class="text-lg font-bold mb-1">Small Batch Sizes</h4>
+<p class="text-slate-500 dark:text-slate-400">Personalized attention for every child ensures steady progress and concept clarity.</p>
+</div>
+</div>
+</div>
+<button class="bg-navy-deep dark:bg-slate-700 text-white px-8 py-4 rounded-xl text-base font-bold transition-all hover:bg-slate-800 flex items-center gap-2">
+                                Learn More About Us
+                            </button>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Banner -->
+<section class="py-16">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="bg-primary rounded-[2rem] p-8 lg:p-16 relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-8">
+<!-- Abstract Background Pattern -->
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 100 100">
+<path d="M0 100 C 20 0 50 0 100 100 Z" fill="white"></path>
+</svg>
+</div>
+<div class="relative z-10 lg:w-2/3">
+<h2 class="text-3xl lg:text-5xl font-black text-white mb-6">Start Your Entrepreneurial Journey Today</h2>
+<p class="text-primary-100 text-lg opacity-90 max-w-xl">
+                                Join our network of 50+ successful centers. We provide end-to-end support, training, and marketing materials to help you succeed.
+                            </p>
+</div>
+<div class="relative z-10 flex flex-col gap-4 w-full lg:w-auto">
+<button class="bg-white text-primary px-10 py-5 rounded-2xl text-lg font-bold transition-transform hover:scale-105 shadow-xl">
+                                Become a Franchisee
+                            </button>
+<p class="text-white/80 text-center text-sm">Low Investment • High ROI • Dedicated Support</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-white dark:bg-navy-deep border-t border-slate-100 dark:border-slate-800 pt-20 pb-10">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid lg:grid-cols-4 gap-12 mb-16">
+<div class="col-span-1 lg:col-span-1 space-y-6">
+<div class="flex items-center gap-3">
+<div class="text-primary size-8">
+<svg class="w-full h-full" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 0.757355L47.2426 24L24 47.2426L0.757355 24L24 0.757355ZM21 35.7574V12.2426L9.24264 24L21 35.7574Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold tracking-tight">Ascento Abacus</h2>
+</div>
+<p class="text-slate-500 text-sm leading-relaxed">
+                            Pioneering cognitive development through time-tested methods. Helping the next generation think faster and smarter.
+                        </p>
+<div class="flex gap-4">
+<a class="size-10 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-slate-600 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">social_leaderboard</span>
+</a>
+<a class="size-10 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-slate-600 hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined">alternate_email</span>
+</a>
+</div>
+</div>
+<div>
+<h4 class="font-bold text-navy-deep dark:text-white mb-6">Quick Links</h4>
+<ul class="space-y-4 text-sm text-slate-500">
+<li><a class="hover:text-primary transition-colors" href="#">Home</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">About Us</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Franchise</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Contact</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Terms of Service</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-navy-deep dark:text-white mb-6">Programs</h4>
+<ul class="space-y-4 text-sm text-slate-500">
+<li><a class="hover:text-primary transition-colors" href="#">Abacus Junior</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Abacus Senior</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Brain Gym Exercises</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Vedic Math Masterclass</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Finger Counting</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-navy-deep dark:text-white mb-6">Contact Us</h4>
+<ul class="space-y-4 text-sm text-slate-500">
+<li class="flex gap-3">
+<span class="material-symbols-outlined text-primary text-lg">location_on</span>
+<span data-location="New Delhi, India">123 Education Hub, MG Road, New Delhi</span>
+</li>
+<li class="flex gap-3">
+<span class="material-symbols-outlined text-primary text-lg">call</span>
+<span>+91 98765 43210</span>
+</li>
+<li class="flex gap-3">
+<span class="material-symbols-outlined text-primary text-lg">mail</span>
+<span>info@ascentoabacus.com</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="border-t border-slate-100 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400">
+<p>© 2024 Ascento Abacus. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="hover:text-primary transition-colors" href="#">Refund Policy</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

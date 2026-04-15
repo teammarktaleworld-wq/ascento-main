@@ -1,0 +1,375 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Auth & Users ────────────────────────────────────────────────────────────
+
+enum UserRole {
+  admin
+  student
+  user
+}
+
+model User {
+  id                  String    @id @default(uuid())
+  firebaseUid         String?   @unique
+  email               String    @unique
+  name                String
+  role                UserRole  @default(user)
+  avatarUrl           String?
+  passwordHash        String?
+  isPasswordTemporary Boolean   @default(false)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  // Relations
+  student       Student?
+  teacher       Teacher?
+  enquiriesCreated  Enquiry[]    @relation("EnquiryCreatedBy")
+  attendanceMarked  Attendance[] @relation("AttendanceMarkedBy")
+  feesCreated       Fee[]        @relation("FeeCreatedBy")
+
+  @@map("users")
+}
+
+// ─── Students ────────────────────────────────────────────────────────────────
+
+model Student {
+  id            String    @id @default(uuid())
+  userId        String    @unique
+  studentId     String    @unique // e.g. "AA-2024-0847"
+  rollNumber    String?
+  fullName      String
+  dateOfBirth   DateTime?
+  gender        String?
+  bloodGroup    String?
+  phone         String?
+  address       String?
+  city          String?
+  state         String?
+  parentName    String?
+  parentPhone   String?
+  parentEmail   String?
+  status        String    @default("Active") // Active, Inactive, Graduated
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enrollments   Enrollment[]
+  attendance    Attendance[]
+  fees          Fee[]
+  marks         Mark[]
+  homework      HomeworkSubmission[]
+  notifications StudentNotification[]
+  documents     Document[]
+
+  @@map("students")
+}
+
+// ─── Teachers ────────────────────────────────────────────────────────────────
+
+model Teacher {
+  id            String    @id @default(uuid())
+  userId        String    @unique
+  name          String
+  phone         String?
+  experience    String?   // e.g. "12 years"
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjects      SubjectTeacher[]
+  timetableSlots TimetableSlot[]
+
+  @@map("teachers")
+}
+
+// ─── Academics ───────────────────────────────────────────────────────────────
+
+model Domain {
+  id            String    @id @default(uuid())
+  name          String    @unique // e.g. "Abacus", "Vedic Maths"
+  description   String?
+  createdAt     DateTime  @default(now())
+
+  classes       Class[]
+
+  @@map("domains")
+}
+
+model Class {
+  id            String    @id @default(uuid())
+  name          String    // e.g. "Grade 9", "Abacus Level 1"
+  domainId      String
+  createdAt     DateTime  @default(now())
+
+  domain        Domain    @relation(fields: [domainId], references: [id])
+  sections      Section[]
+
+  @@map("classes")
+}
+
+model Section {
+  id            String    @id @default(uuid())
+  name          String    // e.g. "Section A"
+  classId       String
+
+  class         Class     @relation(fields: [classId], references: [id])
+  enrollments   Enrollment[]
+  timetableSlots TimetableSlot[]
+
+  @@map("sections")
+}
+
+model Subject {
+  id            String    @id @default(uuid())
+  code          String    @unique // e.g. "MATH-9A"
+  name          String    // e.g. "Mathematics"
+  description   String?
+
+  teachers      SubjectTeacher[]
+  marks         Mark[]
+  timetableSlots TimetableSlot[]
+
+  @@map("subjects")
+}
+
+model SubjectTeacher {
+  id            String    @id @default(uuid())
+  subjectId     String
+  teacherId     String
+
+  subject       Subject   @relation(fields: [subjectId], references: [id])
+  teacher       Teacher   @relation(fields: [teacherId], references: [id])
+
+  @@unique([subjectId, teacherId])
+  @@map("subject_teachers")
+}
+
+// ─── Enrollments ─────────────────────────────────────────────────────────────
+
+model Enrollment {
+  id            String    @id @default(uuid())
+  studentId     String
+  sectionId     String
+  academicYear  String    // e.g. "2024-25"
+  enrolledAt    DateTime  @default(now())
+  status        String    @default("Active") // Active, Completed, Dropped
+
+  student       Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  section       Section   @relation(fields: [sectionId], references: [id])
+
+  @@unique([studentId, sectionId, academicYear])
+  @@map("enrollments")
+}
+
+// ─── Attendance ──────────────────────────────────────────────────────────────
+
+model Attendance {
+  id            String    @id @default(uuid())
+  studentId     String
+  date          DateTime  @db.Date
+  status        String    // present, absent, late
+  markedById    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  student       Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  markedBy      User?     @relation("AttendanceMarkedBy", fields: [markedById], references: [id])
+
+  @@unique([studentId, date])
+  @@map("attendance")
+}
+
+// ─── Fees ────────────────────────────────────────────────────────────────────
+
+model Fee {
+  id            String    @id @default(uuid())
+  studentId     String
+  feeType       String    // e.g. "Tuition Fee – Q4", "Activity Fee", "Exam Fee"
+  amount        Decimal   @db.Decimal(10, 2)
+  dueDate       DateTime?
+  paymentStatus String    @default("pending") // pending, paid
+  paidAt        DateTime?
+  createdById   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  student       Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdBy     User?     @relation("FeeCreatedBy", fields: [createdById], references: [id])
+
+  @@map("fees")
+}
+
+// ─── Exams & Marks ───────────────────────────────────────────────────────────
+
+model Exam {
+  id            String    @id @default(uuid())
+  examName      String    // e.g. "Unit Test 3", "Mid-Term Exam"
+  description   String?
+  examStartDate DateTime?
+  examEndDate   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  marks         Mark[]
+
+  @@map("exams")
+}
+
+model Mark {
+  id            String    @id @default(uuid())
+  studentId     String
+  examId        String
+  subjectId     String
+  marksObtained Decimal?  @db.Decimal(5, 2)
+  totalMarks    Decimal   @default(50) @db.Decimal(5, 2)
+  createdAt     DateTime  @default(now())
+
+  student       Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  exam          Exam      @relation(fields: [examId], references: [id])
+  subject       Subject   @relation(fields: [subjectId], references: [id])
+
+  @@unique([studentId, examId, subjectId])
+  @@map("marks")
+}
+
+// ─── Timetable ───────────────────────────────────────────────────────────────
+
+model TimetableSlot {
+  id            String    @id @default(uuid())
+  sectionId     String
+  dayOfWeek     String    // monday, tuesday, etc.
+  periodNumber  Int
+  subjectId     String?
+  teacherId     String?
+
+  section       Section   @relation(fields: [sectionId], references: [id])
+  subject       Subject?  @relation(fields: [subjectId], references: [id])
+  teacher       Teacher?  @relation(fields: [teacherId], references: [id])
+
+  @@unique([sectionId, dayOfWeek, periodNumber])
+  @@map("timetable_slots")
+}
+
+// ─── Homework ────────────────────────────────────────────────────────────────
+
+model Homework {
+  id            String    @id @default(uuid())
+  title         String
+  description   String?
+  dueDate       DateTime?
+  createdAt     DateTime  @default(now())
+
+  submissions   HomeworkSubmission[]
+
+  @@map("homework")
+}
+
+model HomeworkSubmission {
+  id            String    @id @default(uuid())
+  homeworkId    String
+  studentId     String
+  status        String    @default("pending") // pending, submitted, graded
+  submittedAt   DateTime?
+
+  homework      Homework  @relation(fields: [homeworkId], references: [id])
+  student       Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([homeworkId, studentId])
+  @@map("homework_submissions")
+}
+
+// ─── Notifications ───────────────────────────────────────────────────────────
+
+model Notification {
+  id            String    @id @default(uuid())
+  title         String
+  message       String
+  targetType    String    @default("broadcast") // broadcast, individual
+  status        String    @default("active") // active, inactive
+  createdAt     DateTime  @default(now())
+
+  studentNotifications StudentNotification[]
+
+  @@map("notifications")
+}
+
+model StudentNotification {
+  id              String    @id @default(uuid())
+  notificationId  String
+  studentId       String
+  read            Boolean   @default(false)
+
+  notification    Notification @relation(fields: [notificationId], references: [id])
+  student         Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, studentId])
+  @@map("student_notifications")
+}
+
+// ─── Documents ───────────────────────────────────────────────────────────────
+
+model Document {
+  id            String    @id @default(uuid())
+  studentId     String
+  name          String    // e.g. "Admit Card – Unit Test 3"
+  type          String    // e.g. "Admit Card", "Report Card", "Certificate"
+  fileUrl       String?
+  fileSize      String?   // e.g. "142 KB"
+  createdAt     DateTime  @default(now())
+
+  student       Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+// ─── Enquiries ───────────────────────────────────────────────────────────────
+
+model Enquiry {
+  id            String    @id @default(uuid())
+  studentName   String
+  email         String
+  phone         String?
+  course        String?
+  source        String?   // e.g. "Website", "Instagram"
+  message       String?
+  status        String    @default("New") // New, Follow-up, Enrolled, Closed
+  createdById   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  createdBy     User?     @relation("EnquiryCreatedBy", fields: [createdById], references: [id])
+
+  @@map("enquiries")
+}
+
+// ─── Events ──────────────────────────────────────────────────────────────────
+
+model Event {
+  id            String    @id @default(uuid())
+  title         String
+  description   String?
+  eventDate     DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@map("events")
+}
+
+// ─── Settings ────────────────────────────────────────────────────────────────
+
+model Setting {
+  id            String    @id @default(uuid())
+  key           String    @unique
+  value         Json
+  updatedAt     DateTime  @updatedAt
+
+  @@map("settings")
+}
