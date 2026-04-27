@@ -152,33 +152,33 @@ export default function Home() {
                   link: "/programs"
                 },
                 {
-                   title: "Brain Gym",
-                   desc: "Cognitive enhancement exercises designed to improve focus, memory, and coordination.",
-                   img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD-KjGhIH5UWuoRzqykSXECuHJmSwiEhAg1Pq887ETL2CeXteE6zGQ2FmtE2TIQwE4pwpg9hWAqDpwaFIBU9FdWSb3QOh4rF1hEW_oweHQLZTbFxf1vSuiJPxoKbU5xfLxI5asllsPal1BMqRbe9nECVYcLxXos4YjvUhKB2d-UgwyY7UAiWyT6rW0J_r4gERaSLMKrDRi2joKGeEYPHLiYYfL6csQ10V89jKjrqKsl8Q4rE5h7zq3eFhgfRanDOaonuHsG9Q3Amu0",
-                   link: "/programs"
+                  title: "Brain Gym",
+                  desc: "Cognitive enhancement exercises designed to improve focus, memory, and coordination.",
+                  img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD-KjGhIH5UWuoRzqykSXECuHJmSwiEhAg1Pq887ETL2CeXteE6zGQ2FmtE2TIQwE4pwpg9hWAqDpwaFIBU9FdWSb3QOh4rF1hEW_oweHQLZTbFxf1vSuiJPxoKbU5xfLxI5asllsPal1BMqRbe9nECVYcLxXos4YjvUhKB2d-UgwyY7UAiWyT6rW0J_r4gERaSLMKrDRi2joKGeEYPHLiYYfL6csQ10V89jKjrqKsl8Q4rE5h7zq3eFhgfRanDOaonuHsG9Q3Amu0",
+                  link: "/programs"
                 },
                 {
-                   title: "Vedic Maths",
-                   desc: "Ancient speed math techniques for solving complex problems with high accuracy and speed.",
-                   img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD9c0zn9HjZO8j8qoRm3yqdDDmrkV5RGqYcp01fHh5-lEbey_uFdVmnceNDbSu91Q6J8N86hpnq1fohRhAkEJOYxuambigsDjfRS5P50w8fXsQXYI_7LltFP1pRdwnWyiVYTKOvLkpV1vSRWw2nj0qRI-FTVhCwI879qqV2xzG1DathRr4ZYppLEAKML_qyEAb5kRrsOBDVz8PLFkgnw3PdzN_sHycV6m2K0q_SE3_LOErGva_Fz24W9x1P4s4U2qUy0gXZm2elxi8",
-                   link: "/programs"
+                  title: "Vedic Maths",
+                  desc: "Ancient speed math techniques for solving complex problems with high accuracy and speed.",
+                  img: "https://lh3.googleusercontent.com/aida-public/AB6AXuD9c0zn9HjZO8j8qoRm3yqdDDmrkV5RGqYcp01fHh5-lEbey_uFdVmnceNDbSu91Q6J8N86hpnq1fohRhAkEJOYxuambigsDjfRS5P50w8fXsQXYI_7LltFP1pRdwnWyiVYTKOvLkpV1vSRWw2nj0qRI-FTVhCwI879qqV2xzG1DathRr4ZYppLEAKML_qyEAb5kRrsOBDVz8PLFkgnw3PdzN_sHycV6m2K0q_SE3_LOErGva_Fz24W9x1P4s4U2qUy0gXZm2elxi8",
+                  link: "/programs"
                 },
                 {
-                   title: "Pre-Abacus",
-                   desc: "Gentle introduction to numbers and visualization for toddlers aged 4 to 6 years.",
-                   img: "https://lh3.googleusercontent.com/aida-public/AB6AXuA8pGSOA7YE4IVngIktlp5rjhrt7XPSh2zZ6GtLBmkn2xv9057mWdDTVPPLuUqDjIvVmwjXQUMT_kVuP38Vkqh6Rp1AlbFakAaUrijdhtdKzAC1Of90EtBpD2-ealyMghqaNvujnaKoP0tExkJM_arDCuEaCussJased2VrOm8wq5ZJ0f7OmgU5smKtPQ6IDgIWM3tqPBVZr4wzEgDFNmNFgzII0jalKaGhYs8zzoE0Ys5yqm0iwm7xlvbDjSNBuTTLb8W5yfxKTdw",
-                   link: "/programs"
+                  title: "Pre-Abacus",
+                  desc: "Gentle introduction to numbers and visualization for toddlers aged 4 to 6 years.",
+                  img: "https://lh3.googleusercontent.com/aida-public/AB6AXuA8pGSOA7YE4IVngIktlp5rjhrt7XPSh2zZ6GtLBmkn2xv9057mWdDTVPPLuUqDjIvVmwjXQUMT_kVuP38Vkqh6Rp1AlbFakAaUrijdhtdKzAC1Of90EtBpD2-ealyMghqaNvujnaKoP0tExkJM_arDCuEaCussJased2VrOm8wq5ZJ0f7OmgU5smKtPQ6IDgIWM3tqPBVZr4wzEgDFNmNFgzII0jalKaGhYs8zzoE0Ys5yqm0iwm7xlvbDjSNBuTTLb8W5yfxKTdw",
+                  link: "/programs"
                 }
               ].map((prog, idx) => (
                 <FadeIn key={idx} delay={idx * 0.1}>
                   <div className="group bg-slate-50 dark:bg-slate-800/50 p-2 rounded-2xl border border-transparent hover:border-[#197fe6]/20 transition-all hover:shadow-xl">
                     <div className="aspect-square rounded-xl overflow-hidden mb-6">
-                      <Image 
-                        src={prog.img} 
-                        alt={prog.title} 
-                        width={400} 
-                        height={400} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                      <Image
+                        src={prog.img}
+                        alt={prog.title}
+                        width={400}
+                        height={400}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     </div>
                     <div className="px-4 pb-6">
@@ -187,7 +187,7 @@ export default function Home() {
                         {prog.desc}
                       </p>
                       <Link href={prog.link} className="text-[#197fe6] font-bold text-sm flex items-center gap-2 group/link">
-                        Explore Program 
+                        Explore Program
                         <span className="material-symbols-outlined text-base group-hover/link:translate-x-1 transition-transform">arrow_forward</span>
                       </Link>
                     </div>
@@ -206,12 +206,12 @@ export default function Home() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-4">
                     <div className="h-64 rounded-2xl overflow-hidden shadow-lg">
-                      <Image 
-                        src="/Images/DSC_0037-scaled-1.jpg" 
-                        alt="Student practicing abacus" 
-                        width={400} 
-                        height={500} 
-                        className="w-full h-full object-cover" 
+                      <Image
+                        src="/Images/DSC_0037-scaled-1.jpg"
+                        alt="Student practicing abacus"
+                        width={400}
+                        height={500}
+                        className="w-full h-full object-cover"
                       />
                     </div>
                     <div className="h-40 bg-[#f59e0b]/10 rounded-2xl p-6 flex flex-col justify-end">
@@ -225,12 +225,12 @@ export default function Home() {
                       <p className="text-[#0e141b] dark:text-white text-xs font-bold uppercase tracking-wider">Certified Trainers</p>
                     </div>
                     <div className="h-64 rounded-2xl overflow-hidden shadow-lg">
-                      <Image 
-                        src="/Images/WhatsApp-Image-2025-06-08-at-10.03.39_0f634c25-r70q3atn2hrk6sl09jh6d3zwf68pahr7jeygaih09s.jpg" 
-                        alt="Teacher explaining math concept" 
-                        width={400} 
-                        height={500} 
-                        className="w-full h-full object-cover" 
+                      <Image
+                        src="/Images/WhatsApp-Image-2025-06-08-at-10.03.39_0f634c25-r70q3atn2hrk6sl09jh6d3zwf68pahr7jeygaih09s.jpg"
+                        alt="Teacher explaining math concept"
+                        width={400}
+                        height={500}
+                        className="w-full h-full object-cover"
                       />
                     </div>
                   </div>
@@ -239,7 +239,7 @@ export default function Home() {
               <div className="lg:w-1/2 order-1 lg:order-2 space-y-10">
                 <SlideIn direction="right">
                   <h2 className="text-4xl lg:text-5xl font-black text-[#0e141b] dark:text-white leading-tight tracking-tight">
-                    Why Parents Choose <br/><span className="text-[#197fe6]">Ascento Abacus?</span>
+                    Why Parents Choose <br /><span className="text-[#197fe6]">Ascento Abacus?</span>
                   </h2>
                 </SlideIn>
                 <div className="space-y-8">
@@ -292,7 +292,7 @@ export default function Home() {
               <h2 className="text-3xl md:text-5xl font-black text-[#0e141b] dark:text-white mb-4">Our Learning <span className="text-[#197fe6]">Environment</span></h2>
               <p className="text-slate-500 max-w-2xl mx-auto italic font-medium">Glimpses of our vibrant classrooms and the focused journey of our students.</p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
                 { src: "/Images/WhatsApp-Image-2025-06-08-at-10.03.37_cfe7f04f.jpg", alt: "Students learning abacus", span: "md:col-span-1" },
@@ -303,11 +303,11 @@ export default function Home() {
               ].map((img, idx) => (
                 <FadeIn key={idx} delay={idx * 0.1}>
                   <div className={`group relative overflow-hidden rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 ${img.span}`}>
-                    <Image 
-                      src={img.src} 
-                      alt={img.alt} 
-                      width={800} 
-                      height={600} 
+                    <Image
+                      src={img.src}
+                      alt={img.alt}
+                      width={800}
+                      height={600}
                       className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-8">
@@ -350,6 +350,32 @@ export default function Home() {
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {["Right Brain Development", "Midbrain Activation", "Abacus & Vedic Maths", "Hindi & Sanskrit Expert", "Teacher Mentoring", "Franchise Training"].map((tag) => (
+                        <span key={tag} className="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+            {/* Director — Featured Card */}
+            <FadeIn>
+              <div className="mb-12 bg-gradient-to-br from-[#0e141b]/5 to-[#197fe6]/5 dark:from-slate-800/50 dark:to-[#197fe6]/10 rounded-3xl border border-slate-200 dark:border-slate-700 p-8 lg:p-12">
+                <div className="flex flex-col lg:flex-row gap-8 items-center lg:items-start">
+                  <div className="shrink-0 size-28 lg:size-32 bg-gradient-to-br from-[#0e141b] to-slate-700 rounded-3xl flex items-center justify-center shadow-xl shadow-slate-900/20">
+                    <span className="text-white font-black text-4xl lg:text-5xl">ST</span>
+                  </div>
+                  <div className="flex-1 text-center lg:text-left">
+                    <div className="inline-flex items-center gap-2 bg-[#197fe6]/10 text-[#197fe6] px-3 py-1 rounded-full mb-3">
+                      <span className="material-symbols-outlined text-sm">manage_accounts</span>
+                      <span className="text-xs font-bold uppercase tracking-wider">Director</span>
+                    </div>
+                    <h4 className="text-2xl lg:text-3xl font-black text-[#0e141b] dark:text-white mb-1">Mr. Surendra Tomar</h4>
+                    <p className="text-[#197fe6] font-semibold text-sm mb-4">B.A., Computer Diploma &bull; 30+ Years Experience</p>
+                    <p className="text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                      A dedicated educationist and visionary leader with over 30 years of rich experience in Sales, Marketing, Insurance, and Education. As Director of Ascento Play School, Dwarka, Mr. Tomar is committed to providing high-quality education and a structured, progressive learning environment. He is actively involved in Abacus and Vedic Maths training and franchise services across India, helping educators and entrepreneurs establish successful learning centres. His leadership focuses on overall child development — combining academics with practical learning and essential life skills — with a firm belief in a child-centric, activity-based approach that makes learning engaging and meaningful for every student.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {["Abacus & Vedic Maths", "Franchise Development", "Academic Management", "Staff Mentoring", "Sales & Marketing", "Child-Centric Leadership"].map((tag) => (
                         <span key={tag} className="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">{tag}</span>
                       ))}
                     </div>
