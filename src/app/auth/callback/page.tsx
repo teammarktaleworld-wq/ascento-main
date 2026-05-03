@@ -9,14 +9,16 @@ export default function Callback() {
 
   useEffect(() => {
     const handleAuth = async () => {
-      // session is automatically stored by Supabase
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data, error } = await supabase.auth.getSession();
 
-      if (user) {
-        router.push("/profile"); // or /admin based on role
-      } else {
-        router.push("/login");
+      if (error || !data.session) {
+        router.replace("/login");
+        return;
       }
+
+      const session = data.session;
+
+      router.replace("/profile"); // or role-based later
     };
 
     handleAuth();
