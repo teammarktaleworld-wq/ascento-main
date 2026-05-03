@@ -5,1087 +5,392 @@
 
 
 
+
+
 // "use client";
 
-// import Image from "next/image";
+// // ─────────────────────────────────────────────
+// // /app/programs/page.jsx  — Ascento Programs Page
+// // ─────────────────────────────────────────────
 // import Link from "next/link";
-// import { useState } from "react";
-// import { supabase } from "../../lib/supabaseClient";
-// import { motion, AnimatePresence } from "framer-motion";
-// import Navbar from "../../components/Navbar";
-// import Footer from "../../components/Footer";
-// import { FadeIn, SlideIn, ScaleIn } from "../../components/AnimatedSection";
 
-// // ─── Program Data ────────────────────────────────────────────────────────────
-
-// const abacusLevels = [
-//     {
-//         level: "O",
-//         name: "Foundations",
-//         subtitle: "Pre-Level Introduction",
-//         duration: "6–8 Weeks",
-//         format: "45 min class · 5 min warm-up · 15 min concept · 15 min practice · 10 min worksheet",
-//         tags: ["Abacus basics", "Basic add & subtract", "Focus & speed"],
-//         sections: [
-//             { title: "Basics", items: ["Parts of abacus", "Bead values (1 & 5)", "Numbers 1–20"] },
-//             { title: "Place Value", items: ["Ones & tens", "Numbers up to 99"] },
-//             { title: "Addition", items: ["Simple addition (no carry)", "Practice + oral"] },
-//             { title: "Subtraction", items: ["Simple subtraction (no borrow)", "Mixed practice + speed"] },
-//         ]
-//     },
-//     {
-//         level: "1",
-//         name: "Core Basics",
-//         subtitle: "",
-//         duration: "12 Weeks · Numbers up to 99",
-//         tags: ["Strong basics", "Speed & accuracy"],
-//         sections: [
-//             { title: "Basics", items: ["Parts of abacus", "Bead values", "Finger movements"] },
-//             { title: "Numbers", items: ["Ones & tens", "Numbers up to 99"] },
-//             { title: "Addition", items: ["Simple addition (carry)", "Practice + oral"] },
-//             { title: "Subtraction", items: ["Subtraction (no borrow)", "Mixed practice + speed"] },
-//             { title: "Complements", items: ["Complements: 10-complement", "Use in carry & borrow"] },
-//             { title: "Mixed Practice", items: ["Addition + subtraction + complements", "Speed test"] },
-//         ]
-//     },
-//     {
-//         level: "2",
-//         name: "Carry & Borrow",
-//         subtitle: "",
-//         duration: "12 Weeks · Numbers up to 999",
-//         tags: ["Carry & borrow", "Listening sums"],
-//         sections: [
-//             { title: "Revision + Digit", items: ["Level 1 revision", "Hundreds place", "Up to 999"] },
-//             { title: "Addition (Carry)", items: ["Carry method", "Use of complements", "Practice"] },
-//             { title: "Subtraction (Borrow)", items: ["Borrow method", "Use of complements"] },
-//             { title: "Mixed Practice", items: ["3–4 digit sums", "Speed building"] },
-//             { title: "Oral & Visualization", items: ["Listening sums", "Mental visualization"] },
-//             { title: "Speed + Test", items: ["Full practice", "Speed test", "Final assessment"] },
-//         ]
-//     },
-//     {
-//         level: "3",
-//         name: "Multi-Digit & Multiplication Intro",
-//         subtitle: "",
-//         duration: "12 Weeks · 4 digits up to 9999",
-//         tags: ["Multi-digit", "Multiplication intro"],
-//         sections: [
-//             { title: "Revision + 4 Digits", items: ["Thousands place", "Up to 9999"] },
-//             { title: "Advanced Addition", items: ["Big carry method"] },
-//             { title: "Advanced Subtraction", items: ["Multi-digit subtraction", "Fast borrow"] },
-//             { title: "Multiplication Intro", items: ["Basic multiplication on abacus", "Small tables"] },
-//             { title: "Oral & Visualization", items: ["Mental image of abacus"] },
-//             { title: "Speed + Test", items: ["Mixed operations", "Final assessment"] },
-//         ]
-//     },
-//     {
-//         level: "4",
-//         name: "Division Intro",
-//         subtitle: "",
-//         duration: "12 Weeks · Rows: 5",
-//         tags: ["Division basics", "Mental speed"],
-//         sections: [
-//             { title: "Revision", items: ["Level 3 revision", "Speed improvement", "6 rows"] },
-//             { title: "Add & Subtract (Adv.)", items: ["Faster carry & borrow", "Oral sums"] },
-//             { title: "Multiplication (Int)", items: ["2-digit multiplication", "Abacus techniques"] },
-//             { title: "Division Intro", items: ["Basic division on abacus", "Simple problems"] },
-//             { title: "Oral & Visualization", items: ["Mental calculation", "Speed drills"] },
-//             { title: "Speed + Test", items: ["Mixed operations", "Final assessment"] },
-//         ]
-//     },
-//     {
-//         level: "5",
-//         name: "High Speed",
-//         subtitle: "",
-//         duration: "12 Weeks · Rows: 8",
-//         tags: ["High speed", "Strong mult & div"],
-//         sections: [
-//             { title: "Revision + Row Increase", items: ["Level 4 revision", "8 rows", "Speed up"] },
-//             { title: "Add & Sub (High Speed)", items: ["Faster multi-digit", "Advanced carry & borrow"] },
-//             { title: "Multiplication (Adv.)", items: ["2–3 digit multiplication", "Faster techniques"] },
-//             { title: "Division (Int)", items: ["Division technique", "Step-by-step solving"] },
-//             { title: "Oral & Visualization", items: ["Visualization practice", "Speed drills"] },
-//             { title: "Speed + Test", items: ["Mixed operations", "Final assessment"] },
-//         ]
-//     },
-//     {
-//         level: "6",
-//         name: "Expert Operations",
-//         subtitle: "",
-//         duration: "12 Weeks · Rows: 7",
-//         tags: ["Expert level speed", "Strong mental maths"],
-//         sections: [
-//             { title: "Revision + Row Increase", items: ["Level 5 revision", "7 rows"] },
-//             { title: "Add & Sub (Expert)", items: ["High speed multi-digit", "Advanced"] },
-//             { title: "Multiplication (Adv.)", items: ["3-digit multiplication", "Faster methods"] },
-//             { title: "Division (Adv.)", items: ["Complex division", "Accuracy focus"] },
-//             { title: "Mental Maths", items: ["Mental multiplication", "Without abacus practice"] },
-//             { title: "Speed + Test", items: ["Mixed operations", "Final assessment"] },
-//         ]
-//     },
-//     {
-//         level: "7",
-//         name: "Mastery Level",
-//         subtitle: "",
-//         duration: "12 Weeks · Rows: 8",
-//         tags: ["Master-level speed", "Strong mental maths"],
-//         sections: [
-//             { title: "Revision + Row Increase", items: ["Level 6 revision", "8 rows"] },
-//             { title: "Add & Sub (Mastery)", items: ["Ultra-fast multi-digit", "Advanced methods"] },
-//             { title: "Multiplication (High)", items: ["3–4 digit multiplication", "Fast methods"] },
-//             { title: "Division (High)", items: ["Complex division", "Accuracy + speed"] },
-//             { title: "Mental Maths (Adv.)", items: ["Mental calculation", "Without abacus solving"] },
-//             { title: "Speed + Test", items: ["Mixed operations", "Final assessment"] },
-//         ]
-//     },
-//     {
-//         level: "8",
-//         name: "Final Level",
-//         subtitle: "",
-//         duration: "12 Weeks · Rows: 8 · Decimals introduced",
-//         tags: ["Master calculation", "Mental maths"],
-//         sections: [
-//             { title: "Revision + Row Increase", items: ["Level 7 revision", "8 rows", "Speed"] },
-//             { title: "Add & Sub (Expert)", items: ["Ultra-fast multi-digit", "Accuracy focus"] },
-//             { title: "Multiplication (Expert)", items: ["4 digit multiplication", "Advanced techniques"] },
-//             { title: "Division (Expert)", items: ["Complex division", "Speed + accuracy"] },
-//             { title: "Decimals & More", items: ["Decimal addition & subtraction", "Abacus practice"] },
-//             { title: "Final Speed Test", items: ["Mixed operations", "Certification readiness"] },
-//         ]
-//     },
-//     {
-//         level: "9",
-//         name: "Advanced Mastery",
-//         subtitle: "",
-//         duration: "12 Weeks · Rows: 9",
-//         tags: ["Complete mastery", "Mental maths ace boss"],
-//         sections: [
-//             { title: "Revision + Row Increase", items: ["Level 8 revision", "Est rows", "Speed"] },
-//             { title: "Add & Sub", items: ["Large multi-digit", "Decimal operations", "Fast ops"] },
-//             { title: "Multiplication (Mastery)", items: ["Large number multiplication", "Fast methods"] },
-//             { title: "Division (Mastery)", items: ["Complex division", "Advanced methods"] },
-//             { title: "Mental Maths (Expert)", items: ["Full visualization", "Without abacus", "Ultra-fast"] },
-//             { title: "Final Mastery Test", items: ["Mixed ops", "Speed competition", "Final certification"] },
-//         ]
-//     },
-//     {
-//         level: "10",
-//         name: "Grand Master",
-//         subtitle: "",
-//         duration: "16 Weeks · Ext. · Negative introduced",
-//         tags: ["Grand-master level", "Complete mental mastery", "Max speed & confidence"],
-//         sections: [
-//             { title: "Revision + Ultra Speed", items: ["Level 9 revision", "Est rows", "Ultra speed commands"] },
-//             { title: "Advanced Operations", items: ["Decimal carry & borrow ops", "Negative sums"] },
-//             { title: "Mult & Div (Expert)", items: ["Large multiplication", "Complex decimal division"] },
-//             { title: "Mixed Ops Mastery", items: ["All operations including negative sums"] },
-//             { title: "Mental Maths (Grand)", items: ["Full visualization mastery", "Ultra-fast drills"] },
-//             { title: "Final Certification", items: ["Grand speed test", "Competition", "Final graduation"] },
-//         ]
-//     },
-// ];
-
-// const vedicMathsLevels = [
-//     {
-//         level: "1",
-//         name: "Foundations of Speed",
-//         subtitle: "Rapid arithmetic · Vinculum · Complements",
-//         sections: [
-//             {
-//                 title: "ARITHMETIC",
-//                 items: ["Rapid addition", "Rapid decimal addition", "Rapid subtraction", "Rapid decimal subtraction"]
-//             },
-//             {
-//                 title: "MULTIPLICATION",
-//                 highlighted: "Nikhilam Navatashcaramam Dashatah — subtraction from base",
-//                 items: ["Multiplication tables", "Power of 5, 25, 125", "Arambh method", "Andhyok method"]
-//             },
-//             {
-//                 title: "DIVISION",
-//                 items: ["Rapid division", "Division by 5, 25, 125"]
-//             },
-//             {
-//                 title: "VINCULUM SYSTEM",
-//                 items: [
-//                     "Vinculate — unit place", "Vinculate — tens place", "Vinculate — hundreds place",
-//                     "Devinculate — unit place", "Devinculate — tens place", "Devinculate — hundreds place",
-//                     "Vinculum addition", "Vinculum subtraction"
-//                 ]
-//             },
-//         ]
-//     },
-//     {
-//         level: "2",
-//         name: "Extended Operations",
-//         subtitle: "Higher rows · Nikhilam · Duplex numbers",
-//         sections: [
-//             {
-//                 title: "ARITHMETIC (HIGHER ROWS)",
-//                 items: ["Rapid addition — higher rows", "Rapid decimal addition — higher rows", "Rapid subtraction — higher rows", "Rapid decimal subtraction"]
-//             },
-//             {
-//                 title: "MULTIPLICATION",
-//                 highlighted: "Nikhilam sutras — base & sub-base method",
-//                 items: ["Multiplication by 11", "Duplex numbers", "By 12, 13, 14…", "By 21, 31, 41…", "Nikhilam sutra method"]
-//             },
-//             {
-//                 title: "DIVISION",
-//                 highlighted: "Nikhilam — complementary method",
-//                 items: ["Nikhilam sutras division", "Duplex number division", "Division by 21, 31, 41…"]
-//             },
-//         ]
-//     },
-//     {
-//         level: "3",
-//         name: "Sutras & Algebra",
-//         subtitle: "Digital roots · Urdhvatiryak · Polynomials",
-//         sections: [
-//             {
-//                 title: "DIGITAL ROOTS",
-//                 items: ["Digital roots — addition", "Digital roots — subtraction"]
-//             },
-//             {
-//                 title: "MULTIPLICATION",
-//                 highlighted: "Ek nyunain Purvena · Urdhvatiryak (universal) sutras",
-//                 items: ["Series of 9s — equal numbers", "Urdhvatiryak sutra — universal method"]
-//             },
-//             {
-//                 title: "DIVISION",
-//                 highlighted: "Dhwajank & Vilokaman sutras",
-//                 items: ["Dhwajank sutra", "Vilokaman sutra", "Binomial division"]
-//             },
-//             {
-//                 title: "POWERS & ROOTS",
-//                 items: ["Squares", "Square roots"]
-//             },
-//             {
-//                 title: "ALGEBRA",
-//                 items: ["Algebraic polynomials", "Polynomial operations"]
-//             },
-//         ]
-//     },
-//     {
-//         level: "4",
-//         name: "Mastery & Higher Maths",
-//         subtitle: "HCF · LCM · Fractions · Cube roots · Equations",
-//         sections: [
-//             {
-//                 title: "NUMBER THEORY",
-//                 items: ["HCF", "LCM", "Prime factorization", "Digital roots — multiplication"]
-//             },
-//             {
-//                 title: "ADVANCED MULTIPLICATION",
-//                 items: ["Amazing multiplication — higher digits", "More base method", "Less base method", "Criss-cross method"]
-//             },
-//             {
-//                 title: "ADVANCED DIVISION",
-//                 items: ["Amazing division — higher digits", "Decimal division", "Decimal to integer"]
-//             },
-//             {
-//                 title: "FRACTIONS",
-//                 items: ["Fraction simplification", "Fraction addition", "Fraction subtraction"]
-//             },
-//             {
-//                 title: "POWERS, ROOTS & EQUATIONS",
-//                 items: ["Find squares", "Square — digital roots", "Square roots — digital roots", "Cube roots — digital roots", "Solve equations"]
-//             },
-//         ]
-//     },
-// ];
-
-// const playSchoolLevels = [
-//     {
-//         level: "Tod\ndler",
-//         name: "Toddler",
-//         ageRange: "Age 1.5 – 2.5 years",
-//         category: "EARLY YEARS",
-//         subjects: [
-//             { name: "SENSES", topics: ["Colors", "Shapes"] },
-//             { name: "MOTOR", topics: ["Motor skills development", "Free play"] },
-//             { name: "LANGUAGE", topics: ["Rhymes", "Songs"] },
-//             { name: "SOCIAL", topics: ["Social skills"] },
-//         ]
-//     },
-//     {
-//         level: "Pre\nNur",
-//         name: "Pre-Nursery",
-//         ageRange: "Age 2.5 – 3.5 years",
-//         category: "EARLY YEARS",
-//         subjects: [
-//             { name: "WRITING", topics: ["Lines (pre-writing)"] },
-//             { name: "ENGLISH", topics: ["Alphabet introduction"] },
-//             { name: "MATHS", topics: ["Numbers 1–10"] },
-//             { name: "SENSES", topics: ["Colors", "Shapes"] },
-//             { name: "LANGUAGE", topics: ["Rhymes", "Stories"] },
-//         ]
-//     },
-//     {
-//         level: "Nur\nsery",
-//         name: "Nursery",
-//         ageRange: "Age 3.5 – 4.5 years",
-//         category: "EARLY YEARS",
-//         subjects: [
-//             { name: "ENGLISH", topics: ["A–Z", "A–Z small", "Phonics"] },
-//             { name: "MATHS", topics: ["Numbers 1–50", "Matching", "Coloring"] },
-//             { name: "HINDI", topics: ["Swar", "Basic Hindi"] },
-//         ]
-//     },
-//     {
-//         level: "LKG",
-//         name: "LKG",
-//         ageRange: "Age 4 – 5 years",
-//         category: "PRE-PRIMARY",
-//         subjects: [
-//             { name: "ENGLISH", topics: ["3-letter words", "Small sentences"] },
-//             { name: "MATHS", topics: ["Numbers 1–100", "Basic operations"] },
-//             { name: "EVS", topics: ["Environment"] },
-//             { name: "HINDI", topics: ["Swar", "Vyanjan", "2-letter words"] },
-//         ]
-//     },
-//     {
-//         level: "UKG",
-//         name: "UKG",
-//         ageRange: "Age 5 – 6 years",
-//         category: "PRE-PRIMARY",
-//         subjects: [
-//             { name: "ENGLISH", topics: ["Reading", "Comprehension"] },
-//             { name: "MATHS", topics: ["Numbers 1–200", "Addition", "Subtraction"] },
-//             { name: "GK & EVS", topics: ["General knowledge", "Environment"] },
-//             { name: "HINDI", topics: ["Vyanjan", "2–3 letter words", "Simple sentences"] },
-//         ]
-//     },
-//     {
-//         level: "C1",
-//         name: "Class 1",
-//         ageRange: "Age 6 – 7 years",
-//         category: "PRIMARY CLASSES",
-//         subjects: [
-//             { name: "ENGLISH", topics: ["Reading", "Writing", "Phonics", "Grammar", "Dictation", "Comprehension"] },
-//             { name: "MATHS", topics: ["Addition", "Subtraction", "Multiplication"] },
-//             { name: "EVS", topics: ["EVS"] },
-//             { name: "HINDI", topics: ["Matra", "Words & sentences"] },
-//         ]
-//     },
-//     {
-//         level: "C2",
-//         name: "Class 2",
-//         ageRange: "Age 7 – 8 years",
-//         category: "PRIMARY CLASSES",
-//         subjects: [
-//             { name: "ENGLISH", topics: ["Fluent reading", "Fluent writing", "Nouns & pronouns", "Tenses", "Creative writing"] },
-//             { name: "MATHS", topics: ["All 4 operations"] },
-//             { name: "GK & EVS", topics: ["General knowledge", "Environment"] },
-//             { name: "HINDI", topics: ["Matra", "Paragraph", "Grammar"] },
-//         ]
-//     },
-// ];
+// // const programs = [
+// //   {
+// //     emoji: "🧮",
+// //     title: "Abacus Mastery",
+// //     ages: "5–14 yrs",
+// //     color: "#FF6B6B",
+// //     bg: "#FFF0F0",
+// //     tag: "Most Popular",
+// //     image: "/Images/WhatsApp-Image-2025-06-08-at-10.03.37_cfe7f04f.jpg",
+// //     fallback: "https://images.unsplash.com/photo-1588072432836-e10032774350?w=600&q=80",
+// //     shortDesc: "Foundation for mental arithmetic and lightning-fast calculations.",
+// //     fullDesc:
+// //       "Our flagship Abacus programme builds incredible speed and accuracy in mental arithmetic. Using the ancient Japanese soroban abacus method, children develop photographic number sense, concentration, and confidence. Students progress through structured levels and compete in national and international competitions.",
+// //     benefits: ["Lightning-fast mental math", "Improved concentration & memory", "Boosted self-confidence", "Competition-ready skills", "Better academic performance"],
+// //     levels: ["Junior (5–7 yrs)", "Foundation (7–10 yrs)", "Advanced (10–14 yrs)", "Expert / Grand Master"],
+// //     duration: "45 min / class",
+// //     frequency: "2–3 classes / week",
+// //   },
+// //   {
+// //     emoji: "🧠",
+// //     title: "Brain Gym",
+// //     ages: "All ages",
+// //     color: "#4ECDC4",
+// //     bg: "#F0FFFE",
+// //     tag: "Fan Favourite",
+// //     image: "/Images/WhatsApp-Image-2025-06-08-at-10.03.37_e3ac77d8.jpg",
+// //     fallback: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80",
+// //     shortDesc: "Cognitive enhancement exercises designed to improve focus and coordination.",
+// //     fullDesc:
+// //       "Brain Gym is a series of simple, joyful physical movements that activate both hemispheres of the brain simultaneously. Developed from educational kinesiology, these 26 targeted exercises improve learning readiness, focus, memory, and coordination. Perfect for children who struggle with attention or reading.",
+// //     benefits: ["Enhanced focus & attention", "Better reading & writing", "Improved hand-eye coordination", "Stress relief & emotional balance", "Whole-brain activation"],
+// //     levels: ["Starter (all ages)", "Intermediate", "Advanced Integration"],
+// //     duration: "30–45 min / session",
+// //     frequency: "Daily practice recommended",
+// //   },
+// //   {
+// //     emoji: "📐",
+// //     title: "Vedic Maths",
+// //     ages: "8+ yrs",
+// //     color: "#FFB347",
+// //     bg: "#FFF8EE",
+// //     tag: "Mind-Blowing",
+// //     image: "/Images/WhatsApp-Image-2025-06-08-at-10.03.38_091c0f31.jpg",
+// //     fallback: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&q=80",
+// //     shortDesc: "Ancient speed math techniques for solving complex problems with ease.",
+// //     fullDesc:
+// //       "Vedic Mathematics is a system of 16 sutras (formulas) from ancient India that make complex calculations feel like magic tricks. Students learn to multiply 3-digit numbers in seconds, instantly find square roots, and tackle competitive exam problems with ease. This programme is especially popular with Class 5–12 students preparing for board exams and entrance tests.",
+// //     benefits: ["10x faster calculations", "Impress in competitive exams", "Deeper number intuition", "Reduces exam anxiety", "Perfect for JEE / NEET prep"],
+// //     levels: ["Foundation (8–10 yrs)", "Intermediate (10–14 yrs)", "Advanced / Competitive"],
+// //     duration: "60 min / class",
+// //     frequency: "2 classes / week",
+// //   },
+// //   {
+// //     emoji: "🌟",
+// //     title: "Pre-Abacus",
+// //     ages: "4–6 yrs",
+// //     color: "#A78BFA",
+// //     bg: "#F5F0FF",
+// //     tag: "For Tiny Minds",
+// //     image: "/Images/WhatsApp-Image-2025-06-08-at-10.03.39_0f634c25-r70q3atn2hrk6sl09jh6d3zwf68pahr7jeygaih09s.jpg",
+// //     fallback: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&q=80",
+// //     shortDesc: "Gentle introduction to numbers and visualisation for toddlers.",
+// //     fullDesc:
+// //       "Pre-Abacus is specially designed for children aged 4–6 who are just beginning their number journey. Through songs, colourful abacus beads, stories, and playful activities, children develop number recognition, counting skills, and a joyful love for maths before they even start formal schooling. This lays the perfect foundation for Abacus Mastery.",
+// //     benefits: ["Early number sense", "Love for learning maths", "Fine motor development", "Phonics & number integration", "School readiness"],
+// //     levels: ["Playgroup (4–5 yrs)", "Nursery Bridge (5–6 yrs)"],
+// //     duration: "30 min / class",
+// //     frequency: "3 classes / week",
+// //   },
+// //   {
+// //     emoji: "📚",
+// //     title: "Tuitions",
+// //     ages: "5–17 yrs",
+// //     color: "#F06292",
+// //     bg: "#FFF0F5",
+// //     tag: "New! 🎉",
+// //     image: "/Images/IMG_20190930_102619.jpg",
+// //     fallback: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&q=80",
+// //     shortDesc: "Expert academic support for Maths and Science from Class 1 to 12.",
+// //     fullDesc:
+// //       "Our Tuitions programme provides expert, personalised academic coaching for Maths and Science from Class 1 to 12. Led by qualified, experienced teachers who know the school curriculum inside-out, classes are small-batch (maximum 8 students) to ensure every child gets individual attention. We cover CBSE, ICSE, and State Boards.",
+// //     benefits: ["Small batches (max 8 students)", "Covers CBSE, ICSE & State Boards", "Doubt-clearing every session", "Monthly parent progress reports", "Exam preparation & mock tests"],
+// //     levels: ["Primary (Class 1–5)", "Middle School (Class 6–8)", "High School (Class 9–10)", "Senior Secondary (Class 11–12)"],
+// //     duration: "60–90 min / class",
+// //     frequency: "3–5 classes / week",
+// //   },
+// // ];
 
 // const programs = [
-//     {
-//         id: "abacus",
-//         title: "Ascento Abacus Program",
-//         subtitle: "A structured 12-week per-level journey from foundational abacus basics through grand master mental mathematics mastery.",
-//         age: "Ages 4–14",
-//         icon: "calculate",
-//         img: "/Images/WhatsApp-Image-2025-06-08-at-10.03.38_091c0f31.jpg",
-//         color: "#197fe6",
-//         points: [
-//             "11 progressive levels (O to 10)",
-//             "Two-hand, four-finger methodology",
-//             "Mental math mastery & visualization",
-//         ],
-//         format: "120 min, twice a week (Levels 1–10)",
-//     },
-//     {
-//         id: "vedic",
-//         title: "Ascento Vedic Maths Program",
-//         subtitle: "Ancient Vedic sutras applied to modern speed mathematics — from rapid arithmetic through algebraic polynomials and cube roots.",
-//         age: "Ages 10+",
-//         icon: "functions",
-//         img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDqxk1GRUHZfJQuTBAfsCo2fGg5thwR6QsSFYcvEUwsCc0tTjJ2oghjRR8RsIXERJrYD0wIuvD_M7VDmUFcQhPK4ek3PDc-A2B8XK1E_2hnsYuFsv64pQ188LEj6BVNWB0cqQIF5wZuBYYyMX6mFi5df5UAOjY6MTLr-Yaz_YmJOFsjkhUnrSk1tyoexF0dLtK1k_WfEoQle0EFb11BemMigNI0kiNSdkYWgbdtVzPcHBXPhbttGou1Vl4HKk2gI54QQltMGWLAY1A",
-//         color: "#7c3aed",
-//         points: [
-//             "4 comprehensive levels",
-//             "Vedic sutras & speed techniques",
-//             "From rapid arithmetic to cube roots",
-//         ],
-//         format: "Levels 1 to 4",
-//         sutras: ["Nikhilam Navatashcaramam Dashatah", "Urdhvatiryak", "Ek Nyunain Purvena", "Dhwajank", "Vilokaman", "Vinculum System"],
-//     },
-//     {
-//         id: "playschool",
-//         title: "Ascento Play School",
-//         subtitle: "A nurturing early-learning journey that blends language, numeracy, and life skills — from first words through fluent reading and writing.",
-//         age: "Age 1.5 – 8 years",
-//         icon: "child_care",
-//         img: "/Images/WhatsApp-Image-2025-06-08-at-10.03.37_cfe7f04f.jpg",
-//         color: "#e65d97",
-//         points: [
-//             "Toddler to Class 2 (7 stages)",
-//             "English, Hindi, Maths & EVS",
-//             "Communication, confidence & motor skills",
-//         ],
-//         format: "Toddler to Class 2",
-//         focus: ["Communication skills", "Confidence", "Motor skills", "Social development"],
-//     },
+//      {
+//          id: "abacus",
+//          title: "Abacus Mastery",
+//          subtitle: "A structured 12-week per-level journey from foundational abacus basics through grand master mental mathematics mastery.",
+//          age: "Ages 4–14",
+//          icon: "calculate",
+//          img: "https://images.unsplash.com/photo-1509228468518-180dd4864904?q=80&w=2070&auto=format&fit=crop",
+//          color: "#197fe6",
+//          points: [
+//              "11 progressive levels (O to 10)",
+//              "Two-hand, four-finger methodology",
+//              "Mental math mastery & visualization",
+//          ],
+//          format: "120 min, twice a week (Levels 1–10)",
+//      },
+//      {
+//          id: "vedic",
+//          title: "Vedic Maths",
+//          subtitle: "Ancient Vedic sutras applied to modern speed mathematics — from rapid arithmetic through algebraic polynomials and cube roots.",
+//          age: "Ages 10+",
+//          icon: "functions",
+//          img: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop",
+//          color: "#7c3aed",
+//          points: [
+//              "4 comprehensive levels",
+//              "Vedic sutras & speed techniques",
+//              "From rapid arithmetic to cube roots",
+//          ],
+//          format: "Levels 1 to 4",
+//          sutras: ["Nikhilam Navatashcaramam Dashatah", "Urdhvatiryak", "Ek Nyunain Purvena", "Dhwajank", "Vilokaman", "Vinculum System"],
+//      },
+//      {
+//          id: "playschool",
+//          title: "Pre-Abacus",
+//          subtitle: "A nurturing early-learning journey that blends language, numeracy, and life skills — from first words through fluent reading and writing.",
+//          age: "Age 1.5 – 8 years",
+//          icon: "child_care",
+//          img: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2022&auto=format&fit=crop",
+//          color: "#e65d97",
+//          points: [
+//              "Toddler to Class 2 (7 stages)",
+//              "English, Hindi, Maths & EVS",
+//              "Communication, confidence & motor skills",
+//          ],
+//          format: "Toddler to Class 2",
+//          focus: ["Communication skills", "Confidence", "Motor skills", "Social development"],
+//      },
 // ];
-
-// const supplementaryPrograms = [
-//     {
-//         title: "Brain Gym",
-//         age: "Ages 5-15",
-//         icon: "psychology",
-//         img: "/Images/WhatsApp-Image-2025-06-08-at-10.03.37_e3ac77d8.jpg",
-//         points: ["Kinesiology-based movement exercises", "Improves left and right brain coordination", "Reduces stress and boosts concentration"]
-//     },
-//     {
-//         title: "Handwriting & Arts",
-//         age: "Ages 7+",
-//         icon: "draw",
-//         img: "https://lh3.googleusercontent.com/aida-public/AB6AXuB9rKBuSrrdJ8oZl_1jCR-cgCmHrrxyfJv8ioRjWm7HCRiKy_mn3iGbJyH3-zoWcB6idqghb99Fxyz-ToDuLoAAb76AP5s01lojq8u9R2srZ4p9vxdY7A4XiRW9hFZsDhnSsjyf1iBuXtCQZkswWT1xrPhgXt5oehE5vJEH8JuMt_A9c8AOWJPgXQBQVnKZgl2FAp-Vc5HH40Zj1cjmA88ckI3c8R3Posy0537o9J4F-tsX3y4xEBClOei3U2Pp4Kw7THDZGWCqzCw",
-//         points: ["Cursive and print handwriting improvement", "Artistic calligraphy for creative expression", "Focus on grip, posture, and legibility"]
-//     },
-//     {
-//         title: "Yoga & Zumba",
-//         age: "For Females",
-//         icon: "self_improvement",
-//         img: "https://lh3.googleusercontent.com/aida-public/AB6AXuC8D6owVTNfzRcriY-mEEJ9xWtY0ZrIQOnym60cM-1cnV9I7eBmPM9B-atZ3LwveycepmKrgbkQ3r8x8xyeP1k437XFhUW4cIfcFqbTikjJKqkaLypgsqv1fBb45H03iRl0oFuFo4CUKFlGT-hhWpEedHq3vSMa9mGDX68uvbKkRUSs2A4gzhbka54MfYr4RMw0lOS7qSCPvifM5cV15fYslP4yO2tZRWgXX8kXtscaaE86kIK_xRQXziipgE29mZIeLbx0O9C9cPs",
-//         points: ["Holistic wellness and physical fitness", "Rhythmic Zumba sessions for energy", "Mental clarity and community building"]
-//     },
-// ];
-
-// // ─── Component ───────────────────────────────────────────────────────────────
 
 // export default function ProgramsPage() {
-//     const [isModalOpen, setIsModalOpen] = useState(false);
-//     const [selectedCourse, setSelectedCourse] = useState("");
-//     const [isSubmitting, setIsSubmitting] = useState(false);
-//     const [showSuccess, setShowSuccess] = useState(false);
-//     const [detailModal, setDetailModal] = useState<string | null>(null);
+//   return (
+//     <div style={{ fontFamily: "'Nunito', 'Fredoka One', system-ui, sans-serif", background: "#FFFDF7", color: "#1A1A2E", overflowX: "hidden" }}>
 
-//     const [formData, setFormData] = useState({
-//         parentName: "",
-//         childName: "",
-//         childAge: "",
-//         phone: "",
-//         email: ""
-//     });
+//       <style>{`
+//         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap');
+//         * { box-sizing: border-box; margin: 0; padding: 0; }
+//         html { scroll-behavior: smooth; }
 
-//     const handleEnroll = (courseName: string) => {
-//         setSelectedCourse(courseName);
-//         setIsModalOpen(true);
-//     };
+//         @keyframes float-a { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+//         @keyframes float-b { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+//         @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+//         @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
 
-//     const handleSubmit = async (e: React.FormEvent) => {
-//         e.preventDefault();
-//         setIsSubmitting(true);
+//         .float-a { animation: float-a 4s ease-in-out infinite; }
+//         .float-b { animation: float-b 5s ease-in-out infinite; }
 
-//         try {
-//             const { error } = await supabase
-//                 .from("enquiries")
-//                 .insert([{
-//                     parent_name: formData.parentName,
-//                     child_name: formData.childName,
-//                     child_age: formData.childAge,
-//                     phone: formData.phone,
-//                     email: formData.email || null,
-//                     course: selectedCourse,
-//                     status: "Pending",
-//                     source: "Website Enrollment",
-//                 }]);
+//         .prog-card { transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s; }
+//         .prog-card:hover { transform: translateY(-8px); box-shadow: 0 32px 60px rgba(0,0,0,.13); }
 
-//             if (error) throw error;
+//         .benefit-item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid rgba(0,0,0,.06); font-size:14px; font-weight:700; color:#444; }
+//         .benefit-item:last-child { border-bottom:none; }
 
-//             setShowSuccess(true);
-//             setTimeout(() => {
-//                 setIsModalOpen(false);
-//                 setShowSuccess(false);
-//                 setFormData({ parentName: "", childName: "", childAge: "", phone: "", email: "" });
-//             }, 3000);
-//         } catch (error) {
-//             console.error("Enrollment Error:", error);
-//             alert("Failed to submit enrollment. Please try again.");
-//         } finally {
-//             setIsSubmitting(false);
-//         }
-//     };
+//         .level-pill { display:inline-block; font-size:12px; font-weight:800; padding:5px 14px; border-radius:50px; margin:4px; }
 
-//     return (
-//         <div className="relative flex flex-col min-h-screen w-full overflow-x-hidden bg-[#f6f7f8] dark:bg-[#111921] font-sans text-slate-900 dark:text-slate-100 antialiased">
-//             <Navbar />
+//         .enrol-btn { background:#FF6B6B; color:#fff; font-family:inherit; font-weight:900; font-size:15px; padding:14px 32px; border-radius:50px; border:none; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px; box-shadow:0 6px 20px rgba(255,107,107,.4); transition:all .3s cubic-bezier(.34,1.56,.64,1); }
+//         .enrol-btn:hover { transform:scale(1.07) translateY(-2px); box-shadow:0 12px 30px rgba(255,107,107,.5); }
 
-//             {/* Hero Section */}
-//             <header className="relative py-20 overflow-hidden">
-//                 <div className="absolute inset-0 -z-10 opacity-10">
-//                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-[radial-gradient(circle_at_center,_#197fe6_0%,_transparent_70%)]"></div>
-//                 </div>
-//                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-//                     <span className="inline-block py-1 px-4 rounded-full bg-[#197fe6]/10 text-[#197fe6] text-sm font-semibold mb-4 tracking-wide uppercase">Brain Development Center</span>
-//                     <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white mb-6 leading-tight">
-//                         Our Specialized Programs
-//                     </h1>
-//                     <p className="max-w-3xl mx-auto text-lg md:text-xl text-slate-600 dark:text-slate-400 leading-relaxed">
-//                         Empowering young minds through our signature <span className="text-[#197fe6] font-semibold">&ldquo;two-hand, four-finger&rdquo;</span> methodology. We focus on holistic growth, combining ancient wisdom with modern cognitive science.
-//                     </p>
-//                 </div>
-//             </header>
+//         .nav-link { position:relative; font-size:15px; font-weight:800; color:#1A1A2E; text-decoration:none; transition:color .2s; }
+//         .nav-link:hover { color:#FF6B6B; }
 
-//             {/* ─── Main Program Cards ─── */}
-//             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-//                 <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Core Programs</h2>
-//                 <p className="text-slate-500 dark:text-slate-400 mb-10">Our flagship programs with structured curriculum and progressive levels.</p>
+//         ::-webkit-scrollbar { width:8px; }
+//         ::-webkit-scrollbar-track { background:#fff; }
+//         ::-webkit-scrollbar-thumb { background:#FFB347; border-radius:4px; }
 
-//                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
-//                     {programs.map((prog, idx) => (
-//                         <FadeIn key={prog.id} delay={idx * 0.1}>
-//                             <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-200 dark:border-slate-700 flex flex-col h-full group">
-//                                 <div className="h-52 relative overflow-hidden">
-//                                     <Image src={prog.img} alt={prog.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-//                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-//                                     <div className="absolute bottom-4 left-4 right-4">
-//                                         <span className="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white" style={{ backgroundColor: prog.color }}>{prog.age}</span>
-//                                     </div>
-//                                 </div>
+//         .fade-up { animation: fadeUp 0.6s ease both; }
+//       `}</style>
 
-//                                 <div className="p-6 flex-grow flex flex-col">
-//                                     <div className="flex items-center gap-3 mb-2">
-//                                         <span className="material-icons p-2 rounded-lg text-white" style={{ backgroundColor: prog.color }}>{prog.icon}</span>
-//                                         <h3 className="text-lg font-bold text-slate-900 dark:text-white">{prog.title}</h3>
-//                                     </div>
-//                                     <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">{prog.subtitle}</p>
-
-//                                     <div className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3 mb-4">
-//                                         <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-//                                             <span className="material-icons text-sm" style={{ color: prog.color }}>schedule</span>
-//                                             {prog.format}
-//                                         </div>
-//                                     </div>
-
-//                                     <ul className="space-y-2 mb-6 flex-grow">
-//                                         {prog.points.map((pt, pIdx) => (
-//                                             <li key={pIdx} className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400">
-//                                                 <span className="material-icons text-sm mt-0.5" style={{ color: prog.color }}>check_circle</span>
-//                                                 <span>{pt}</span>
-//                                             </li>
-//                                         ))}
-//                                     </ul>
-
-//                                     <div className="flex gap-3 mt-auto">
-//                                         <button
-//                                             onClick={() => setDetailModal(prog.id)}
-//                                             className="flex-1 py-3 rounded-xl font-semibold text-sm border-2 transition-all hover:shadow-md"
-//                                             style={{ borderColor: prog.color, color: prog.color }}
-//                                         >
-//                                             View Details
-//                                         </button>
-//                                         <button
-//                                             onClick={() => handleEnroll(prog.title)}
-//                                             className="flex-1 py-3 rounded-xl font-semibold text-sm text-white transition-all hover:shadow-md hover:opacity-90"
-//                                             style={{ backgroundColor: prog.color }}
-//                                         >
-//                                             Enroll Now
-//                                         </button>
-//                                     </div>
-//                                 </div>
-//                             </div>
-//                         </FadeIn>
-//                     ))}
-//                 </div>
-
-//                 {/* ─── Supplementary Programs ─── */}
-//                 <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Supplementary Programs</h2>
-//                 <p className="text-slate-500 dark:text-slate-400 mb-10">Additional programs to complement holistic development.</p>
-
-//                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-//                     {supplementaryPrograms.map((prog, idx) => (
-//                         <FadeIn key={idx} delay={idx * 0.1}>
-//                             <div className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow border border-slate-200 dark:border-slate-700 flex flex-col h-full">
-//                                 <div className="h-48 relative">
-//                                     <Image src={prog.img} alt={prog.title} fill className="object-cover" />
-//                                     <div className="absolute top-4 right-4 bg-[#197fe6] text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{prog.age}</div>
-//                                 </div>
-//                                 <div className="p-6 flex-grow flex flex-col">
-//                                     <div className="flex items-center gap-3 mb-4">
-//                                         <span className="material-icons text-[#197fe6] p-2 bg-[#197fe6]/10 rounded-lg">{prog.icon}</span>
-//                                         <h3 className="text-xl font-bold text-slate-900 dark:text-white">{prog.title}</h3>
-//                                     </div>
-//                                     <ul className="space-y-3 mb-6 text-slate-600 dark:text-slate-400 flex-grow">
-//                                         {prog.points.map((pt, pIdx) => (
-//                                             <li key={pIdx} className="flex items-start gap-2">
-//                                                 <span className="material-icons text-[#197fe6] text-sm mt-1">check_circle</span>
-//                                                 <span>{pt}</span>
-//                                             </li>
-//                                         ))}
-//                                     </ul>
-//                                     <button
-//                                         onClick={() => handleEnroll(prog.title)}
-//                                         className="w-full bg-[#197fe6] text-white py-3 rounded-lg font-semibold hover:bg-[#197fe6]/90 transition-colors mt-auto"
-//                                     >
-//                                         Enroll Now
-//                                     </button>
-//                                 </div>
-//                             </div>
-//                         </FadeIn>
-//                     ))}
-//                 </div>
-//             </main>
-
-//             {/* Methodology Highlight Section */}
-//             <section className="bg-[#197fe6]/5 dark:bg-slate-900/50 py-20">
-//                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//                     <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 md:p-12 shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-center gap-12">
-//                         <div className="md:w-1/2">
-//                             <h2 className="text-3xl font-bold mb-6 text-slate-900 dark:text-white">Why the Two-Hand, Four-Finger Methodology?</h2>
-//                             <p className="text-slate-600 dark:text-slate-400 mb-6 text-lg">
-//                                 Our unique approach stimulates both the left and right hemispheres of the brain simultaneously. Using two hands and four fingers creates a sensory-rich environment that enhances cognitive dexterity.
-//                             </p>
-//                             <div className="grid grid-cols-2 gap-4 mb-8 text-center border-none">
-//                                 <div className="p-4 bg-[#197fe6]/10 rounded-xl">
-//                                     <div className="text-[#197fe6] font-bold text-2xl mb-1">95%</div>
-//                                     <div className="text-sm text-slate-600 dark:text-slate-400">Accuracy Improvement</div>
-//                                 </div>
-//                                 <div className="p-4 bg-[#197fe6]/10 rounded-xl">
-//                                     <div className="text-[#197fe6] font-bold text-2xl mb-1">2.5x</div>
-//                                     <div className="text-sm text-slate-600 dark:text-slate-400">Faster Processing</div>
-//                                 </div>
-//                             </div>
-//                             <button className="text-[#197fe6] font-bold flex items-center gap-2 hover:translate-x-1 transition-transform">
-//                                 Learn about our methodology <span className="material-icons">arrow_forward</span>
-//                             </button>
-//                         </div>
-//                         <div className="md:w-1/2">
-//                             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-//                                 <Image
-//                                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKjmqfxdkYgPj8VLXpxT9qf6Y2PKKtUp6U8WA8AHFwLIFONW2iwrRzyxpDoUvZBj9m5ZOpbJ5FiyU40_ueTRCtwVPFg7_FwKmRgqPahR413Cj42PBtXszl-DXb2dFzs6H12W8Y2vwlimwIyi9D_7wTQzrmX8oqkkM48g3VAUc42HKynMYL81cG2hS_ZPf5NlGcaMqaYKVGBiKWvwBJ-paRGSKbxhPJxAPfaf5SkP72oy_kom4EGQ6C1S-3FGFQehGKOacH4gZmvRU"
-//                                     alt="Methodology"
-//                                     width={600}
-//                                     height={400}
-//                                     className="w-full aspect-video object-cover"
-//                                 />
-//                                 <div className="absolute inset-0 bg-gradient-to-t from-[#197fe6]/40 to-transparent"></div>
-//                             </div>
-//                         </div>
-//                     </div>
-//                 </div>
-//             </section>
-
-//             {/* Footer CTA */}
-//             <section className="py-20 bg-[#f6f7f8] dark:bg-[#111921]">
-//                 <div className="max-w-4xl mx-auto px-4 text-center">
-//                     <h2 className="text-3xl md:text-4xl font-bold mb-6 text-slate-900 dark:text-white">Start Your Child&apos;s Journey Today</h2>
-//                     <p className="text-slate-600 dark:text-slate-400 mb-10 text-lg">
-//                         Join hundreds of families who have seen remarkable improvements in their children&apos;s focus, memory, and confidence.
-//                     </p>
-//                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-//                         <button className="bg-[#197fe6] text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-[#197fe6]/90 transition-all shadow-lg shadow-[#197fe6]/30">Book a Free Trial</button>
-//                         <button className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 px-10 py-4 rounded-xl font-bold text-lg hover:border-[#197fe6] transition-all">Download Brochure</button>
-//                     </div>
-//                 </div>
-//             </section>
-
-//             <Footer />
-
-//             {/* ─── Detail Modals ─── */}
-//             <AnimatePresence>
-//                 {detailModal && (
-//                     <div className="fixed inset-0 z-[100] flex items-start justify-center overflow-y-auto py-8 px-4">
-//                         <motion.div
-//                             initial={{ opacity: 0 }}
-//                             animate={{ opacity: 1 }}
-//                             exit={{ opacity: 0 }}
-//                             onClick={() => setDetailModal(null)}
-//                             className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm"
-//                         />
-//                         <motion.div
-//                             initial={{ opacity: 0, scale: 0.95, y: 30 }}
-//                             animate={{ opacity: 1, scale: 1, y: 0 }}
-//                             exit={{ opacity: 0, scale: 0.95, y: 30 }}
-//                             className="relative w-full max-w-5xl bg-[#1a2332] rounded-2xl shadow-2xl overflow-hidden z-10"
-//                         >
-//                             <button
-//                                 onClick={() => setDetailModal(null)}
-//                                 className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-//                             >
-//                                 <span className="material-icons">close</span>
-//                             </button>
-
-//                             {/* ─── Abacus Detail ─── */}
-//                             {detailModal === "abacus" && (
-//                                 <div className="p-6 md:p-10">
-//                                     <div className="text-center mb-10">
-//                                         <span className="inline-block px-4 py-1.5 rounded-full bg-[#197fe6]/20 text-[#197fe6] text-xs font-bold uppercase tracking-widest mb-4">Ascento Abacus Program</span>
-//                                         <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Complete Syllabus — Levels O to 10</h2>
-//                                         <p className="text-slate-400 max-w-2xl mx-auto">A structured 12-week per-level journey from foundational abacus basics through grand master mental mathematics mastery.</p>
-//                                     </div>
-
-//                                     <div className="bg-slate-800/50 rounded-xl p-4 mb-8 border border-slate-700">
-//                                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Standard Class Format — 120 min, twice a week (Levels 1–10)</p>
-//                                         <div className="flex flex-wrap gap-4 text-sm text-slate-300">
-//                                             <span>Warm-up + Oral</span><span>•</span>
-//                                             <span>Concept Teaching</span><span>•</span>
-//                                             <span>Worksheet + Speed</span><span>•</span>
-//                                             <span>Abacus Practice</span>
-//                                         </div>
-//                                     </div>
-
-//                                     <div className="mb-6">
-//                                         <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Foundation</p>
-//                                         <div className="bg-slate-800/60 rounded-xl border border-slate-700 p-5">
-//                                             <div className="flex items-center gap-3 mb-1">
-//                                                 <span className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-700 text-white font-bold text-lg">O</span>
-//                                                 <div>
-//                                                     <h4 className="text-white font-bold">O Level — Foundations</h4>
-//                                                     <p className="text-slate-400 text-xs">Pre-Level Introduction</p>
-//                                                 </div>
-//                                                 <span className="ml-auto text-xs text-slate-400 bg-slate-700/50 px-3 py-1 rounded-full">{abacusLevels[0].duration}</span>
-//                                             </div>
-//                                             <p className="text-xs text-slate-500 mt-2 mb-4">{abacusLevels[0].format}</p>
-//                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-//                                                 {abacusLevels[0].sections.map((sec, i) => (
-//                                                     <div key={i}>
-//                                                         <p className="text-xs font-bold text-slate-400 mb-1">{sec.title}</p>
-//                                                         <ul className="space-y-0.5">
-//                                                             {sec.items.map((item, j) => (
-//                                                                 <li key={j} className="text-sm text-slate-300">{item}</li>
-//                                                             ))}
-//                                                         </ul>
-//                                                     </div>
-//                                                 ))}
-//                                             </div>
-//                                             <div className="flex flex-wrap gap-2 mt-4">
-//                                                 {abacusLevels[0].tags.map((tag, i) => (
-//                                                     <span key={i} className="px-3 py-1 rounded-full bg-slate-700 text-slate-300 text-xs">{tag}</span>
-//                                                 ))}
-//                                             </div>
-//                                         </div>
-//                                     </div>
-
-//                                     <div className="mb-6">
-//                                         <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Beginner — Levels 1 to 4</p>
-//                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//                                             {abacusLevels.slice(1, 5).map((lvl) => (
-//                                                 <AbacusLevelCard key={lvl.level} lvl={lvl} />
-//                                             ))}
-//                                         </div>
-//                                     </div>
-
-//                                     <div className="mb-6">
-//                                         <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Intermediate — Levels 5 to 7</p>
-//                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//                                             {abacusLevels.slice(5, 8).map((lvl) => (
-//                                                 <AbacusLevelCard key={lvl.level} lvl={lvl} />
-//                                             ))}
-//                                         </div>
-//                                     </div>
-
-//                                     <div className="mb-6">
-//                                         <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Expert — Levels 8 to 10</p>
-//                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//                                             {abacusLevels.slice(8, 11).map((lvl) => (
-//                                                 <AbacusLevelCard key={lvl.level} lvl={lvl} />
-//                                             ))}
-//                                         </div>
-//                                     </div>
-
-//                                     <div className="text-center mt-8">
-//                                         <button
-//                                             onClick={() => { setDetailModal(null); handleEnroll("Ascento Abacus Program"); }}
-//                                             className="bg-[#197fe6] text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-[#197fe6]/90 transition-all shadow-lg shadow-[#197fe6]/30"
-//                                         >
-//                                             Enroll Now
-//                                         </button>
-//                                     </div>
-//                                 </div>
-//                             )}
-
-//                             {/* ─── Vedic Maths Detail ─── */}
-//                             {detailModal === "vedic" && (
-//                                 <div className="p-6 md:p-10">
-//                                     <div className="text-center mb-10">
-//                                         <span className="inline-block px-4 py-1.5 rounded-full bg-[#7c3aed]/20 text-[#7c3aed] text-xs font-bold uppercase tracking-widest mb-4">Ascento Vedic Maths Program</span>
-//                                         <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Complete Syllabus — Levels 1 to 4</h2>
-//                                         <p className="text-slate-400 max-w-2xl mx-auto">Ancient Vedic sutras applied to modern speed mathematics — from rapid arithmetic through algebraic polynomials and cube roots.</p>
-//                                     </div>
-
-//                                     <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">All Levels</p>
-//                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-//                                         {vedicMathsLevels.map((lvl) => (
-//                                             <div key={lvl.level} className="bg-slate-800/60 rounded-xl border border-slate-700 p-5">
-//                                                 <div className="flex items-center gap-3 mb-4">
-//                                                     <span className="w-10 h-10 flex items-center justify-center rounded-full bg-[#7c3aed] text-white font-bold text-lg">{lvl.level}</span>
-//                                                     <div>
-//                                                         <h4 className="text-white font-bold">Level {lvl.level} — {lvl.name}</h4>
-//                                                         <p className="text-slate-400 text-xs">{lvl.subtitle}</p>
-//                                                     </div>
-//                                                 </div>
-//                                                 <div className="space-y-4">
-//                                                     {lvl.sections.map((sec, i) => (
-//                                                         <div key={i}>
-//                                                             <p className="text-xs font-bold text-[#7c3aed] uppercase tracking-wider mb-1">{sec.title}</p>
-//                                                             {sec.highlighted && (
-//                                                                 <p className="text-sm text-slate-400 italic bg-slate-700/40 rounded-lg px-3 py-1.5 mb-2">{sec.highlighted}</p>
-//                                                             )}
-//                                                             <div className="flex flex-wrap gap-2">
-//                                                                 {sec.items.map((item, j) => (
-//                                                                     <span key={j} className="px-3 py-1 rounded-full bg-slate-700/60 text-slate-300 text-xs">{item}</span>
-//                                                                 ))}
-//                                                             </div>
-//                                                         </div>
-//                                                     ))}
-//                                                 </div>
-//                                             </div>
-//                                         ))}
-//                                     </div>
-
-//                                     <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700 mb-8">
-//                                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Sutras Covered Across the Program</p>
-//                                         <div className="flex flex-wrap gap-2">
-//                                             {["Nikhilam Navatashcaramam Dashatah", "Urdhvatiryak", "Ek Nyunain Purvena", "Dhwajank", "Vilokaman", "Vinculum System"].map((s, i) => {
-//                                                 const colors = ["#ef4444", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#84cc16"];
-//                                                 return (
-//                                                     <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: colors[i] + "22", color: colors[i] }}>{s}</span>
-//                                                 );
-//                                             })}
-//                                         </div>
-//                                     </div>
-
-//                                     <div className="text-center">
-//                                         <button
-//                                             onClick={() => { setDetailModal(null); handleEnroll("Ascento Vedic Maths Program"); }}
-//                                             className="bg-[#7c3aed] text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-[#7c3aed]/90 transition-all shadow-lg shadow-[#7c3aed]/30"
-//                                         >
-//                                             Enroll Now
-//                                         </button>
-//                                     </div>
-//                                 </div>
-//                             )}
-
-//                             {/* ─── Play School Detail ─── */}
-//                             {detailModal === "playschool" && (
-//                                 <div className="p-6 md:p-10">
-//                                     <div className="text-center mb-10">
-//                                         <span className="inline-block px-4 py-1.5 rounded-full bg-[#e65d97]/20 text-[#e65d97] text-xs font-bold uppercase tracking-widest mb-4">Ascento Play School</span>
-//                                         <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Complete Curriculum — Toddler to Class 2</h2>
-//                                         <p className="text-slate-400 max-w-2xl mx-auto">A nurturing early-learning journey that blends language, numeracy, and life skills — from first words through fluent reading and writing.</p>
-//                                     </div>
-
-//                                     {["EARLY YEARS", "PRE-PRIMARY", "PRIMARY CLASSES"].map((category) => (
-//                                         <div key={category} className="mb-8">
-//                                             <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">{category}</p>
-//                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-//                                                 {playSchoolLevels.filter(l => l.category === category).map((lvl) => (
-//                                                     <div key={lvl.level} className="bg-slate-800/60 rounded-xl border border-slate-700 p-5">
-//                                                         <div className="flex items-center gap-3 mb-4 border-b border-slate-700 pb-3">
-//                                                             <span className="w-12 h-12 flex items-center justify-center rounded-xl bg-[#e65d97]/20 text-[#e65d97] font-bold text-xs leading-tight text-center whitespace-pre-line">{lvl.level}</span>
-//                                                             <div>
-//                                                                 <h4 className="text-white font-bold">{lvl.name}</h4>
-//                                                                 <p className="text-slate-400 text-xs">{lvl.ageRange}</p>
-//                                                             </div>
-//                                                         </div>
-//                                                         <div className="space-y-3">
-//                                                             {lvl.subjects.map((subj, i) => {
-//                                                                 const subjectColors: Record<string, string> = {
-//                                                                     SENSES: "#f59e0b", MOTOR: "#ef4444", LANGUAGE: "#8b5cf6",
-//                                                                     SOCIAL: "#10b981", WRITING: "#6366f1", ENGLISH: "#3b82f6",
-//                                                                     MATHS: "#f59e0b", HINDI: "#ef4444", EVS: "#10b981", "GK & EVS": "#10b981",
-//                                                                 };
-//                                                                 const color = subjectColors[subj.name] || "#64748b";
-//                                                                 return (
-//                                                                     <div key={i} className="flex items-start gap-3">
-//                                                                         <span className="text-[10px] font-bold uppercase tracking-wider mt-1 min-w-[60px]" style={{ color }}>{subj.name}</span>
-//                                                                         <div className="flex flex-wrap gap-1.5">
-//                                                                             {subj.topics.map((t, j) => (
-//                                                                                 <span key={j} className="px-2.5 py-1 rounded-full text-xs" style={{ backgroundColor: color + "18", color }}>{t}</span>
-//                                                                             ))}
-//                                                                         </div>
-//                                                                     </div>
-//                                                                 );
-//                                                             })}
-//                                                         </div>
-//                                                     </div>
-//                                                 ))}
-//                                             </div>
-//                                         </div>
-//                                     ))}
-
-//                                     <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700 mb-8">
-//                                         <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Program Focus — What Every Child Develops</p>
-//                                         <div className="flex flex-wrap gap-2">
-//                                             {["Communication skills", "Confidence", "Motor skills", "Social development"].map((f, i) => {
-//                                                 const colors = ["#ef4444", "#3b82f6", "#10b981", "#8b5cf6"];
-//                                                 return (
-//                                                     <span key={i} className="px-3 py-1 rounded-full text-xs font-semibold" style={{ backgroundColor: colors[i] + "22", color: colors[i] }}>{f}</span>
-//                                                 );
-//                                             })}
-//                                         </div>
-//                                     </div>
-
-//                                     <div className="text-center">
-//                                         <button
-//                                             onClick={() => { setDetailModal(null); handleEnroll("Ascento Play School"); }}
-//                                             className="bg-[#e65d97] text-white px-10 py-4 rounded-xl font-bold text-lg hover:bg-[#e65d97]/90 transition-all shadow-lg shadow-[#e65d97]/30"
-//                                         >
-//                                             Enroll Now
-//                                         </button>
-//                                     </div>
-//                                 </div>
-//                             )}
-//                         </motion.div>
-//                     </div>
-//                 )}
-//             </AnimatePresence>
-
-//             {/* ─── Enrollment Modal ─── */}
-//             <AnimatePresence>
-//                 {isModalOpen && (
-//                     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-//                         <motion.div
-//                             initial={{ opacity: 0 }}
-//                             animate={{ opacity: 1 }}
-//                             exit={{ opacity: 0 }}
-//                             onClick={() => setIsModalOpen(false)}
-//                             className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-//                         />
-//                         <motion.div
-//                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
-//                             animate={{ opacity: 1, scale: 1, y: 0 }}
-//                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-//                             className="relative w-full max-w-lg bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700"
-//                         >
-//                             {showSuccess ? (
-//                                 <div className="p-12 text-center space-y-6">
-//                                     <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
-//                                         <span className="material-icons text-4xl">check_circle</span>
-//                                     </div>
-//                                     <h3 className="text-3xl font-black text-slate-900 dark:text-white italic uppercase tracking-tight">Application Received</h3>
-//                                     <p className="text-slate-500 dark:text-slate-400 font-medium">
-//                                         Our advisors will contact you shortly to finalize the enrollment for <span className="text-[#197fe6] font-bold">{selectedCourse}</span>.
-//                                     </p>
-//                                 </div>
-//                             ) : (
-//                                 <>
-//                                     <div className="bg-[#197fe6] p-8 text-white relative">
-//                                         <button
-//                                             onClick={() => setIsModalOpen(false)}
-//                                             className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors"
-//                                         >
-//                                             <span className="material-icons">close</span>
-//                                         </button>
-//                                         <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-70">Enrollment Portal</span>
-//                                         <h3 className="text-2xl font-black italic tracking-tight mt-1">Enroll in {selectedCourse}</h3>
-//                                     </div>
-
-//                                     <form onSubmit={handleSubmit} className="p-8 space-y-4">
-//                                         <div className="grid grid-cols-2 gap-4">
-//                                             <div className="space-y-1.5">
-//                                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Parent&apos;s Name</label>
-//                                                 <input
-//                                                     required
-//                                                     type="text"
-//                                                     value={formData.parentName}
-//                                                     onChange={(e) => setFormData({ ...formData, parentName: e.target.value })}
-//                                                     className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-[#197fe6] outline-none transition-all"
-//                                                     placeholder="John Doe"
-//                                                 />
-//                                             </div>
-//                                             <div className="space-y-1.5">
-//                                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Child&apos;s Name</label>
-//                                                 <input
-//                                                     required
-//                                                     type="text"
-//                                                     value={formData.childName}
-//                                                     onChange={(e) => setFormData({ ...formData, childName: e.target.value })}
-//                                                     className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-[#197fe6] outline-none transition-all"
-//                                                     placeholder="Alex"
-//                                                 />
-//                                             </div>
-//                                         </div>
-
-//                                         <div className="grid grid-cols-3 gap-4">
-//                                             <div className="space-y-1.5 col-span-1">
-//                                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Age</label>
-//                                                 <input
-//                                                     required
-//                                                     type="number"
-//                                                     value={formData.childAge}
-//                                                     onChange={(e) => setFormData({ ...formData, childAge: e.target.value })}
-//                                                     className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-[#197fe6] outline-none transition-all"
-//                                                     placeholder="8"
-//                                                 />
-//                                             </div>
-//                                             <div className="space-y-1.5 col-span-2">
-//                                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Phone Number</label>
-//                                                 <input
-//                                                     required
-//                                                     type="tel"
-//                                                     value={formData.phone}
-//                                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-//                                                     className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-[#197fe6] outline-none transition-all"
-//                                                     placeholder="+91 98765 43210"
-//                                                 />
-//                                             </div>
-//                                         </div>
-
-//                                         <div className="space-y-1.5">
-//                                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Email (Optional)</label>
-//                                             <input
-//                                                 type="email"
-//                                                 value={formData.email}
-//                                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-//                                                 className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-[#197fe6] outline-none transition-all"
-//                                                 placeholder="john@example.com"
-//                                             />
-//                                         </div>
-
-//                                         <button
-//                                             disabled={isSubmitting}
-//                                             className="w-full bg-[#197fe6] text-white py-4 rounded-xl font-black uppercase tracking-widest text-xs mt-4 shadow-lg shadow-[#197fe6]/20 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
-//                                         >
-//                                             {isSubmitting ? "Processing..." : "Submit Enrollment"}
-//                                         </button>
-//                                     </form>
-//                                 </>
-//                             )}
-//                         </motion.div>
-//                     </div>
-//                 )}
-//             </AnimatePresence>
+//       {/* ── NAVBAR ── */}
+//       {/* <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 200, padding: "14px 0", background: "rgba(255,253,247,0.95)", backdropFilter: "blur(16px)", boxShadow: "0 2px 20px rgba(0,0,0,0.08)" }}>
+//         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+//           <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 12 }}>
+//             <div style={{ width: 44, height: 44, borderRadius: 14, background: "linear-gradient(135deg,#FF6B6B,#FFB347)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, boxShadow: "0 4px 14px rgba(255,107,107,.4)" }}>🧮</div>
+//             <div>
+//               <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#1A1A2E", lineHeight: 1 }}>Ascento <span style={{ color: "#FF6B6B" }}>Abacus</span></div>
+//               <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#999", marginTop: 1 }}>Brain Development Academy</div>
+//             </div>
+//           </Link>
+//           <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
+//             {[["Programs", "/programs"], ["Why Us", "/#whyus"], ["Gallery", "/#gallery"], ["Team", "/#team"], ["Contact", "/contact"]].map(([l, h]) => (
+//               <Link key={l} href={h} className="nav-link">{l}</Link>
+//             ))}
+//           </div>
+//           <Link href="/contact" className="enrol-btn" style={{ fontSize: 14 }}>🎉 Enrol Now</Link>
 //         </div>
-//     );
+//       </nav> */}
+
+//       {/* ── HERO ── */}
+//       <section style={{ paddingTop: 130, paddingBottom: 80, background: "linear-gradient(160deg,#FFFDF7 0%,#FFF0E8 50%,#FFFDF7 100%)", position: "relative", overflow: "hidden", textAlign: "center" }}>
+//         <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,#FFB347 1.5px,transparent 1.5px)", backgroundSize: "36px 36px", opacity: 0.14 }} />
+//         <div style={{ position: "absolute", top: "15%", left: "6%", fontSize: 48 }} className="float-a">📚</div>
+//         <div style={{ position: "absolute", top: "20%", right: "8%", fontSize: 40 }} className="float-b">🧠</div>
+//         <div style={{ position: "absolute", bottom: "15%", left: "10%", fontSize: 36 }} className="float-b">🧮</div>
+//         <div style={{ position: "absolute", bottom: "20%", right: "6%", fontSize: 44 }} className="float-a">⭐</div>
+
+//         <div style={{ maxWidth: 760, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
+//           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#FFF0F0", borderRadius: 50, padding: "8px 20px", marginBottom: 20, border: "2px solid #FFD6D6" }}>
+//             <span>📚</span>
+//             <span style={{ fontWeight: 800, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: "#FF6B6B" }}>Our Curriculum</span>
+//           </div>
+//           <h1 style={{ fontFamily: "'Fredoka One',cursive", fontSize: "clamp(40px,5vw,72px)", color: "#1A1A2E", lineHeight: 1.08, marginBottom: 20 }}>
+//             5 Amazing <span style={{ color: "#FF6B6B" }}>Programmes</span><br />For Every Child! 🎓
+//           </h1>
+//           <p style={{ fontSize: 18, color: "#666", lineHeight: 1.7, maxWidth: 560, margin: "0 auto 36px" }}>
+//             From tiny tots taking their first number steps to teenagers conquering competitive exams — we have the perfect programme for your child.
+//           </p>
+//           <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
+//             <Link href="/contact" className="enrol-btn" style={{ fontSize: 16, padding: "16px 36px" }}>🎉 Book a Free Trial</Link>
+//             <a href="#all-programs" style={{ background: "transparent", color: "#1A1A2E", fontFamily: "inherit", fontWeight: 800, fontSize: 15, padding: "14px 28px", borderRadius: 50, border: "3px solid #1A1A2E", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 8, transition: "all .3s" }}>
+//               🔍 Browse All
+//             </a>
+//           </div>
+//         </div>
+//       </section>
+
+//       {/* ── QUICK NAV PILLS ── */}
+//       <div style={{ background: "white", borderBottom: "2px solid #F5F0FF", position: "sticky", top: 72, zIndex: 100 }}>
+//         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "14px 24px", display: "flex", gap: 12, overflowX: "auto" }}>
+//           {programs.map(p => (
+//             <a key={p.title} href={`#prog-${p.title.toLowerCase().replace(/\s+/g, "-")}`} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: p.bg, color: p.color, fontWeight: 800, fontSize: 13, padding: "8px 18px", borderRadius: 50, border: `2px solid ${p.color}33`, textDecoration: "none", whiteSpace: "nowrap", transition: "all .2s", flexShrink: 0 }}>
+//               {p.emoji} {p.title}
+//             </a>
+//           ))}
+//         </div>
+//       </div>
+
+//       {/* ── ALL PROGRAMS ── */}
+//       <section id="all-programs" style={{ padding: "80px 0 120px" }}>
+//         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
+//           {programs.map((p, idx) => (
+//             <div
+//               key={p.title}
+//               id={`prog-${p.title.toLowerCase().replace(/\s+/g, "-")}`}
+//               style={{ marginBottom: 80, scrollMarginTop: 160 }}
+//             >
+//               {/* Card */}
+//               <div className="prog-card" style={{ background: "white", borderRadius: 36, overflow: "hidden", border: `3px solid ${p.color}22`, boxShadow: "0 8px 40px rgba(0,0,0,.07)", display: "grid", gridTemplateColumns: idx % 2 === 0 ? "420px 1fr" : "1fr 420px" }}>
+
+//                 {/* Image side */}
+//                 {idx % 2 === 0 && (
+//                   <div style={{ position: "relative", background: p.bg, overflow: "hidden", minHeight: 380 }}>
+//                     <img
+//                       src={p.image}
+//                       alt={p.title}
+//                       style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+//                       onError={e => { e.currentTarget.src = p.fallback; }}
+//                     />
+//                     {/* Overlay */}
+//                     <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to right, transparent 60%, white)` }} />
+//                     {/* Tag */}
+//                     <div style={{ position: "absolute", top: 20, left: 20, background: p.color, color: "white", fontSize: 11, fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase", padding: "6px 16px", borderRadius: 50 }}>{p.tag}</div>
+//                   </div>
+//                 )}
+
+//                 {/* Content side */}
+//                 <div style={{ padding: "44px 44px" }}>
+//                   {/* Header */}
+//                   <div style={{ display: "flex", alignItems: "flex-start", gap: 16, marginBottom: 20 }}>
+//                     <div style={{ fontSize: 56, lineHeight: 1 }} className="float-b">{p.emoji}</div>
+//                     <div>
+//                       <h2 style={{ fontFamily: "'Fredoka One',cursive", fontSize: 32, color: "#1A1A2E", marginBottom: 6 }}>{p.title}</h2>
+//                       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+//                         <span style={{ fontSize: 12, fontWeight: 800, padding: "4px 14px", borderRadius: 50, background: p.color + "18", color: p.color }}>Ages {p.ages}</span>
+//                         <span style={{ fontSize: 12, fontWeight: 800, padding: "4px 14px", borderRadius: 50, background: "#F5F5F5", color: "#888" }}>⏱ {p.duration}</span>
+//                         <span style={{ fontSize: 12, fontWeight: 800, padding: "4px 14px", borderRadius: 50, background: "#F5F5F5", color: "#888" }}>📅 {p.frequency}</span>
+//                       </div>
+//                     </div>
+//                   </div>
+
+//                   <p style={{ fontSize: 15, lineHeight: 1.75, color: "#555", marginBottom: 24 }}>{p.fullDesc}</p>
+
+//                   {/* Two columns: benefits + levels */}
+//                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 28 }}>
+//                     {/* Benefits */}
+//                     <div>
+//                       <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: "0.12em", textTransform: "uppercase", color: p.color, marginBottom: 12 }}>✨ Key Benefits</div>
+//                       <div>
+//                         {p.benefits.map(b => (
+//                           <div key={b} className="benefit-item">
+//                             <span style={{ width: 20, height: 20, borderRadius: 50, background: p.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "white", flexShrink: 0 }}>✓</span>
+//                             {b}
+//                           </div>
+//                         ))}
+//                       </div>
+//                     </div>
+
+//                     {/* Levels */}
+//                     <div>
+//                       <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: "0.12em", textTransform: "uppercase", color: p.color, marginBottom: 12 }}>🎯 Levels Offered</div>
+//                       <div style={{ display: "flex", flexWrap: "wrap", gap: 0 }}>
+//                         {p.levels.map((lv, li) => (
+//                           <span key={lv} className="level-pill" style={{ background: p.color + "15", color: p.color, border: `1.5px solid ${p.color}33` }}>
+//                             {String(li + 1).padStart(2, "0")} {lv}
+//                           </span>
+//                         ))}
+//                       </div>
+//                     </div>
+//                   </div>
+
+//                   {/* CTA */}
+//                   <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+//                     <Link href="/contact" className="enrol-btn" style={{ background: p.color, boxShadow: `0 6px 20px ${p.color}55` }}>
+//                       🎉 Enrol in {p.title}
+//                     </Link>
+//                     <Link href="/contact" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontWeight: 800, fontSize: 14, color: "#666", textDecoration: "none", padding: "12px 20px", borderRadius: 50, border: "2px solid #eee", transition: "all .2s" }}>
+//                       📞 Book Free Trial →
+//                     </Link>
+//                   </div>
+//                 </div>
+
+//                 {/* Image side (right for odd) */}
+//                 {idx % 2 !== 0 && (
+//                   <div style={{ position: "relative", background: p.bg, overflow: "hidden", minHeight: 380 }}>
+//                     <img
+//                       src={p.image}
+//                       alt={p.title}
+//                       style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+//                       onError={e => { e.currentTarget.src = p.fallback; }}
+//                     />
+//                     <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to left, transparent 60%, white)` }} />
+//                     <div style={{ position: "absolute", top: 20, right: 20, background: p.color, color: "white", fontSize: 11, fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase", padding: "6px 16px", borderRadius: 50 }}>{p.tag}</div>
+//                   </div>
+//                 )}
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       </section>
+
+//       {/* ── BOTTOM CTA ── */}
+//       <section style={{ padding: "80px 0", background: "linear-gradient(135deg,#FF6B6B,#FFB347)", textAlign: "center", position: "relative", overflow: "hidden" }}>
+//         <div style={{ position: "absolute", top: "50%", left: "5%", fontSize: 120, opacity: 0.08, transform: "translateY(-50%)", fontFamily: "'Fredoka One',cursive" }}>FUN!</div>
+//         <div style={{ maxWidth: 700, margin: "0 auto", padding: "0 24px", position: "relative", zIndex: 1 }}>
+//           <h2 style={{ fontFamily: "'Fredoka One',cursive", fontSize: "clamp(28px,4vw,52px)", color: "white", marginBottom: 16 }}>
+//             Not Sure Which Programme? 🤔
+//           </h2>
+//           <p style={{ fontSize: 18, color: "rgba(255,255,255,.9)", marginBottom: 32, lineHeight: 1.6, fontWeight: 700 }}>
+//             Book a <strong>FREE assessment class</strong> and our experts will recommend the perfect fit for your child's age, level and goals!
+//           </p>
+//           <Link href="/contact" style={{ background: "white", color: "#FF6B6B", fontFamily: "inherit", fontWeight: 900, fontSize: 18, padding: "18px 48px", borderRadius: 50, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 10, boxShadow: "0 12px 40px rgba(0,0,0,.2)" }}>
+//             🎓 Book FREE Assessment
+//           </Link>
+//         </div>
+//       </section>
+
+//       {/* ── FOOTER ── */}
+//       <footer style={{ background: "#1A1A2E", padding: "40px 0 24px", textAlign: "center" }}>
+//         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
+//           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 16 }}>
+//             <div style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg,#FF6B6B,#FFB347)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🧮</div>
+//             <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 20, color: "white" }}>Ascento <span style={{ color: "#FF6B6B" }}>Abacus</span></div>
+//           </div>
+//           <span style={{ fontSize: 13, color: "rgba(255,255,255,.25)", fontWeight: 700 }}>© 2024 Ascento Abacus. All rights reserved. Made with 💛 for young learners.</span>
+//         </div>
+//       </footer>
+//     </div>
+//   );
 // }
 
-// // ─── Abacus Level Card ────────────────────────────────────────────────────────
 
-// function AbacusLevelCard({ lvl }: { lvl: typeof abacusLevels[number] }) {
-//     return (
-//         <div className="bg-slate-800/60 rounded-xl border border-slate-700 p-5">
-//             <div className="flex items-center gap-3 mb-3">
-//                 <span className="w-10 h-10 flex items-center justify-center rounded-full bg-[#197fe6] text-white font-bold text-lg">{lvl.level}</span>
-//                 <div className="flex-1">
-//                     <h4 className="text-white font-bold text-sm">Level {lvl.level} — {lvl.name}</h4>
-//                     <p className="text-slate-400 text-xs">{lvl.duration}</p>
-//                 </div>
-//             </div>
-//             <div className="space-y-2">
-//                 {lvl.sections.map((sec, i) => (
-//                     <div key={i}>
-//                         <p className="text-xs font-bold text-slate-500 mb-0.5">{sec.title}</p>
-//                         <ul className="space-y-0">
-//                             {sec.items.map((item, j) => (
-//                                 <li key={j} className="text-xs text-slate-400">{item}</li>
-//                             ))}
-//                         </ul>
-//                     </div>
-//                 ))}
-//             </div>
-//             <div className="flex flex-wrap gap-1.5 mt-3">
-//                 {lvl.tags.map((tag, i) => (
-//                     <span key={i} className="px-2.5 py-0.5 rounded-full bg-slate-700 text-slate-300 text-[10px]">{tag}</span>
-//                 ))}
-//             </div>
-//         </div>
-//     );
-// }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1097,102 +402,114 @@
 
 "use client";
 
-// ─────────────────────────────────────────────
-// /app/programs/page.jsx  — Ascento Programs Page
-// ─────────────────────────────────────────────
 import Link from "next/link";
 
 const programs = [
   {
+    id: "abacus",
     emoji: "🧮",
     title: "Abacus Mastery",
-    ages: "5–14 yrs",
+    subtitle: "A structured 12-week per-level journey from foundational abacus basics through grand master mental mathematics mastery.",
+    age: "Ages 4–14",
+    img: "https://images.unsplash.com/photo-1509228468518-180dd4864904?q=80&w=2070&auto=format&fit=crop",
     color: "#FF6B6B",
     bg: "#FFF0F0",
     tag: "Most Popular",
-    image: "/Images/WhatsApp-Image-2025-06-08-at-10.03.37_cfe7f04f.jpg",
-    fallback: "https://images.unsplash.com/photo-1588072432836-e10032774350?w=600&q=80",
-    shortDesc: "Foundation for mental arithmetic and lightning-fast calculations.",
-    fullDesc:
-      "Our flagship Abacus programme builds incredible speed and accuracy in mental arithmetic. Using the ancient Japanese soroban abacus method, children develop photographic number sense, concentration, and confidence. Students progress through structured levels and compete in national and international competitions.",
-    benefits: ["Lightning-fast mental math", "Improved concentration & memory", "Boosted self-confidence", "Competition-ready skills", "Better academic performance"],
-    levels: ["Junior (5–7 yrs)", "Foundation (7–10 yrs)", "Advanced (10–14 yrs)", "Expert / Grand Master"],
-    duration: "45 min / class",
-    frequency: "2–3 classes / week",
+    points: [
+      "11 progressive levels (O to 10)",
+      "Two-hand, four-finger methodology",
+      "Mental math mastery & visualization",
+      "Competition-ready skills",
+      "Boosted concentration & memory",
+    ],
+    levels: ["Junior (4–6 yrs)", "Foundation (6–9 yrs)", "Intermediate (9–11 yrs)", "Advanced (11–13 yrs)", "Grand Master"],
+    format: "120 min, twice a week (Levels 1–10)",
   },
   {
+    id: "vedic",
+    emoji: "📐",
+    title: "Vedic Maths",
+    subtitle: "Ancient Vedic sutras applied to modern speed mathematics — from rapid arithmetic through algebraic polynomials and cube roots.",
+    age: "Ages 10+",
+    img: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop",
+    color: "#A78BFA",
+    bg: "#F5F0FF",
+    tag: "Mind-Blowing",
+    points: [
+      "4 comprehensive levels",
+      "16 ancient Vedic sutras",
+      "10x faster calculations",
+      "Perfect for JEE / NEET prep",
+      "Reduces exam anxiety",
+    ],
+    levels: ["Foundation (10–12 yrs)", "Intermediate (12–14 yrs)", "Advanced / Competitive", "Expert"],
+    format: "60 min, 2 classes / week",
+  },
+  {
+    id: "playschool",
+    emoji: "🌟",
+    title: "Pre-Abacus",
+    subtitle: "A nurturing early-learning journey that blends language, numeracy, and life skills — from first words through fluent reading and writing.",
+    age: "Ages 1.5–8",
+    img: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2022&auto=format&fit=crop",
+    color: "#F06292",
+    bg: "#FFF0F5",
+    tag: "For Tiny Minds",
+    points: [
+      "Toddler to Class 2 (7 stages)",
+      "English, Hindi, Maths & EVS",
+      "Communication & confidence",
+      "Fine motor skill development",
+      "School readiness programme",
+    ],
+    levels: ["Toddler (1.5–2.5 yrs)", "Nursery (2.5–3.5 yrs)", "Jr. KG (3.5–4.5 yrs)", "Sr. KG (4.5–5.5 yrs)", "Class 1–2 Bridge"],
+    format: "30–45 min, 3 classes / week",
+  },
+  {
+    id: "braingym",
     emoji: "🧠",
     title: "Brain Gym",
-    ages: "All ages",
+    subtitle: "Cognitive enhancement exercises designed to activate both brain hemispheres, improve focus, coordination, and learning readiness.",
+    age: "All ages",
+    img: "https://images.unsplash.com/photo-1588072432836-e10032774350?w=600&q=80",
     color: "#4ECDC4",
     bg: "#F0FFFE",
     tag: "Fan Favourite",
-    image: "/Images/WhatsApp-Image-2025-06-08-at-10.03.37_e3ac77d8.jpg",
-    fallback: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80",
-    shortDesc: "Cognitive enhancement exercises designed to improve focus and coordination.",
-    fullDesc:
-      "Brain Gym is a series of simple, joyful physical movements that activate both hemispheres of the brain simultaneously. Developed from educational kinesiology, these 26 targeted exercises improve learning readiness, focus, memory, and coordination. Perfect for children who struggle with attention or reading.",
-    benefits: ["Enhanced focus & attention", "Better reading & writing", "Improved hand-eye coordination", "Stress relief & emotional balance", "Whole-brain activation"],
+    points: [
+      "26 targeted body movements",
+      "Whole-brain activation",
+      "Enhanced focus & attention",
+      "Better reading & writing",
+      "Stress relief & emotional balance",
+    ],
     levels: ["Starter (all ages)", "Intermediate", "Advanced Integration"],
-    duration: "30–45 min / session",
-    frequency: "Daily practice recommended",
+    format: "30–45 min / session, daily recommended",
   },
   {
-    emoji: "📐",
-    title: "Vedic Maths",
-    ages: "8+ yrs",
-    color: "#FFB347",
-    bg: "#FFF8EE",
-    tag: "Mind-Blowing",
-    image: "/Images/WhatsApp-Image-2025-06-08-at-10.03.38_091c0f31.jpg",
-    fallback: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&q=80",
-    shortDesc: "Ancient speed math techniques for solving complex problems with ease.",
-    fullDesc:
-      "Vedic Mathematics is a system of 16 sutras (formulas) from ancient India that make complex calculations feel like magic tricks. Students learn to multiply 3-digit numbers in seconds, instantly find square roots, and tackle competitive exam problems with ease. This programme is especially popular with Class 5–12 students preparing for board exams and entrance tests.",
-    benefits: ["10x faster calculations", "Impress in competitive exams", "Deeper number intuition", "Reduces exam anxiety", "Perfect for JEE / NEET prep"],
-    levels: ["Foundation (8–10 yrs)", "Intermediate (10–14 yrs)", "Advanced / Competitive"],
-    duration: "60 min / class",
-    frequency: "2 classes / week",
-  },
-  {
-    emoji: "🌟",
-    title: "Pre-Abacus",
-    ages: "4–6 yrs",
-    color: "#A78BFA",
-    bg: "#F5F0FF",
-    tag: "For Tiny Minds",
-    image: "/Images/WhatsApp-Image-2025-06-08-at-10.03.39_0f634c25-r70q3atn2hrk6sl09jh6d3zwf68pahr7jeygaih09s.jpg",
-    fallback: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&q=80",
-    shortDesc: "Gentle introduction to numbers and visualisation for toddlers.",
-    fullDesc:
-      "Pre-Abacus is specially designed for children aged 4–6 who are just beginning their number journey. Through songs, colourful abacus beads, stories, and playful activities, children develop number recognition, counting skills, and a joyful love for maths before they even start formal schooling. This lays the perfect foundation for Abacus Mastery.",
-    benefits: ["Early number sense", "Love for learning maths", "Fine motor development", "Phonics & number integration", "School readiness"],
-    levels: ["Playgroup (4–5 yrs)", "Nursery Bridge (5–6 yrs)"],
-    duration: "30 min / class",
-    frequency: "3 classes / week",
-  },
-  {
+    id: "tuitions",
     emoji: "📚",
     title: "Tuitions",
-    ages: "5–17 yrs",
-    color: "#F06292",
-    bg: "#FFF0F5",
+    subtitle: "Expert academic support for Maths and Science from Class 1 to 12, in small batches with personalised attention every session.",
+    age: "Ages 5–17",
+    img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=2070&auto=format&fit=crop", 
+    color: "#FFB347",
+    bg: "#FFF8EE",
     tag: "New! 🎉",
-    image: "/Images/IMG_20190930_102619.jpg",
-    fallback: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&q=80",
-    shortDesc: "Expert academic support for Maths and Science from Class 1 to 12.",
-    fullDesc:
-      "Our Tuitions programme provides expert, personalised academic coaching for Maths and Science from Class 1 to 12. Led by qualified, experienced teachers who know the school curriculum inside-out, classes are small-batch (maximum 8 students) to ensure every child gets individual attention. We cover CBSE, ICSE, and State Boards.",
-    benefits: ["Small batches (max 8 students)", "Covers CBSE, ICSE & State Boards", "Doubt-clearing every session", "Monthly parent progress reports", "Exam preparation & mock tests"],
+    points: [
+      "Small batches (max 8 students)",
+      "Covers CBSE, ICSE & State Boards",
+      "Doubt-clearing every session",
+      "Monthly parent progress reports",
+      "Exam preparation & mock tests",
+    ],
     levels: ["Primary (Class 1–5)", "Middle School (Class 6–8)", "High School (Class 9–10)", "Senior Secondary (Class 11–12)"],
-    duration: "60–90 min / class",
-    frequency: "3–5 classes / week",
+    format: "60–90 min, 3–5 classes / week",
   },
 ];
 
 export default function ProgramsPage() {
   return (
-    <div style={{ fontFamily: "'Nunito', 'Fredoka One', system-ui, sans-serif", background: "#FFFDF7", color: "#1A1A2E", overflowX: "hidden" }}>
+    <div style={{ fontFamily: "'Nunito', sans-serif", background: "#FFFDF7", color: "#1A1A2E", overflowX: "hidden" }}>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap');
@@ -1201,7 +518,6 @@ export default function ProgramsPage() {
 
         @keyframes float-a { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
         @keyframes float-b { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-        @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
         @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
 
         .float-a { animation: float-a 4s ease-in-out infinite; }
@@ -1218,37 +534,16 @@ export default function ProgramsPage() {
         .enrol-btn { background:#FF6B6B; color:#fff; font-family:inherit; font-weight:900; font-size:15px; padding:14px 32px; border-radius:50px; border:none; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:8px; box-shadow:0 6px 20px rgba(255,107,107,.4); transition:all .3s cubic-bezier(.34,1.56,.64,1); }
         .enrol-btn:hover { transform:scale(1.07) translateY(-2px); box-shadow:0 12px 30px rgba(255,107,107,.5); }
 
-        .nav-link { position:relative; font-size:15px; font-weight:800; color:#1A1A2E; text-decoration:none; transition:color .2s; }
-        .nav-link:hover { color:#FF6B6B; }
+        .pill-nav:hover { opacity: 0.85; transform: scale(1.04); }
+        .pill-nav { transition: all .2s; }
 
         ::-webkit-scrollbar { width:8px; }
         ::-webkit-scrollbar-track { background:#fff; }
         ::-webkit-scrollbar-thumb { background:#FFB347; border-radius:4px; }
-
-        .fade-up { animation: fadeUp 0.6s ease both; }
       `}</style>
 
-      {/* ── NAVBAR ── */}
-      {/* <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 200, padding: "14px 0", background: "rgba(255,253,247,0.95)", backdropFilter: "blur(16px)", boxShadow: "0 2px 20px rgba(0,0,0,0.08)" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 12 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 14, background: "linear-gradient(135deg,#FF6B6B,#FFB347)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, boxShadow: "0 4px 14px rgba(255,107,107,.4)" }}>🧮</div>
-            <div>
-              <div style={{ fontFamily: "'Fredoka One', cursive", fontSize: 22, color: "#1A1A2E", lineHeight: 1 }}>Ascento <span style={{ color: "#FF6B6B" }}>Abacus</span></div>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", color: "#999", marginTop: 1 }}>Brain Development Academy</div>
-            </div>
-          </Link>
-          <div style={{ display: "flex", gap: 32, alignItems: "center" }}>
-            {[["Programs", "/programs"], ["Why Us", "/#whyus"], ["Gallery", "/#gallery"], ["Team", "/#team"], ["Contact", "/contact"]].map(([l, h]) => (
-              <Link key={l} href={h} className="nav-link">{l}</Link>
-            ))}
-          </div>
-          <Link href="/contact" className="enrol-btn" style={{ fontSize: 14 }}>🎉 Enrol Now</Link>
-        </div>
-      </nav> */}
-
       {/* ── HERO ── */}
-      <section style={{ paddingTop: 130, paddingBottom: 80, background: "linear-gradient(160deg,#FFFDF7 0%,#FFF0E8 50%,#FFFDF7 100%)", position: "relative", overflow: "hidden", textAlign: "center" }}>
+      <section style={{ paddingTop: 100, paddingBottom: 80, background: "linear-gradient(160deg,#FFFDF7 0%,#FFF0E8 50%,#FFFDF7 100%)", position: "relative", overflow: "hidden", textAlign: "center" }}>
         <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle,#FFB347 1.5px,transparent 1.5px)", backgroundSize: "36px 36px", opacity: 0.14 }} />
         <div style={{ position: "absolute", top: "15%", left: "6%", fontSize: 48 }} className="float-a">📚</div>
         <div style={{ position: "absolute", top: "20%", right: "8%", fontSize: 40 }} className="float-b">🧠</div>
@@ -1260,10 +555,10 @@ export default function ProgramsPage() {
             <span>📚</span>
             <span style={{ fontWeight: 800, fontSize: 12, letterSpacing: "0.14em", textTransform: "uppercase", color: "#FF6B6B" }}>Our Curriculum</span>
           </div>
-          <h1 style={{ fontFamily: "'Fredoka One',cursive", fontSize: "clamp(40px,5vw,72px)", color: "#1A1A2E", lineHeight: 1.08, marginBottom: 20 }}>
+          <h1 style={{ fontFamily: "'Fredoka One',cursive", fontSize: "clamp(38px,5vw,68px)", color: "#1A1A2E", lineHeight: 1.1, marginBottom: 20 }}>
             5 Amazing <span style={{ color: "#FF6B6B" }}>Programmes</span><br />For Every Child! 🎓
           </h1>
-          <p style={{ fontSize: 18, color: "#666", lineHeight: 1.7, maxWidth: 560, margin: "0 auto 36px" }}>
+          <p style={{ fontSize: 18, color: "#666", lineHeight: 1.7, maxWidth: 560, margin: "0 auto 36px", fontWeight: 600 }}>
             From tiny tots taking their first number steps to teenagers conquering competitive exams — we have the perfect programme for your child.
           </p>
           <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
@@ -1276,10 +571,16 @@ export default function ProgramsPage() {
       </section>
 
       {/* ── QUICK NAV PILLS ── */}
-      <div style={{ background: "white", borderBottom: "2px solid #F5F0FF", position: "sticky", top: 72, zIndex: 100 }}>
+      <div style={{ background: "white", borderBottom: "2px solid #FFF0E8", position: "sticky", top: 0, zIndex: 100 }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "14px 24px", display: "flex", gap: 12, overflowX: "auto" }}>
           {programs.map(p => (
-            <a key={p.title} href={`#prog-${p.title.toLowerCase().replace(/\s+/g, "-")}`} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: p.bg, color: p.color, fontWeight: 800, fontSize: 13, padding: "8px 18px", borderRadius: 50, border: `2px solid ${p.color}33`, textDecoration: "none", whiteSpace: "nowrap", transition: "all .2s", flexShrink: 0 }}>
+            <a key={p.id} className="pill-nav" href={`#prog-${p.id}`} style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              background: p.bg, color: p.color, fontWeight: 800, fontSize: 13,
+              padding: "8px 18px", borderRadius: 50,
+              border: `2px solid ${p.color}33`, textDecoration: "none",
+              whiteSpace: "nowrap", flexShrink: 0,
+            }}>
               {p.emoji} {p.title}
             </a>
           ))}
@@ -1291,55 +592,52 @@ export default function ProgramsPage() {
         <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
           {programs.map((p, idx) => (
             <div
-              key={p.title}
-              id={`prog-${p.title.toLowerCase().replace(/\s+/g, "-")}`}
-              style={{ marginBottom: 80, scrollMarginTop: 160 }}
+              key={p.id}
+              id={`prog-${p.id}`}
+              style={{ marginBottom: 80, scrollMarginTop: 100 }}
             >
-              {/* Card */}
-              <div className="prog-card" style={{ background: "white", borderRadius: 36, overflow: "hidden", border: `3px solid ${p.color}22`, boxShadow: "0 8px 40px rgba(0,0,0,.07)", display: "grid", gridTemplateColumns: idx % 2 === 0 ? "420px 1fr" : "1fr 420px" }}>
+              <div className="prog-card" style={{
+                background: "white", borderRadius: 36, overflow: "hidden",
+                border: `3px solid ${p.color}22`,
+                boxShadow: "0 8px 40px rgba(0,0,0,.07)",
+                display: "grid",
+                gridTemplateColumns: idx % 2 === 0 ? "400px 1fr" : "1fr 400px",
+              }}>
 
-                {/* Image side */}
+                {/* Image — left for even */}
                 {idx % 2 === 0 && (
                   <div style={{ position: "relative", background: p.bg, overflow: "hidden", minHeight: 380 }}>
-                    <img
-                      src={p.image}
-                      alt={p.title}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                      onError={e => { e.currentTarget.src = p.fallback; }}
-                    />
-                    {/* Overlay */}
-                    <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to right, transparent 60%, white)` }} />
-                    {/* Tag */}
+                    <img src={p.img} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, transparent 60%, white)" }} />
                     <div style={{ position: "absolute", top: 20, left: 20, background: p.color, color: "white", fontSize: 11, fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase", padding: "6px 16px", borderRadius: 50 }}>{p.tag}</div>
                   </div>
                 )}
 
-                {/* Content side */}
-                <div style={{ padding: "44px 44px" }}>
+                {/* Content */}
+                <div style={{ padding: "44px" }}>
                   {/* Header */}
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: 16, marginBottom: 20 }}>
-                    <div style={{ fontSize: 56, lineHeight: 1 }} className="float-b">{p.emoji}</div>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: 16, marginBottom: 18 }}>
+                    <div style={{ fontSize: 52, lineHeight: 1 }} className="float-b">{p.emoji}</div>
                     <div>
-                      <h2 style={{ fontFamily: "'Fredoka One',cursive", fontSize: 32, color: "#1A1A2E", marginBottom: 6 }}>{p.title}</h2>
-                      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                        <span style={{ fontSize: 12, fontWeight: 800, padding: "4px 14px", borderRadius: 50, background: p.color + "18", color: p.color }}>Ages {p.ages}</span>
-                        <span style={{ fontSize: 12, fontWeight: 800, padding: "4px 14px", borderRadius: 50, background: "#F5F5F5", color: "#888" }}>⏱ {p.duration}</span>
-                        <span style={{ fontSize: 12, fontWeight: 800, padding: "4px 14px", borderRadius: 50, background: "#F5F5F5", color: "#888" }}>📅 {p.frequency}</span>
+                      <h2 style={{ fontFamily: "'Fredoka One',cursive", fontSize: 30, color: "#1A1A2E", marginBottom: 6 }}>{p.title}</h2>
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 12, fontWeight: 800, padding: "4px 14px", borderRadius: 50, background: p.color + "18", color: p.color }}>{p.age}</span>
+                        <span style={{ fontSize: 12, fontWeight: 800, padding: "4px 14px", borderRadius: 50, background: "#F5F5F5", color: "#888" }}>⏱ {p.format}</span>
                       </div>
                     </div>
                   </div>
 
-                  <p style={{ fontSize: 15, lineHeight: 1.75, color: "#555", marginBottom: 24 }}>{p.fullDesc}</p>
+                  <p style={{ fontSize: 15, lineHeight: 1.75, color: "#555", marginBottom: 24, fontWeight: 600 }}>{p.subtitle}</p>
 
                   {/* Two columns: benefits + levels */}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 28 }}>
-                    {/* Benefits */}
+                    {/* Key Points */}
                     <div>
                       <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: "0.12em", textTransform: "uppercase", color: p.color, marginBottom: 12 }}>✨ Key Benefits</div>
                       <div>
-                        {p.benefits.map(b => (
+                        {(p.points ?? []).map(b => (
                           <div key={b} className="benefit-item">
-                            <span style={{ width: 20, height: 20, borderRadius: 50, background: p.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "white", flexShrink: 0 }}>✓</span>
+                            <span style={{ width: 20, height: 20, borderRadius: "50%", background: p.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: "white", flexShrink: 0 }}>✓</span>
                             {b}
                           </div>
                         ))}
@@ -1349,8 +647,8 @@ export default function ProgramsPage() {
                     {/* Levels */}
                     <div>
                       <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: "0.12em", textTransform: "uppercase", color: p.color, marginBottom: 12 }}>🎯 Levels Offered</div>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 0 }}>
-                        {p.levels.map((lv, li) => (
+                      <div style={{ display: "flex", flexWrap: "wrap" }}>
+                        {(p.levels ?? []).map((lv, li) => (
                           <span key={lv} className="level-pill" style={{ background: p.color + "15", color: p.color, border: `1.5px solid ${p.color}33` }}>
                             {String(li + 1).padStart(2, "0")} {lv}
                           </span>
@@ -1370,16 +668,11 @@ export default function ProgramsPage() {
                   </div>
                 </div>
 
-                {/* Image side (right for odd) */}
+                {/* Image — right for odd */}
                 {idx % 2 !== 0 && (
                   <div style={{ position: "relative", background: p.bg, overflow: "hidden", minHeight: 380 }}>
-                    <img
-                      src={p.image}
-                      alt={p.title}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                      onError={e => { e.currentTarget.src = p.fallback; }}
-                    />
-                    <div style={{ position: "absolute", inset: 0, background: `linear-gradient(to left, transparent 60%, white)` }} />
+                    <img src={p.img} alt={p.title} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to left, transparent 60%, white)" }} />
                     <div style={{ position: "absolute", top: 20, right: 20, background: p.color, color: "white", fontSize: 11, fontWeight: 900, letterSpacing: "0.08em", textTransform: "uppercase", padding: "6px 16px", borderRadius: 50 }}>{p.tag}</div>
                   </div>
                 )}
@@ -1412,9 +705,10 @@ export default function ProgramsPage() {
             <div style={{ width: 40, height: 40, borderRadius: 12, background: "linear-gradient(135deg,#FF6B6B,#FFB347)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>🧮</div>
             <div style={{ fontFamily: "'Fredoka One',cursive", fontSize: 20, color: "white" }}>Ascento <span style={{ color: "#FF6B6B" }}>Abacus</span></div>
           </div>
-          <span style={{ fontSize: 13, color: "rgba(255,255,255,.25)", fontWeight: 700 }}>© 2024 Ascento Abacus. All rights reserved. Made with 💛 for young learners.</span>
+          <span style={{ fontSize: 13, color: "rgba(255,255,255,.25)", fontWeight: 700 }}>© 2025 Ascento Abacus. All rights reserved. Made with 💛 for young learners.</span>
         </div>
       </footer>
+
     </div>
   );
 }
