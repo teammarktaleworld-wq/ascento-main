@@ -27,21 +27,25 @@ model ContactEnquiry {
   @@map("ContactEnquiry")
 }
 
-
 model User {
-  id          String    @id @default(uuid())   // matches supabase auth.users.id
+  id          String    @id @default(uuid())
   email       String    @unique
   name        String?
   phone       String?
   avatarUrl   String?
-  role        Role      @default(USER)
+  role        UserRole  @default(user)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  @@map("users")  // maps to public.users table in Supabase
+  // 🔥 ADD THESE RELATIONS
+  student     Student?
+  teacher     Teacher?
+  attendances Attendance[] @relation("AttendanceMarkedBy")
+  fees        Fee[]        @relation("FeeCreatedBy")
+  enquiries   Enquiry[]    @relation("EnquiryCreatedBy")
+
+  @@map("users")
 }
-
-
 
 
 // ─── Students ────────────────────────────────────────────────────────────────
