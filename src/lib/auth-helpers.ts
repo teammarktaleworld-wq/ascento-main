@@ -1,3 +1,6 @@
+// lib/auth-helper.ts
+
+
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { prisma } from "@/lib/prisma";

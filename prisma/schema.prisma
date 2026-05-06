@@ -15,6 +15,23 @@ enum UserRole {
 }
 
 
+model SummerCampEnrollment {
+  id          String    @id @default(uuid())
+  childName   String
+  parentName  String?
+  phone       String
+  email       String?
+  ageGroup    String    // e.g. "5-8", "8-12", "15-25"
+  program     String    // e.g. "Summer Camp (General)", "Martial Arts / Karate"
+  message     String?
+  status      String    @default("New")  // New, Contacted, Confirmed, Cancelled
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("summer_camp_enrollments")
+}
+
+
 model ContactEnquiry {
   id          Int      @id @default(autoincrement())
   name        String
