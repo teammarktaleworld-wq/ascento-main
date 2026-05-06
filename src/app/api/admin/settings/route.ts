@@ -6,17 +6,17 @@ export async function GET(req: Request) {
   const err = await requireAdmin(req);
   if (err) return err;
 
-  const settings = await prisma.setting.findMany();
+  const settings = await prisma.setting.findMany() as { key: string; value: string }[];
   const map = Object.fromEntries(settings.map((s) => [s.key, s.value]));
   return NextResponse.json(map);
 }
 
-// POST body: { key: string, value: any }[]
+// POST body: { key: string, value: string }[]
 export async function POST(req: Request) {
   const err = await requireAdmin(req);
   if (err) return err;
 
-  const entries = await req.json() as { key: string; value: any }[];
+  const entries = await req.json() as { key: string; value: string }[];
   const ops = entries.map((e) =>
     prisma.setting.upsert({
       where: { key: e.key },
