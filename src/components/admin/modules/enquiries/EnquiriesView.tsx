@@ -755,7 +755,7 @@ export default function EnquiriesView() {
     try {
       const [crm, contact, camp] = await Promise.all([
         apiFetch("/api/admin/enquiries").catch(() => []),
-        apiFetch("/api/admin/contact-enquiries").catch(() => []),
+        apiFetch("/api/admin/contact").catch(() => []),
         apiFetch("/api/admin/summer-camp-enrollments").catch(() => []),
       ]);
       setEnquiriesData(Array.isArray(crm)    ? crm    : []);
@@ -872,6 +872,8 @@ export default function EnquiriesView() {
     { id: "crm",        label: "📋 CRM Leads"     },
     { id: "summercamp", label: "☀️ Summer Camp"    },
   ];
+
+
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 relative pb-10">
