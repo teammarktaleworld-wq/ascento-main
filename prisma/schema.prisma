@@ -18,26 +18,27 @@ enum UserRole {
 model ContactEnquiry {
   id          Int      @id @default(autoincrement())
   name        String
-  age         Int?
   phone       String
-  program     String
+  email       String?
+  childAge    String?
+  reason      String?
   message     String?
+  program     String?  // kept for backward compat
   submittedAt DateTime @default(now())
 
   @@map("ContactEnquiry")
 }
-
 model User {
-  id          String    @id @default(uuid())
+  id          String    @id
   email       String    @unique
   name        String?
   phone       String?
+  city        String?   // ✅ ADD THIS
   avatarUrl   String?
   role        UserRole  @default(user)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  // 🔥 ADD THESE RELATIONS
   student     Student?
   teacher     Teacher?
   attendances Attendance[] @relation("AttendanceMarkedBy")
@@ -46,7 +47,6 @@ model User {
 
   @@map("users")
 }
-
 
 // ─── Students ────────────────────────────────────────────────────────────────
 

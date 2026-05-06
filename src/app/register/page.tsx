@@ -196,14 +196,108 @@
 
 
 
+// "use client";
+
+// // app/register/page.tsx
+// // ─────────────────────────────────────────────────────────────────
+// // Ascento-branded register page (Supabase + Prisma)
+// // ─────────────────────────────────────────────────────────────────
+
+// import { useState } from "react";
+// import { useRouter } from "next/navigation";
+// import { supabase } from "@/lib/supabaseClient";
+// import Link from "next/link";
+
+// async function upsertUserToDB(accessToken: string) {
+//   try {
+//     await fetch("/api/auth/upsert-user", {
+//       method: "POST",
+//       headers: { Authorization: `Bearer ${accessToken}` },
+//     });
+//   } catch (e) {
+//     console.error("DB upsert failed:", e);
+//   }
+// }
+
+// export default function RegisterPage() {
+//   const [name, setName]                   = useState("");
+//   const [email, setEmail]                 = useState("");
+//   const [password, setPassword]           = useState("");
+//   const [confirmPassword, setConfirmPassword] = useState("");
+//   const [error, setError]                 = useState("");
+//   const [loading, setLoading]             = useState(false);
+//   const [showPw, setShowPw]               = useState(false);
+//   const [success, setSuccess]             = useState(false);
+//   const router = useRouter();
+
+//   const handleRegister = async (e: React.FormEvent) => {
+//     e.preventDefault();
+//     if (password !== confirmPassword) {
+//       setError("Passwords do not match.");
+//       return;
+//     }
+//     if (password.length < 6) {
+//       setError("Password must be at least 6 characters.");
+//       return;
+//     }
+
+//     setLoading(true);
+//     setError("");
+
+//     try {
+//       const { data, error } = await supabase.auth.signUp({
+//         email,
+//         password,
+//         options: {
+//           data: { name, role: "user" },
+//         },
+//       });
+
+//       if (error) throw error;
+
+//       // Sync to Prisma users table
+//       if (data.session?.access_token) {
+//         await upsertUserToDB(data.session.access_token);
+//         router.push("/profile");
+//       } else {
+//         // Email confirmation required
+//         setSuccess(true);
+//       }
+//     } catch (err: any) {
+//       setError(err.message || "Registration failed.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleGoogleSignUp = async () => {
+//     setLoading(true);
+//     setError("");
+//     try {
+//       const { error } = await supabase.auth.signInWithOAuth({
+//         provider: "google",
+//         options: { redirectTo: `${window.location.origin}/auth/callback` },
+//       });
+//       if (error) throw error;
+//     } catch (err: any) {
+//       setError(err.message || "Google Sign-Up failed.");
+//       setLoading(false);
+//     }
+//   };
+
+//   /* Password strength */
+//   const strength = password.length === 0 ? 0
+//     : password.length < 6 ? 1
+//     : password.length < 10 ? 2
+//     : 3;
+//   const strengthLabel = ["", "Weak", "Good", "Strong"][strength];
+//   const strengthColor = ["", "#FF4444", "#FFB347", "#4ECDC4"][strength];
+
+//   if (success) {
+
 "use client";
 
-// app/register/page.tsx
-// ─────────────────────────────────────────────────────────────────
-// Ascento-branded register page (Supabase + Prisma)
-// ─────────────────────────────────────────────────────────────────
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
@@ -220,22 +314,38 @@ async function upsertUserToDB(accessToken: string) {
 }
 
 export default function RegisterPage() {
-  const [name, setName]                   = useState("");
-  const [email, setEmail]                 = useState("");
-  const [password, setPassword]           = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError]                 = useState("");
-  const [loading, setLoading]             = useState(false);
-  const [showPw, setShowPw]               = useState(false);
-  const [success, setSuccess]             = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPw, setShowPw] = useState(false);
+  const [success, setSuccess] = useState(false);
+
   const router = useRouter();
+
+  useEffect(() => {
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.access_token) {
+          await upsertUserToDB(session.access_token);
+        }
+      }
+    );
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
+
     if (password.length < 6) {
       setError("Password must be at least 6 characters.");
       return;
@@ -249,18 +359,16 @@ export default function RegisterPage() {
         email,
         password,
         options: {
-          data: { name, role: "user" },
+          data: { name },
         },
       });
 
       if (error) throw error;
 
-      // Sync to Prisma users table
       if (data.session?.access_token) {
         await upsertUserToDB(data.session.access_token);
         router.push("/profile");
       } else {
-        // Email confirmation required
         setSuccess(true);
       }
     } catch (err: any) {
@@ -273,11 +381,15 @@ export default function RegisterPage() {
   const handleGoogleSignUp = async () => {
     setLoading(true);
     setError("");
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
       });
+
       if (error) throw error;
     } catch (err: any) {
       setError(err.message || "Google Sign-Up failed.");
@@ -285,14 +397,19 @@ export default function RegisterPage() {
     }
   };
 
-  /* Password strength */
-  const strength = password.length === 0 ? 0
-    : password.length < 6 ? 1
-    : password.length < 10 ? 2
-    : 3;
+  const strength =
+    password.length === 0
+      ? 0
+      : password.length < 6
+      ? 1
+      : password.length < 10
+      ? 2
+      : 3;
+
   const strengthLabel = ["", "Weak", "Good", "Strong"][strength];
   const strengthColor = ["", "#FF4444", "#FFB347", "#4ECDC4"][strength];
 
+  // ✅ SUCCESS SCREEN
   if (success) {
     return (
       <>
@@ -304,12 +421,22 @@ export default function RegisterPage() {
         <div className="login-page">
           <div className="success-card">
             <div style={{ fontSize: 72, marginBottom: 20 }}>🎉</div>
-            <h2 style={{ fontFamily: "'Fredoka One',cursive", fontSize: 32, color: "#1A1A2E", marginBottom: 12 }}>You're In!</h2>
+            <h2 style={{ fontFamily: "'Fredoka One',cursive", fontSize: 32, color: "#1A1A2E", marginBottom: 12 }}>
+              You're In!
+            </h2>
             <p style={{ color: "#777", fontSize: 15, lineHeight: 1.6, fontWeight: 700 }}>
-              We've sent a confirmation email to <strong style={{ color: "#1A1A2E" }}>{email}</strong>.<br />
+              We've sent a confirmation email to{" "}
+              <strong style={{ color: "#1A1A2E" }}>{email}</strong>.<br />
               Click the link to activate your account.
             </p>
-            <Link href="/login" style={{ display: "inline-block", marginTop: 28, padding: "14px 36px", borderRadius: 50, background: "linear-gradient(135deg,#FF6B6B,#FFB347)", color: "white", fontFamily: "'Fredoka One',cursive", fontSize: 18, textDecoration: "none" }}>
+            <Link
+              href="/login"
+              style={{
+                display: "inline-block", marginTop: 28, padding: "14px 36px",
+                borderRadius: 50, background: "linear-gradient(135deg,#FF6B6B,#FFB347)",
+                color: "white", fontFamily: "'Fredoka One',cursive", fontSize: 18, textDecoration: "none",
+              }}
+            >
               Go to Login →
             </Link>
           </div>
@@ -318,6 +445,7 @@ export default function RegisterPage() {
     );
   }
 
+  // ✅ MAIN REGISTER FORM
   return (
     <>
       <style>{`
@@ -402,8 +530,17 @@ export default function RegisterPage() {
               <label className="login-label">Password</label>
               <div className="login-input-wrap">
                 <span className="login-input-icon">🔒</span>
-                <input type={showPw ? "text" : "password"} required value={password} onChange={e => setPassword(e.target.value)} className="login-input" placeholder="Min. 6 characters" />
-                <button type="button" className="pw-toggle" onClick={() => setShowPw(v => !v)}>{showPw ? "🙈" : "👁️"}</button>
+                <input
+                  type={showPw ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="login-input"
+                  placeholder="Min. 6 characters"
+                />
+                <button type="button" className="pw-toggle" onClick={() => setShowPw(v => !v)}>
+                  {showPw ? "🙈" : "👁️"}
+                </button>
               </div>
               {password.length > 0 && (
                 <div className="pw-strength">
@@ -420,7 +557,9 @@ export default function RegisterPage() {
               <div className="login-input-wrap">
                 <span className="login-input-icon">✅</span>
                 <input
-                  type="password" required value={confirmPassword}
+                  type="password"
+                  required
+                  value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
                   className="login-input"
                   placeholder="Repeat your password"
@@ -428,7 +567,9 @@ export default function RegisterPage() {
                 />
               </div>
               {confirmPassword && confirmPassword !== password && (
-                <p style={{ fontSize: 11, color: "#FF4444", fontWeight: 800, marginTop: 4, marginLeft: 4 }}>Passwords don't match</p>
+                <p style={{ fontSize: 11, color: "#FF4444", fontWeight: 800, marginTop: 4, marginLeft: 4 }}>
+                  Passwords don't match
+                </p>
               )}
             </div>
 

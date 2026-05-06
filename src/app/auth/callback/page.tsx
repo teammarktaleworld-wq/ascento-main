@@ -18,7 +18,18 @@ export default function Callback() {
 
       const session = data.session;
 
-      router.replace("/profile"); // or role-based later
+      // ✅ 🔥 THIS IS THE MISSING PART
+      if (session?.access_token) {
+        await fetch("/api/auth/upsert-user", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        });
+      }
+
+      // ✅ redirect after saving
+      router.replace("/profile");
     };
 
     handleAuth();
