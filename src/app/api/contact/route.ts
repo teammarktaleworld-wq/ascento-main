@@ -27,6 +27,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, id: enquiry.id }, { status: 201 });
   } catch (err) {
     console.error("Contact API error:", err);
+    
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
