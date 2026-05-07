@@ -1,3 +1,6 @@
+
+
+
 // "use client";
 
 // import { useEffect, useState } from "react";
@@ -7,8 +10,6 @@
 //   Loader2, Camera, Mail, Phone, Shield, BookOpen, Calendar,
 //   User, Lock, Bell, LogOut, CheckCircle2, AlertCircle, ChevronRight,
 // } from "lucide-react";
-
-// // ── Helper Components ──────────────────────────────────────────────
 
 // function Badge({ text, color }: { text: string; color: string }) {
 //   return (
@@ -90,7 +91,6 @@
 //   );
 // }
 
-// // Notification toggle as its own component (fixes useState-in-map issue)
 // function NotifRow({ label, desc, defaultOn, color }: { label: string; desc: string; defaultOn: boolean; color: string }) {
 //   const [on, setOn] = useState(defaultOn);
 //   return (
@@ -116,8 +116,6 @@
 //     </div>
 //   );
 // }
-
-// // ── Main Page ──────────────────────────────────────────────────────
 
 // export default function ProfilePage() {
 //   const [user, setUser] = useState<any>(null);
@@ -219,8 +217,6 @@
 //     : "Recently";
 
 //   const initials = (name || user?.email || "U").slice(0, 2).toUpperCase();
-
-//   // Avatar gradient based on initials
 //   const avatarGrad = "linear-gradient(135deg,#FF6B6B,#FFB347)";
 
 //   return (
@@ -241,19 +237,13 @@
 //         ::-webkit-scrollbar-thumb { background: #FFB34744; border-radius: 6px; }
 //       `}</style>
 
-//       <div style={{ minHeight: "100vh", background: "linear-gradient(160deg,#FFFDF7 0%,#FFF0E8 50%,#FFFDF7 100%)", fontFamily: "'Nunito', sans-serif" }}>
-
-//         {/* Top bar */}
-//         <div style={{ height: 64, background: "#FFFFFF", borderBottom: "1px solid #FFF0E8", display: "flex", alignItems: "center", padding: "0 32px", gap: 16, boxShadow: "0 2px 16px rgba(255,107,107,0.06)" }}>
-//           <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1 }}>
-//             <div style={{ width: 34, height: 34, borderRadius: 10, background: "linear-gradient(135deg,#FF6B6B,#FFB347)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>🏫</div>
-//             <span style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 800, fontSize: 18, color: "#1A1A2E" }}>Ascento</span>
-//             <span style={{ fontSize: 12, color: "#FFB347", fontWeight: 700, marginLeft: 4 }}>Admin</span>
-//           </div>
-//           <button onClick={() => router.back()} style={{ padding: "8px 18px", borderRadius: 12, border: "2px solid #FFF0E8", background: "#FFFDF7", color: "#777", fontWeight: 700, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>← Back to Dashboard</button>
-//         </div>
-
-//         <div style={{ maxWidth: 1060, margin: "0 auto", padding: "36px 24px" }}>
+//       <div style={{
+//         minHeight: "100vh",
+//         background: "linear-gradient(160deg,#FFFDF7 0%,#FFF0E8 50%,#FFFDF7 100%)",
+//         fontFamily: "'Nunito', sans-serif",
+//       }}>
+//         {/* ── Page content — padded top so global Navbar doesn't overlap ── */}
+//         <div style={{ maxWidth: 1060, margin: "0 auto", padding: "100px 24px 48px" }}>
 
 //           {/* Hero Header */}
 //           <div className="profile-card" style={{
@@ -513,6 +503,11 @@
 
 
 
+
+
+
+
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -520,7 +515,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import {
   Loader2, Camera, Mail, Phone, Shield, BookOpen, Calendar,
-  User, Lock, Bell, LogOut, CheckCircle2, AlertCircle, ChevronRight,
+  User, Lock, Bell, LogOut, CheckCircle2, AlertCircle, ChevronRight, Menu, X,
 } from "lucide-react";
 
 function Badge({ text, color }: { text: string; color: string }) {
@@ -542,7 +537,7 @@ function MiniStat({ icon, label, value, color }: { icon: string; label: string; 
       <div style={{
         width: 48, height: 48, borderRadius: 14,
         background: color + "18", display: "flex", alignItems: "center",
-        justifyContent: "center", fontSize: 22,
+        justifyContent: "center", fontSize: 22, flexShrink: 0,
       }}>{icon}</div>
       <div>
         <div style={{ fontSize: 22, fontWeight: 900, color: "#1A1A2E", fontFamily: "'Poppins', sans-serif" }}>{value}</div>
@@ -607,10 +602,10 @@ function NotifRow({ label, desc, defaultOn, color }: { label: string; desc: stri
   const [on, setOn] = useState(defaultOn);
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 20px", borderRadius: 18, background: "#FFFDF7", border: "1px solid #FFF0E8" }}>
-      <div style={{ width: 40, height: 40, borderRadius: 12, background: color + "18", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ width: 40, height: 40, borderRadius: 12, background: color + "18", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
         <Bell size={18} color={color} />
       </div>
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: "#1A1A2E" }}>{label}</div>
         <div style={{ fontSize: 12, color: "#999", fontWeight: 600 }}>{desc}</div>
       </div>
@@ -635,6 +630,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [activeTab, setActiveTab] = useState("profile");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const router = useRouter();
 
@@ -715,6 +711,11 @@ export default function ProfilePage() {
     router.push("/");
   };
 
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setSidebarOpen(false); // close sidebar on mobile after tab select
+  };
+
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -729,36 +730,224 @@ export default function ProfilePage() {
     : "Recently";
 
   const initials = (name || user?.email || "U").slice(0, 2).toUpperCase();
-  const avatarGrad = "linear-gradient(135deg,#FF6B6B,#FFB347)";
 
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@700;800;900&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Nunito', sans-serif; background: #FFFDF7; }
+
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
         @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+        @keyframes slideInLeft { from { opacity:0; transform:translateX(-100%); } to { opacity:1; transform:translateX(0); } }
+
         .profile-card { animation: fadeUp 0.5s ease both; }
         .anim-1 { animation: fadeUp 0.5s ease 0.05s both; }
         .anim-2 { animation: fadeUp 0.5s ease 0.15s both; }
         .anim-3 { animation: fadeUp 0.5s ease 0.25s both; }
         .toast { animation: fadeIn 0.3s ease both; }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #FFB34744; border-radius: 6px; }
+
+        /* ── Sidebar overlay on mobile ── */
+        .sidebar-overlay {
+          display: none;
+          position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+          z-index: 200; animation: fadeIn 0.2s ease;
+        }
+        .sidebar-overlay.open { display: block; }
+
+        /* ── Mobile sidebar drawer ── */
+        .sidebar-drawer {
+          position: fixed; top: 0; left: 0; bottom: 0; width: 280px;
+          background: #FFFDF7; z-index: 300; padding: 24px 16px;
+          overflow-y: auto; animation: slideInLeft 0.3s ease;
+          box-shadow: 4px 0 30px rgba(255,107,107,0.12);
+        }
+
+        /* ── Mobile hamburger button ── */
+        .mobile-menu-btn {
+          display: none;
+          position: fixed; top: 16px; right: 16px; z-index: 150;
+          width: 44px; height: 44px; border-radius: 14px;
+          background: linear-gradient(135deg,#FF6B6B,#FFB347);
+          border: none; cursor: pointer; align-items: center; justify-content: center;
+          box-shadow: 0 4px 16px rgba(255,107,107,0.3); color: #fff;
+        }
+
+        /* ── Bottom tab bar on mobile ── */
+        .mobile-tab-bar {
+          display: none;
+          position: fixed; bottom: 0; left: 0; right: 0;
+          background: #fff; border-top: 1px solid #FFF0E8;
+          padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+          z-index: 150;
+          box-shadow: 0 -4px 24px rgba(255,107,107,0.08);
+        }
+        .mobile-tab-bar-inner {
+          display: flex; justify-content: space-around; align-items: center;
+        }
+        .mobile-tab-btn {
+          display: flex; flex-direction: column; align-items: center; gap: 4px;
+          padding: 6px 12px; border-radius: 12px; border: none; background: transparent;
+          cursor: pointer; font-family: 'Nunito', sans-serif; font-size: 10px;
+          font-weight: 700; color: #999; transition: color 0.2s; flex: 1;
+        }
+        .mobile-tab-btn.active { color: #FF6B6B; }
+
+        /* ── Stats grid ── */
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 14px;
+          margin-bottom: 28px;
+        }
+
+        /* ── Two-column form grid ── */
+        .form-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+        }
+
+        /* ── Main layout ── */
+        .main-layout {
+          display: grid;
+          grid-template-columns: 260px 1fr;
+          gap: 22px;
+        }
+        .sidebar-col { display: flex; flex-direction: column; gap: 18px; }
+
+        /* ── Hero badges wrap ── */
+        .hero-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        /* ── Page wrapper ── */
+        .page-wrapper {
+          max-width: 1060px; margin: 0 auto; padding: 100px 24px 48px;
+        }
+
+        /* ────────────────────────────────
+           TABLET  (≤ 900px)
+        ──────────────────────────────── */
+        @media (max-width: 900px) {
+          .main-layout {
+            grid-template-columns: 1fr;
+          }
+          .sidebar-col { display: none; } /* hidden; shown via drawer */
+          .mobile-menu-btn { display: flex; }
+          .stats-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        /* ────────────────────────────────
+           MOBILE  (≤ 640px)
+        ──────────────────────────────── */
+        @media (max-width: 640px) {
+          .page-wrapper { padding: 72px 14px 100px; }
+
+          /* Hero header compact */
+          .hero-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 20px !important;
+            padding: 24px !important;
+          }
+          .hero-header-text .hero-name { font-size: 22px !important; }
+
+          /* Avatar smaller */
+          .hero-avatar { width: 80px !important; height: 80px !important; border-radius: 22px !important; font-size: 28px !important; }
+
+          /* Stats: 1 column on very small, 2 on mobile */
+          .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+
+          /* Hide the third stat on small screens to keep 2-col clean */
+          .stats-grid > *:nth-child(3) { display: none; }
+
+          /* Form: single column */
+          .form-grid { grid-template-columns: 1fr; gap: 16px; }
+
+          /* Main panel padding */
+          .main-panel { padding: 22px 18px !important; }
+
+          /* Bottom tab bar visible */
+          .mobile-tab-bar { display: block; }
+
+          /* Decorative large emoji hidden */
+          .hero-deco-emoji { display: none !important; }
+
+          /* MiniStat padding */
+          .mini-stat-inner { padding: 14px 16px !important; }
+          .mini-stat-value { font-size: 18px !important; }
+        }
+
+        /* ────────────────────────────────
+           VERY SMALL  (≤ 380px)
+        ──────────────────────────────── */
+        @media (max-width: 380px) {
+          .stats-grid { grid-template-columns: 1fr; }
+          .stats-grid > *:nth-child(3) { display: flex; }
+          .hero-badges > *:nth-child(3) { display: none; }
+        }
       `}</style>
+
+      {/* ── Mobile sidebar overlay ── */}
+      <div className={`sidebar-overlay ${sidebarOpen ? "open" : ""}`} onClick={() => setSidebarOpen(false)} />
+
+      {/* ── Mobile sidebar drawer ── */}
+      {sidebarOpen && (
+        <div className="sidebar-drawer">
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+            <div style={{ fontFamily: "'Poppins', sans-serif", fontWeight: 900, fontSize: 18, color: "#1A1A2E" }}>Menu</div>
+            <button onClick={() => setSidebarOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#999" }}>
+              <X size={22} />
+            </button>
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: "#CCC", letterSpacing: 1.5, textTransform: "uppercase", padding: "4px 8px 12px" }}>Account</div>
+            <NavItem icon={<User size={18} />} label="Profile Info" active={activeTab === "profile"} onClick={() => handleTabChange("profile")} />
+            <NavItem icon={<Lock size={18} />} label="Security" active={activeTab === "security"} onClick={() => handleTabChange("security")} />
+            <NavItem icon={<Bell size={18} />} label="Notifications" active={activeTab === "notifications"} onClick={() => handleTabChange("notifications")} />
+            <div style={{ height: 1, background: "#FFF0E8", margin: "10px 0" }} />
+            <NavItem icon={<LogOut size={18} />} label="Sign Out" danger onClick={handleSignOut} />
+          </div>
+
+          {/* Franchise promo in drawer */}
+          <div style={{
+            background: "linear-gradient(135deg,#1A1A2E,#2D2D4E)",
+            borderRadius: 22, padding: 20, marginTop: 8,
+          }}>
+            <div style={{ fontSize: 24, marginBottom: 8 }}>🚀</div>
+            <div style={{ color: "#fff", fontWeight: 800, fontSize: 15, marginBottom: 6, fontFamily: "'Poppins', sans-serif" }}>Become a Franchise?</div>
+            <div style={{ color: "#ffffff66", fontSize: 12, fontWeight: 600, marginBottom: 14, lineHeight: 1.6 }}>Start your own Ascento Abacus center.</div>
+            <button
+              onClick={() => router.push("/franchise")}
+              style={{
+                width: "100%", padding: "10px", borderRadius: 12, border: "none",
+                background: "linear-gradient(135deg,#FF6B6B,#FFB347)", color: "#fff",
+                fontWeight: 800, fontSize: 13, cursor: "pointer", fontFamily: "inherit",
+              }}
+            >Learn More →</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Mobile hamburger ── */}
+      <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
+        <Menu size={20} />
+      </button>
 
       <div style={{
         minHeight: "100vh",
         background: "linear-gradient(160deg,#FFFDF7 0%,#FFF0E8 50%,#FFFDF7 100%)",
         fontFamily: "'Nunito', sans-serif",
       }}>
-        {/* ── Page content — padded top so global Navbar doesn't overlap ── */}
-        <div style={{ maxWidth: 1060, margin: "0 auto", padding: "100px 24px 48px" }}>
+        <div className="page-wrapper">
 
-          {/* Hero Header */}
-          <div className="profile-card" style={{
+          {/* ── Hero Header ── */}
+          <div className="profile-card hero-header" style={{
             background: "#FFFFFF", borderRadius: 28, padding: "36px 40px",
             border: "1px solid #FFF0E8", marginBottom: 28,
             boxShadow: "0 8px 40px rgba(255,107,107,0.08)",
@@ -769,9 +958,9 @@ export default function ProfilePage() {
             <div style={{ position: "absolute", bottom: -30, left: 160, width: 120, height: 120, borderRadius: "50%", background: "#4ECDC4", opacity: 0.06, pointerEvents: "none" }} />
 
             <div style={{ position: "relative", flexShrink: 0 }}>
-              <div style={{
+              <div className="hero-avatar" style={{
                 width: 100, height: 100, borderRadius: 28,
-                background: avatarGrad,
+                background: "linear-gradient(135deg,#FF6B6B,#FFB347)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 color: "#fff", fontSize: 36, fontWeight: 900,
                 boxShadow: "0 12px 40px rgba(255,107,107,0.3)",
@@ -789,36 +978,66 @@ export default function ProfilePage() {
               </button>
             </div>
 
-            <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: "'Poppins', sans-serif", fontSize: 28, fontWeight: 900, color: "#1A1A2E", marginBottom: 6 }}>
+            <div className="hero-header-text" style={{ flex: 1, minWidth: 0 }}>
+              <div className="hero-name" style={{ fontFamily: "'Poppins', sans-serif", fontSize: 28, fontWeight: 900, color: "#1A1A2E", marginBottom: 6 }}>
                 {name || "Your Name"}
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#999", fontSize: 14, fontWeight: 600, marginBottom: 16 }}>
-                <Mail size={15} /> {user?.email}
+              <div style={{ display: "flex", alignItems: "center", gap: 6, color: "#999", fontSize: 14, fontWeight: 600, marginBottom: 16, overflow: "hidden" }}>
+                <Mail size={15} style={{ flexShrink: 0 }} />
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user?.email}</span>
               </div>
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <div className="hero-badges">
                 <Badge text={`🛡️ ${role}`} color="#FF6B6B" />
                 <Badge text={`📅 Joined ${createdAt}`} color="#FFB347" />
                 <Badge text="✅ Verified" color="#4ECDC4" />
               </div>
             </div>
 
-            <div style={{ fontSize: 72, opacity: 0.12, position: "absolute", right: 40, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>👤</div>
+            <div className="hero-deco-emoji" style={{ fontSize: 72, opacity: 0.12, position: "absolute", right: 40, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>👤</div>
           </div>
 
-          {/* Mini Stats */}
-          <div className="anim-1" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 28 }}>
-            <MiniStat icon="🎒" label="Students Managed" value="348" color="#FF6B6B" />
-            <MiniStat icon="📅" label="Sessions This Month" value="42" color="#4ECDC4" />
-            <MiniStat icon="⭐" label="Performance Score" value="97%" color="#FFB347" />
+          {/* ── Mini Stats ── */}
+          <div className="anim-1 stats-grid">
+            <div className="mini-stat-inner" style={{
+              background: "#FFFFFF", borderRadius: 20, padding: "20px 24px",
+              border: "1px solid #FFF0E8", boxShadow: "0 4px 20px rgba(255,107,107,0.05)",
+              display: "flex", alignItems: "center", gap: 16,
+            }}>
+              <div style={{ width: 48, height: 48, borderRadius: 14, background: "#FF6B6B18", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🎒</div>
+              <div>
+                <div className="mini-stat-value" style={{ fontSize: 22, fontWeight: 900, color: "#1A1A2E", fontFamily: "'Poppins', sans-serif" }}>348</div>
+                <div style={{ fontSize: 12, color: "#999", fontWeight: 600 }}>Students</div>
+              </div>
+            </div>
+            <div className="mini-stat-inner" style={{
+              background: "#FFFFFF", borderRadius: 20, padding: "20px 24px",
+              border: "1px solid #FFF0E8", boxShadow: "0 4px 20px rgba(255,107,107,0.05)",
+              display: "flex", alignItems: "center", gap: 16,
+            }}>
+              <div style={{ width: 48, height: 48, borderRadius: 14, background: "#4ECDC418", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>📅</div>
+              <div>
+                <div className="mini-stat-value" style={{ fontSize: 22, fontWeight: 900, color: "#1A1A2E", fontFamily: "'Poppins', sans-serif" }}>42</div>
+                <div style={{ fontSize: 12, color: "#999", fontWeight: 600 }}>Sessions</div>
+              </div>
+            </div>
+            <div className="mini-stat-inner" style={{
+              background: "#FFFFFF", borderRadius: 20, padding: "20px 24px",
+              border: "1px solid #FFF0E8", boxShadow: "0 4px 20px rgba(255,107,107,0.05)",
+              display: "flex", alignItems: "center", gap: 16,
+            }}>
+              <div style={{ width: 48, height: 48, borderRadius: 14, background: "#FFB34718", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>⭐</div>
+              <div>
+                <div className="mini-stat-value" style={{ fontSize: 22, fontWeight: 900, color: "#1A1A2E", fontFamily: "'Poppins', sans-serif" }}>97%</div>
+                <div style={{ fontSize: 12, color: "#999", fontWeight: 600 }}>Score</div>
+              </div>
+            </div>
           </div>
 
-          {/* Main Content */}
-          <div className="anim-2" style={{ display: "grid", gridTemplateColumns: "260px 1fr", gap: 22 }}>
+          {/* ── Main Layout ── */}
+          <div className="anim-2 main-layout">
 
-            {/* Sidebar */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-
+            {/* ── Desktop Sidebar (hidden on mobile via CSS) ── */}
+            <div className="sidebar-col">
               <div style={{ background: "#FFFFFF", borderRadius: 22, padding: 16, border: "1px solid #FFF0E8", boxShadow: "0 4px 20px rgba(255,107,107,0.05)" }}>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#CCC", letterSpacing: 1.5, textTransform: "uppercase", padding: "4px 8px 12px" }}>Account</div>
                 <NavItem icon={<User size={18} />} label="Profile Info" active={activeTab === "profile"} onClick={() => setActiveTab("profile")} />
@@ -828,7 +1047,6 @@ export default function ProfilePage() {
                 <NavItem icon={<LogOut size={18} />} label="Sign Out" danger onClick={handleSignOut} />
               </div>
 
-              {/* Franchise Promo */}
               <div style={{
                 background: "linear-gradient(135deg,#1A1A2E,#2D2D4E)",
                 borderRadius: 22, padding: 24, position: "relative", overflow: "hidden",
@@ -853,7 +1071,6 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Achievements */}
               <div style={{ background: "#FFFFFF", borderRadius: 22, padding: 20, border: "1px solid #FFF0E8", boxShadow: "0 4px 20px rgba(255,107,107,0.05)" }}>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#CCC", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 14 }}>Achievements</div>
                 {[
@@ -869,14 +1086,14 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Main Panel */}
-            <div style={{ background: "#FFFFFF", borderRadius: 26, padding: 36, border: "1px solid #FFF0E8", boxShadow: "0 4px 24px rgba(255,107,107,0.05)" }}>
+            {/* ── Main Panel ── */}
+            <div className="main-panel" style={{ background: "#FFFFFF", borderRadius: 26, padding: 36, border: "1px solid #FFF0E8", boxShadow: "0 4px 24px rgba(255,107,107,0.05)" }}>
 
               {/* Tab: Profile */}
               {activeTab === "profile" && (
                 <>
                   <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 30 }}>
-                    <div style={{ width: 46, height: 46, borderRadius: 14, background: "linear-gradient(135deg,#FF6B6B,#FFB347)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ width: 46, height: 46, borderRadius: 14, background: "linear-gradient(135deg,#FF6B6B,#FFB347)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <User size={22} color="#fff" />
                     </div>
                     <div>
@@ -899,7 +1116,7 @@ export default function ProfilePage() {
                   )}
 
                   <form onSubmit={handleUpdateProfile} style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+                    <div className="form-grid">
                       <AInput label="Full Name" icon={<User size={18} />} value={name} onChange={setName} placeholder="Your full name" />
                       <AInput label="Email Address" icon={<Mail size={18} />} value={user?.email || ""} disabled placeholder="your@email.com" />
                       <AInput label="Phone Number" icon={<Phone size={18} />} value={phoneNumber} onChange={setPhoneNumber} placeholder="+91 98765 XXXXX" type="tel" />
@@ -938,7 +1155,7 @@ export default function ProfilePage() {
               {activeTab === "security" && (
                 <>
                   <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 30 }}>
-                    <div style={{ width: 46, height: 46, borderRadius: 14, background: "linear-gradient(135deg,#4ECDC4,#45B7AA)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ width: 46, height: 46, borderRadius: 14, background: "linear-gradient(135deg,#4ECDC4,#45B7AA)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <Lock size={22} color="#fff" />
                     </div>
                     <div>
@@ -961,12 +1178,12 @@ export default function ProfilePage() {
                         onMouseEnter={e => (e.currentTarget.style.transform = "translateX(4px)")}
                         onMouseLeave={e => (e.currentTarget.style.transform = "")}
                       >
-                        <div style={{ width: 46, height: 46, borderRadius: 14, background: item.color + "18", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>{item.icon}</div>
-                        <div style={{ flex: 1 }}>
+                        <div style={{ width: 46, height: 46, borderRadius: 14, background: item.color + "18", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{item.icon}</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 15, fontWeight: 700, color: "#1A1A2E" }}>{item.label}</div>
                           <div style={{ fontSize: 12, color: "#999", fontWeight: 600 }}>{item.desc}</div>
                         </div>
-                        <ChevronRight size={18} color="#CCC" />
+                        <ChevronRight size={18} color="#CCC" style={{ flexShrink: 0 }} />
                       </div>
                     ))}
                   </div>
@@ -977,7 +1194,7 @@ export default function ProfilePage() {
               {activeTab === "notifications" && (
                 <>
                   <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 30 }}>
-                    <div style={{ width: 46, height: 46, borderRadius: 14, background: "linear-gradient(135deg,#A78BFA,#7C3AED)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ width: 46, height: 46, borderRadius: 14, background: "linear-gradient(135deg,#A78BFA,#7C3AED)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <Bell size={22} color="#fff" />
                     </div>
                     <div>
@@ -1009,6 +1226,28 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* ── Mobile Bottom Tab Bar ── */}
+      <nav className="mobile-tab-bar">
+        <div className="mobile-tab-bar-inner">
+          {[
+            { tab: "profile", icon: <User size={20} />, label: "Profile" },
+            { tab: "security", icon: <Lock size={20} />, label: "Security" },
+            { tab: "notifications", icon: <Bell size={20} />, label: "Alerts" },
+            { tab: "signout", icon: <LogOut size={20} />, label: "Sign Out" },
+          ].map(({ tab, icon, label }) => (
+            <button
+              key={tab}
+              className={`mobile-tab-btn ${activeTab === tab ? "active" : ""}`}
+              onClick={() => tab === "signout" ? handleSignOut() : setActiveTab(tab)}
+              style={{ color: tab === "signout" ? "#FF4444" : activeTab === tab ? "#FF6B6B" : "#999" }}
+            >
+              {icon}
+              <span>{label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
     </>
   );
 }
