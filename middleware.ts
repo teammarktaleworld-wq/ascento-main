@@ -1,29 +1,111 @@
-// import { NextResponse } from "next/server";
-// import type { NextRequest } from "next/server";
+// import { createServerClient } from "@supabase/ssr";
+// import { NextResponse, type NextRequest } from "next/server";
 
-// export function middleware(req: NextRequest) {
-//   const token = req.cookies.get("token")?.value;
+// export async function middleware(req: NextRequest) {
+//   let response = NextResponse.next();
 
-//   // ❌ Not logged in
-//   if (!token) {
-//     return NextResponse.redirect(new URL("/login", req.url));
-//   }
-
-//   try {
-//     const payload = JSON.parse(atob(token.split(".")[1]));
-
-//     // ❌ Not admin
-//     if (payload.role !== "admin") {
-//       return NextResponse.redirect(new URL("/", req.url));
+//   const supabase = createServerClient(
+//     process.env.NEXT_PUBLIC_SUPABASE_URL!,
+//     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+//     {
+//       cookies: {
+//         get(name: string) {
+//           return req.cookies.get(name)?.value;
+//         },
+//         set(name: string, value: string, options) {
+//           response.cookies.set({
+//             name,
+//             value,
+//             ...options,
+//           });
+//         },
+//         remove(name: string, options) {
+//           response.cookies.set({
+//             name,
+//             value: "",
+//             ...options,
+//           });
+//         },
+//       },
 //     }
+//   );
 
-//     // ✅ Allow
-//     return NextResponse.next();
-//   } catch (err) {
+//   const {
+//     data: { session },
+//   } = await supabase.auth.getSession();
+
+//   const pathname = req.nextUrl.pathname;
+
+//   if (session && pathname.startsWith("/login")) {
+//     return NextResponse.redirect(new URL("/", req.url));
+//   }
+
+//   if (!session && pathname.startsWith("/admin")) {
 //     return NextResponse.redirect(new URL("/login", req.url));
 //   }
+
+//   return response;
 // }
-// disable middleware completely
-export function middleware() {
-  return;
+
+// export const config = {
+//   matcher: ["/login", "/admin/:path*"],
+// };
+
+
+
+
+
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+
+export async function middleware(req: NextRequest) {
+  let response = NextResponse.next();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return req.cookies.get(name)?.value;
+        },
+        set(name: string, value: string, options) {
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          });
+        },
+        remove(name: string, options) {
+          response.cookies.set({
+            name,
+            value: "",
+            ...options,
+          });
+        },
+      },
+    }
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const pathname = req.nextUrl.pathname;
+
+  // logged in user trying to access login
+  if (user && pathname.startsWith("/login")) {
+    return NextResponse.redirect(new URL("/", req.url));
+  }
+
+  // non logged in user trying to access admin
+  if (!user && pathname.startsWith("/admin")) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  return response;
 }
+
+export const config = {
+  matcher: ["/login", "/admin/:path*"],
+};

@@ -47,8 +47,8 @@ export default function Footer() {
 
   const contactInfo = [
     ["📍", "Dwarka, New Delhi, India"],
-    ["📧", "info@ascento.in"],
-    ["📞", "+91 98765 43210"],
+    ["📧", "Ascentoabacus35@gmail.com"],
+    ["📞", "+91 9810366417"],
   ];
 
   return (
