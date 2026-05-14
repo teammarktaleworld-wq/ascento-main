@@ -32,6 +32,34 @@ model SummerCampEnrollment {
 }
 
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Add this to your existing prisma/schema.prisma file
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Note {
+  id        String   @id @default(cuid())
+  serialId  Int                         // manual sort order: 1, 2, 3 …
+  title     String
+  label     String   @default("")       // tag / badge text
+  type      NoteType                    // DEMO or REAL
+  pdfUrl    String                      // public Supabase Storage URL
+  storagePath String                    // internal path inside bucket (for deletion)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notes")
+}
+
+enum NoteType {
+  DEMO
+  REAL
+}
+
+
+
+
+
 model ContactEnquiry {
   id          Int      @id @default(autoincrement())
   name        String
