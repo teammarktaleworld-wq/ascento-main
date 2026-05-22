@@ -3,7 +3,6 @@
 
 
 
-
 // "use client";
 
 // import {
@@ -18,6 +17,7 @@
 //   Settings,
 //   School,
 //   Inbox,
+//   NotebookText,
 // } from "lucide-react";
 
 // export default function Sidebar({
@@ -28,16 +28,17 @@
 //   setActiveTab: (val: string) => void;
 // }) {
 //   const menu = [
-//     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-//     { id: "students", label: "Students", icon: Users },
-//     { id: "teachers", label: "Teachers", icon: GraduationCap },
-//     { id: "schedule", label: "Schedule", icon: Calendar },
-//     { id: "exams", label: "Exams", icon: BookOpen },
+//     { id: "dashboard",  label: "Dashboard",  icon: LayoutDashboard },
+//     { id: "students",   label: "Students",   icon: Users },
+//     { id: "teachers",   label: "Teachers",   icon: GraduationCap },
+//     { id: "schedule",   label: "Schedule",   icon: Calendar },
+//     { id: "exams",      label: "Exams",      icon: BookOpen },
 //     { id: "attendance", label: "Attendance", icon: CheckSquare },
-//     { id: "fees", label: "Fees", icon: CreditCard },
-//     { id: "enquiries", label: "Enquiries", icon: Inbox },
-//     { id: "reports", label: "Reports", icon: FileText },
-//     { id: "settings", label: "Settings", icon: Settings },
+//     { id: "fees",       label: "Fees",       icon: CreditCard },
+//     { id: "notes",      label: "Notes",      icon: NotebookText },
+//     { id: "enquiries",  label: "Enquiries",  icon: Inbox },
+//     { id: "reports",    label: "Reports",    icon: FileText },
+//     { id: "settings",   label: "Settings",   icon: Settings },
 //   ];
 
 //   return (
@@ -81,6 +82,8 @@
 
 
 
+
+
 "use client";
 
 import {
@@ -96,6 +99,7 @@ import {
   School,
   Inbox,
   NotebookText,
+  ClipboardList,
 } from "lucide-react";
 
 export default function Sidebar({
@@ -114,6 +118,7 @@ export default function Sidebar({
     { id: "attendance", label: "Attendance", icon: CheckSquare },
     { id: "fees",       label: "Fees",       icon: CreditCard },
     { id: "notes",      label: "Notes",      icon: NotebookText },
+    { id: "homework",   label: "Homework",   icon: ClipboardList },
     { id: "enquiries",  label: "Enquiries",  icon: Inbox },
     { id: "reports",    label: "Reports",    icon: FileText },
     { id: "settings",   label: "Settings",   icon: Settings },

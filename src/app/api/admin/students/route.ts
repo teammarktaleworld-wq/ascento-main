@@ -6,6 +6,174 @@
 
 
 
+
+
+// import { NextResponse } from "next/server";
+// import { prisma } from "@/lib/prisma";
+// import { requireAdmin } from "@/lib/auth-helpers";
+// import { createClient } from "@supabase/supabase-js";
+// import { Prisma } from "@prisma/client";
+
+// const supabaseAdmin = createClient(
+//   process.env.NEXT_PUBLIC_SUPABASE_URL!,
+//   process.env.SUPABASE_SERVICE_ROLE_KEY!
+// );
+
+// function generatePassword(): string {
+//   const upper   = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+//   const lower   = "abcdefghjkmnpqrstuvwxyz";
+//   const digits  = "23456789";
+//   const special = "@#$!";
+//   const rand = (s: string) => s[Math.floor(Math.random() * s.length)];
+//   const required = [rand(upper), rand(lower), rand(digits), rand(special)];
+//   const rest = Array.from({ length: 4 }, () => rand(upper + lower + digits));
+//   return [...required, ...rest].sort(() => Math.random() - 0.5).join("");
+// }
+
+// // ── GET /api/admin/students ───────────────────────────────────────────────────
+// export async function GET(req: Request) {
+//   const err = await requireAdmin(req);
+//   if (err) return err;
+
+//   const { searchParams } = new URL(req.url);
+//   const search      = searchParams.get("search")       ?? "";
+//   const classFilter = searchParams.get("class")        ?? "";
+//   const sectionFilter = searchParams.get("section")    ?? "";
+//   const page        = Number(searchParams.get("page")  ?? 1);
+//   const limit       = Number(searchParams.get("limit") ?? 50);
+
+//   const where: Prisma.StudentWhereInput = {
+//     AND: [
+//       search ? {
+//         OR: [
+//           { fullName:   { contains: search, mode: "insensitive" } },
+//           { studentId:  { contains: search, mode: "insensitive" } },
+//           { parentName: { contains: search, mode: "insensitive" } },
+//         ],
+//       } : {},
+//       classFilter   ? { class:   classFilter }   : {},
+//       sectionFilter ? { section: sectionFilter } : {},
+//     ],
+//   };
+
+//   const [students, total] = await Promise.all([
+//     prisma.student.findMany({
+//       where,
+//       skip: (page - 1) * limit,
+//       take: limit,
+//       orderBy: { createdAt: "desc" },
+//       include: {
+//         fees:       { orderBy: { createdAt: "desc" }, take: 1 },
+//         attendance: {
+//           where: { date: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
+//         },
+//       },
+//     }),
+//     prisma.student.count({ where }),
+//   ]);
+
+//   return NextResponse.json({ students, total, page, limit });
+// }
+
+// // ── POST /api/admin/students ──────────────────────────────────────────────────
+// export async function POST(req: Request) {
+//   const err = await requireAdmin(req);
+//   if (err) return err;
+
+//   const body = await req.json();
+//   const {
+//     fullName, email, password,
+//     dateOfBirth, gender, bloodGroup, phone,
+//     address, city, state,
+//     parentName, parentPhone, parentEmail,
+//     rollNumber, section, class: studentClass, academicYear,
+//   } = body;
+
+//   if (!email || !fullName) {
+//     return NextResponse.json(
+//       { error: "Email and full name are required" },
+//       { status: 400 }
+//     );
+//   }
+
+//   const generatedPassword = password || generatePassword();
+
+//   try {
+//     const { data: authUser, error: authError } =
+//       await supabaseAdmin.auth.admin.createUser({
+//         email,
+//         password: generatedPassword,
+//         email_confirm: true,
+//       });
+
+//     if (authError || !authUser.user) {
+//       return NextResponse.json(
+//         { error: authError?.message || "Failed to create auth user" },
+//         { status: 400 }
+//       );
+//     }
+
+//     const userId = authUser.user.id;
+
+//     try {
+//       const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+//         const dbUser = await tx.user.create({
+//           data: { id: userId, email, name: fullName, role: "student" },
+//         });
+
+//         const studentId = `STU${new Date().getFullYear()}${String(
+//           Math.floor(1000 + Math.random() * 9000)
+//         )}`;
+
+//         return tx.student.create({
+//           data: {
+//             userId:      dbUser.id,
+//             studentId,
+//             fullName,
+//             dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+//             gender,
+//             bloodGroup,
+//             phone,
+//             address,
+//             city,
+//             state,
+//             parentName,
+//             parentPhone,
+//             parentEmail,
+//             rollNumber,
+//             section:      section      || null,
+//             class:        studentClass || null,
+//             academicYear: academicYear || null,
+//           },
+//         });
+//       });
+
+//       return NextResponse.json(
+//         {
+//           ...result,
+//           credentials: { studentId: result.studentId, email, password: generatedPassword },
+//         },
+//         { status: 201 }
+//       );
+//     } catch (txError: any) {
+//       await supabaseAdmin.auth.admin.deleteUser(userId).catch(() => {});
+//       return NextResponse.json(
+//         { error: txError?.message || "Failed to create student record" },
+//         { status: 500 }
+//       );
+//     }
+//   } catch (err: any) {
+//     return NextResponse.json({ error: "Failed to create student" }, { status: 500 });
+//   }
+// }
+
+
+
+
+
+
+
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";
@@ -17,25 +185,42 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// GET  /api/admin/students
+function generatePassword(): string {
+  const upper   = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lower   = "abcdefghjkmnpqrstuvwxyz";
+  const digits  = "23456789";
+  const special = "@#$!";
+  const rand = (s: string) => s[Math.floor(Math.random() * s.length)];
+  const required = [rand(upper), rand(lower), rand(digits), rand(special)];
+  const rest = Array.from({ length: 4 }, () => rand(upper + lower + digits));
+  return [...required, ...rest].sort(() => Math.random() - 0.5).join("");
+}
+
+// ── GET /api/admin/students ───────────────────────────────────────────────────
 export async function GET(req: Request) {
   const err = await requireAdmin(req);
   if (err) return err;
 
   const { searchParams } = new URL(req.url);
-  const search = searchParams.get("search") ?? "";
-  const page = Number(searchParams.get("page") ?? 1);
-  const limit = Number(searchParams.get("limit") ?? 20);
+  const search        = searchParams.get("search")  ?? "";
+  const classFilter   = searchParams.get("class")   ?? "";
+  const sectionFilter = searchParams.get("section") ?? "";
+  const page          = Number(searchParams.get("page")  ?? 1);
+  const limit         = Number(searchParams.get("limit") ?? 50);
 
-  const where = search
-    ? {
+  const where: Prisma.StudentWhereInput = {
+    AND: [
+      search ? {
         OR: [
-          { fullName: { contains: search, mode: "insensitive" as const } },
-          { studentId: { contains: search, mode: "insensitive" as const } },
-          { parentName: { contains: search, mode: "insensitive" as const } },
+          { fullName:   { contains: search, mode: "insensitive" } },
+          { studentId:  { contains: search, mode: "insensitive" } },
+          { parentName: { contains: search, mode: "insensitive" } },
         ],
-      }
-    : {};
+      } : {},
+      classFilter   ? { class:   classFilter }   : {},
+      sectionFilter ? { section: sectionFilter } : {},
+    ],
+  };
 
   const [students, total] = await Promise.all([
     prisma.student.findMany({
@@ -44,18 +229,7 @@ export async function GET(req: Request) {
       take: limit,
       orderBy: { createdAt: "desc" },
       include: {
-        enrollments: {
-          include: { section: { include: { class: { include: { domain: true } } } } },
-          take: 1,
-        },
-        fees: { orderBy: { createdAt: "desc" }, take: 1 },
-        attendance: {
-          where: {
-            date: {
-              gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-            },
-          },
-        },
+        user: true,
       },
     }),
     prisma.student.count({ where }),
@@ -64,45 +238,34 @@ export async function GET(req: Request) {
   return NextResponse.json({ students, total, page, limit });
 }
 
-// POST /api/admin/students
+// ── POST /api/admin/students ──────────────────────────────────────────────────
 export async function POST(req: Request) {
   const err = await requireAdmin(req);
   if (err) return err;
 
   const body = await req.json();
-
   const {
-    fullName,
-    email,
-    password,
-    dateOfBirth,
-    gender,
-    bloodGroup,
-    phone,
-    address,
-    city,
-    state,
-    parentName,
-    parentPhone,
-    parentEmail,
-    rollNumber,
-    sectionId,
-    academicYear,
+    fullName, email, password,
+    dateOfBirth, gender, bloodGroup, phone,
+    address, city, state,
+    parentName, parentPhone, parentEmail,
+    rollNumber, section, class: studentClass, academicYear,
   } = body;
 
   if (!email || !fullName) {
     return NextResponse.json(
-      { error: "Email and fullName are required" },
+      { error: "Email and full name are required" },
       { status: 400 }
     );
   }
 
+  const generatedPassword = password || generatePassword();
+
   try {
-    // 🔥 STEP 1: Create Supabase Auth User
     const { data: authUser, error: authError } =
       await supabaseAdmin.auth.admin.createUser({
         email,
-        password: password || "Temp@123456",
+        password: generatedPassword,
         email_confirm: true,
       });
 
@@ -115,63 +278,54 @@ export async function POST(req: Request) {
 
     const userId = authUser.user.id;
 
-    // 🔥 STEP 2: Transaction (safe)
-    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
-      // create Prisma user
-      const dbUser = await tx.user.create({
-        data: {
-          id: userId,
-          email,
-          name: fullName,
-          role: "student",
-        },
+    try {
+      const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        const dbUser = await tx.user.create({
+          data: { id: userId, email, name: fullName, role: "student" },
+        });
+
+        const studentId = `STU${new Date().getFullYear()}${String(
+          Math.floor(1000 + Math.random() * 9000)
+        )}`;
+
+        return tx.student.create({
+          data: {
+            userId:      dbUser.id,
+            studentId,
+            fullName,
+            dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+            gender,
+            bloodGroup,
+            phone,
+            address,
+            city,
+            state,
+            parentName,
+            parentPhone,
+            parentEmail,
+            rollNumber,
+            section:      section      || null,
+            class:        studentClass || null,
+            academicYear: academicYear || null,
+          },
+        });
       });
 
-      const studentId = `AA-${new Date().getFullYear()}-${Math.floor(
-        1000 + Math.random() * 9000
-      )}`;
-
-      // create student
-      const student = await tx.student.create({
-        data: {
-          userId: dbUser.id,
-          studentId,
-          fullName,
-          dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
-          gender,
-          bloodGroup,
-          phone,
-          address,
-          city,
-          state,
-          parentName,
-          parentPhone,
-          parentEmail,
-          rollNumber,
-          ...(sectionId && academicYear
-            ? {
-                enrollments: {
-                  create: {
-                    sectionId,
-                    academicYear: academicYear ?? "2024-25",
-                  },
-                },
-              }
-            : {}),
+      return NextResponse.json(
+        {
+          ...result,
+          credentials: { studentId: result.studentId, email, password: generatedPassword },
         },
-        include: { enrollments: true },
-      });
-
-      return student;
-    });
-
-    return NextResponse.json(result, { status: 201 });
-  } catch (err) {
-    console.error("Student creation error:", err);
-
-    return NextResponse.json(
-      { error: "Failed to create student" },
-      { status: 500 }
-    );
+        { status: 201 }
+      );
+    } catch (txError: any) {
+      await supabaseAdmin.auth.admin.deleteUser(userId).catch(() => {});
+      return NextResponse.json(
+        { error: txError?.message || "Failed to create student record" },
+        { status: 500 }
+      );
+    }
+  } catch (err: any) {
+    return NextResponse.json({ error: "Failed to create student" }, { status: 500 });
   }
 }
