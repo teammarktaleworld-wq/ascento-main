@@ -39,15 +39,15 @@ model SummerCampEnrollment {
 }
 
 model Note {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   serialId    Int
   title       String
-  label       String   @default("")
+  label       String    @default("")
   type        NoteType
   pdfUrl      String
   storagePath String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   categoryId  String?
   category    Category? @relation(fields: [categoryId], references: [id])
 
@@ -95,33 +95,81 @@ model User {
   @@map("users")
 }
 
-model Student {
-  id           String    @id @default(uuid())
-  userId       String    @unique
-  studentId    String    @unique
-  rollNumber   String?
-  fullName     String
-  dateOfBirth  DateTime?
-  gender       String?
-  bloodGroup   String?
-  phone        String?
-  address      String?
-  city         String?
-  state        String?
-  parentName   String?
-  parentPhone  String?
-  parentEmail  String?
-  status       String    @default("Active")
-  section      String?
-  class        String?
-  academicYear String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+// ─── Program ─────────────────────────────────────────────────────────────────
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Program {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  hasLevels   Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  levels           ProgramLevel[]
+  students         Student[]
+  scheduleSlots    ScheduleSlot[]
+  timetableUploads TimetableUpload[]
+
+  @@map("programs")
+}
+
+// ─── ProgramLevel ─────────────────────────────────────────────────────────────
+
+model ProgramLevel {
+  id        String   @id @default(uuid())
+  programId String
+  name      String
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  program          Program           @relation(fields: [programId], references: [id], onDelete: Cascade)
+  students         Student[]
+  scheduleSlots    ScheduleSlot[]
+  timetableUploads TimetableUpload[]
+
+  @@unique([programId, name])
+  @@map("program_levels")
+}
+
+// ─── Student ──────────────────────────────────────────────────────────────────
+
+model Student {
+  id             String    @id @default(uuid())
+  userId         String    @unique
+  studentId      String    @unique
+  rollNumber     String?
+  fullName       String
+  dateOfBirth    DateTime?
+  gender         String?
+  bloodGroup     String?
+  phone          String?
+  address        String?
+  city           String?
+  state          String?
+  parentName     String?
+  parentPhone    String?
+  parentEmail    String?
+  status         String    @default("Active")
+  section        String?
+  academicYear   String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  programId      String?
+  programLevelId String?
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  program      Program?      @relation(fields: [programId], references: [id])
+  programLevel ProgramLevel? @relation(fields: [programLevelId], references: [id])
 
   @@map("students")
 }
+
+// ─── Teacher ──────────────────────────────────────────────────────────────────
 
 model Teacher {
   id         String   @id @default(uuid())
@@ -137,6 +185,8 @@ model Teacher {
   @@map("teachers")
 }
 
+// ─── HomeworkFile ─────────────────────────────────────────────────────────────
+
 model HomeworkFile {
   id          String   @id @default(uuid())
   serialId    Int      @unique
@@ -149,6 +199,8 @@ model HomeworkFile {
 
   @@map("homework_files")
 }
+
+// ─── Enquiry ──────────────────────────────────────────────────────────────────
 
 model Enquiry {
   id          String   @id @default(uuid())
@@ -166,4 +218,52 @@ model Enquiry {
   createdBy User? @relation("EnquiryCreatedBy", fields: [createdById], references: [id])
 
   @@map("enquiries")
+}
+
+// ─── ScheduleSlot ─────────────────────────────────────────────────────────────
+// One row = one class period (e.g. Monday P2 — Mathematics — Mrs. Sharma)
+
+model ScheduleSlot {
+  id           String   @id @default(cuid())
+  programId    String
+  levelId      String?
+  dayOfWeek    String   // "Monday" | "Tuesday" | … | "Saturday"
+  periodNumber Int      // 1–12
+  startTime    String   // "09:00"
+  endTime      String   // "10:00"
+  subjectName  String
+  teacherName  String
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  program Program      @relation(fields: [programId], references: [id])
+  level   ProgramLevel? @relation(fields: [levelId], references: [id])
+
+  // No two classes can share the same period on the same day for a program+level
+  @@unique([programId, levelId, dayOfWeek, periodNumber])
+  @@index([programId])
+  @@index([levelId])
+  @@map("schedule_slots")
+}
+
+// ─── TimetableUpload ──────────────────────────────────────────────────────────
+// Stores uploaded timetable images / PDFs (uploaded directly to Supabase Storage)
+
+model TimetableUpload {
+  id           String   @id @default(cuid())
+  programId    String?
+  levelId      String?
+  originalName String
+  storagePath  String
+  url          String
+  mimeType     String
+  size         Int      // bytes
+  createdAt    DateTime @default(now())
+
+  program Program?      @relation(fields: [programId], references: [id])
+  level   ProgramLevel? @relation(fields: [levelId], references: [id])
+
+  @@index([programId])
+  @@map("timetable_uploads")
 }

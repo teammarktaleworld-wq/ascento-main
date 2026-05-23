@@ -6,8 +6,6 @@
 
 
 
-
-
 // import { NextResponse } from "next/server";
 // import { prisma } from "@/lib/prisma";
 // import { requireAdmin } from "@/lib/auth-helpers";
@@ -36,11 +34,11 @@
 //   if (err) return err;
 
 //   const { searchParams } = new URL(req.url);
-//   const search      = searchParams.get("search")       ?? "";
-//   const classFilter = searchParams.get("class")        ?? "";
-//   const sectionFilter = searchParams.get("section")    ?? "";
-//   const page        = Number(searchParams.get("page")  ?? 1);
-//   const limit       = Number(searchParams.get("limit") ?? 50);
+//   const search        = searchParams.get("search")  ?? "";
+//   const classFilter   = searchParams.get("class")   ?? "";
+//   const sectionFilter = searchParams.get("section") ?? "";
+//   const page          = Number(searchParams.get("page")  ?? 1);
+//   const limit         = Number(searchParams.get("limit") ?? 50);
 
 //   const where: Prisma.StudentWhereInput = {
 //     AND: [
@@ -63,10 +61,7 @@
 //       take: limit,
 //       orderBy: { createdAt: "desc" },
 //       include: {
-//         fees:       { orderBy: { createdAt: "desc" }, take: 1 },
-//         attendance: {
-//           where: { date: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } },
-//         },
+//         user: true,
 //       },
 //     }),
 //     prisma.student.count({ where }),
@@ -174,6 +169,11 @@
 
 
 
+
+
+
+// app/api/admin/students/route.ts
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";
@@ -196,17 +196,29 @@ function generatePassword(): string {
   return [...required, ...rest].sort(() => Math.random() - 0.5).join("");
 }
 
+// Generates a unique student ID: STU-YYYY-XXXX (year + 4 random digits, collision-safe)
+async function generateStudentId(): Promise<string> {
+  const year = new Date().getFullYear();
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const id = `STU-${year}-${String(Math.floor(1000 + Math.random() * 9000))}`;
+    const exists = await prisma.student.findUnique({ where: { studentId: id } });
+    if (!exists) return id;
+  }
+  throw new Error("Could not generate unique student ID");
+}
+
 // ── GET /api/admin/students ───────────────────────────────────────────────────
 export async function GET(req: Request) {
   const err = await requireAdmin(req);
   if (err) return err;
 
   const { searchParams } = new URL(req.url);
-  const search        = searchParams.get("search")  ?? "";
-  const classFilter   = searchParams.get("class")   ?? "";
-  const sectionFilter = searchParams.get("section") ?? "";
+  const search        = searchParams.get("search")    ?? "";
+  const programId     = searchParams.get("programId") ?? "";
+  const levelId       = searchParams.get("levelId")   ?? "";
+  const sectionFilter = searchParams.get("section")   ?? "";
   const page          = Number(searchParams.get("page")  ?? 1);
-  const limit         = Number(searchParams.get("limit") ?? 50);
+  const limit         = Number(searchParams.get("limit") ?? 100);
 
   const where: Prisma.StudentWhereInput = {
     AND: [
@@ -217,7 +229,8 @@ export async function GET(req: Request) {
           { parentName: { contains: search, mode: "insensitive" } },
         ],
       } : {},
-      classFilter   ? { class:   classFilter }   : {},
+      programId     ? { programId }             : {},
+      levelId       ? { programLevelId: levelId } : {},
       sectionFilter ? { section: sectionFilter } : {},
     ],
   };
@@ -229,7 +242,9 @@ export async function GET(req: Request) {
       take: limit,
       orderBy: { createdAt: "desc" },
       include: {
-        user: true,
+        user:         true,
+        program:      true,
+        programLevel: true,
       },
     }),
     prisma.student.count({ where }),
@@ -249,12 +264,21 @@ export async function POST(req: Request) {
     dateOfBirth, gender, bloodGroup, phone,
     address, city, state,
     parentName, parentPhone, parentEmail,
-    rollNumber, section, class: studentClass, academicYear,
+    rollNumber, section, academicYear,
+    programId, programLevelId,
   } = body;
 
   if (!email || !fullName) {
     return NextResponse.json(
       { error: "Email and full name are required" },
+      { status: 400 }
+    );
+  }
+
+  // Validate program/level pairing
+  if (programLevelId && !programId) {
+    return NextResponse.json(
+      { error: "A program must be selected when a level is specified" },
       { status: 400 }
     );
   }
@@ -284,16 +308,14 @@ export async function POST(req: Request) {
           data: { id: userId, email, name: fullName, role: "student" },
         });
 
-        const studentId = `STU${new Date().getFullYear()}${String(
-          Math.floor(1000 + Math.random() * 9000)
-        )}`;
+        const studentId = await generateStudentId();
 
         return tx.student.create({
           data: {
-            userId:      dbUser.id,
+            userId:        dbUser.id,
             studentId,
             fullName,
-            dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+            dateOfBirth:   dateOfBirth ? new Date(dateOfBirth) : null,
             gender,
             bloodGroup,
             phone,
@@ -304,9 +326,14 @@ export async function POST(req: Request) {
             parentPhone,
             parentEmail,
             rollNumber,
-            section:      section      || null,
-            class:        studentClass || null,
-            academicYear: academicYear || null,
+            section:       section       || null,
+            academicYear:  academicYear  || null,
+            programId:     programId     || null,
+            programLevelId: programLevelId || null,
+          },
+          include: {
+            program:      true,
+            programLevel: true,
           },
         });
       });
