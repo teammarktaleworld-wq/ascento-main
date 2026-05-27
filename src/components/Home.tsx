@@ -19,9 +19,9 @@
     /* ── programs ── */
     const programs = [
       { emoji: "🧮", title: "Abacus Mastery",  slug: "abacus-mastery", ages: "5–14 yrs", color: "#FF6B6B", bg: "#FFF0F0", desc: "Lightning-fast mental math using the ancient abacus method. Build speed, accuracy & number sense!", tag: "Most Popular" },
-      { emoji: "🧠", title: "Brain Gym",        slug: "brain-gym",      ages: "All ages",  color: "#4ECDC4", bg: "#F0FFFE", desc: "Fun exercises that wake up both sides of your brain — focus, memory & coordination level up!",   tag: "Fan Favourite" },
+      { emoji: "🧠", title: "Ascento Memory Enhancement Program & DMIT",        slug: "Ascento Memory Enhancement Program & DMIT",      ages: "All ages",  color: "#4ECDC4", bg: "#F0FFFE", desc: "Fun exercises that wake up both sides of your brain — focus, memory & coordination level up!",   tag: "Fan Favourite" },
       { emoji: "📐", title: "Vedic Maths",      slug: "vedic-maths",    ages: "8+ yrs",    color: "#FFB347", bg: "#FFF8EE", desc: "Ancient Indian speed-math tricks that make hard sums feel like magic. Impress your whole class!",  tag: "Mind-Blowing" },
-      { emoji: "🌟", title: "Pre-Abacus",       slug: "pre-abacus",     ages: "4–6 yrs",   color: "#A78BFA", bg: "#F5F0FF", desc: "The perfect first step! Numbers become friends through games, songs, and colourful play.",          tag: "For Tiny Minds" },
+      { emoji: "🌟", title: "Abacus",       slug: "pre-abacus",     ages: "4–6 yrs",   color: "#A78BFA", bg: "#F5F0FF", desc: "The perfect first step! Numbers become friends through games, songs, and colourful play.",          tag: "For Tiny Minds" },
       { emoji: "📚", title: "Tuitions",         slug: "tuitions",       ages: "5–17 yrs",  color: "#F06292", bg: "#FFF0F5", desc: "Expert academic support for Maths and Science from Class 1–12. Small batches, big results!",       tag: "New! 🎉" },
     ];
 
