@@ -12,12 +12,27 @@ datasource db {
 enum UserRole {
   admin
   student
+  teacher
   user
 }
 
 enum NoteType {
   DEMO
   REAL
+}
+
+enum AnnouncementPriority {
+  info
+  normal
+  urgent
+}
+
+enum AnnouncementAudience {
+  all
+  students
+  teachers
+  program
+  level
 }
 
 // ─── Models ──────────────────────────────────────────────────────────────────
@@ -111,6 +126,7 @@ model Program {
   students         Student[]
   scheduleSlots    ScheduleSlot[]
   timetableUploads TimetableUpload[]
+  announcements    Announcement[]
 
   @@map("programs")
 }
@@ -130,6 +146,7 @@ model ProgramLevel {
   students         Student[]
   scheduleSlots    ScheduleSlot[]
   timetableUploads TimetableUpload[]
+  announcements    Announcement[]
 
   @@unique([programId, name])
   @@map("program_levels")
@@ -180,9 +197,39 @@ model Teacher {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjects TeacherSubject[]
 
   @@map("teachers")
+}
+
+// ─── Subject ──────────────────────────────────────────────────────────────────
+// Shared catalogue of subject names (e.g. "Mathematics", "Abacus Level 1").
+// Subjects are upserted by name so there are no duplicates.
+
+model Subject {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  teachers TeacherSubject[]
+
+  @@map("subjects")
+}
+
+// ─── TeacherSubject ───────────────────────────────────────────────────────────
+// Many-to-many join between Teacher and Subject.
+
+model TeacherSubject {
+  teacherId  String
+  subjectId  String
+  assignedAt DateTime @default(now())
+
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@id([teacherId, subjectId])
+  @@map("teacher_subjects")
 }
 
 // ─── HomeworkFile ─────────────────────────────────────────────────────────────
@@ -220,6 +267,35 @@ model Enquiry {
   @@map("enquiries")
 }
 
+// ─── Announcement ─────────────────────────────────────────────────────────────
+
+model Announcement {
+  id          String               @id @default(cuid())
+  title       String
+  message     String
+  priority    AnnouncementPriority @default(normal)
+  audience    AnnouncementAudience @default(all)
+  programId   String?
+  levelId     String?
+  fileUrl     String?
+  fileType    String?              // "pdf" | "image"
+  fileName    String?
+  storagePath String?
+  expiresAt   DateTime?
+  isActive    Boolean              @default(true)
+  emailSent   Boolean              @default(false)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  program Program?      @relation(fields: [programId], references: [id], onDelete: SetNull)
+  level   ProgramLevel? @relation(fields: [levelId],   references: [id], onDelete: SetNull)
+
+  @@index([audience])
+  @@index([programId])
+  @@index([isActive])
+  @@map("announcements")
+}
+
 // ─── ScheduleSlot ─────────────────────────────────────────────────────────────
 // One row = one class period (e.g. Monday P2 — Mathematics — Mrs. Sharma)
 
@@ -237,7 +313,7 @@ model ScheduleSlot {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  program Program      @relation(fields: [programId], references: [id])
+  program Program       @relation(fields: [programId], references: [id])
   level   ProgramLevel? @relation(fields: [levelId], references: [id])
 
   // No two classes can share the same period on the same day for a program+level

@@ -497,7 +497,7 @@ const programs = [
   {
     id: "playschool",
     emoji: "🌟",
-    title: "Pre-Abacus",
+    title: "Playschool",
     subtitle: "A nurturing early-learning journey that blends language, numeracy, and life skills — from first words through fluent reading and writing.",
     age: "Ages 1.5–8",
     img: "/programs/preabacus.jpeg",
@@ -517,7 +517,7 @@ const programs = [
   {
     id: "braingym",
     emoji: "🧠",
-    title: "Brain Gym",
+    title: "Ascento Memory Enhancement Program & DMIT",
     subtitle: "Cognitive enhancement exercises designed to activate both brain hemispheres, improve focus, coordination, and learning readiness.",
     age: "All ages",
     img: "/programs/braingym.jpeg",

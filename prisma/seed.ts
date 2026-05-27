@@ -42,7 +42,7 @@ async function main() {
       })),
     },
     {
-      name: "Brain Gym",
+      name: "Ascento Memory Enhancement Program & DMIT",
       description: "Brain exercise and cognitive development",
       hasLevels: false,
       sortOrder: 4,
@@ -55,13 +55,7 @@ async function main() {
       sortOrder: 5,
       levels: [],
     },
-    {
-      name: "Pre Abacus",
-      description: "Foundation course before Abacus",
-      hasLevels: false,
-      sortOrder: 6,
-      levels: [],
-    },
+
   ];
 
   for (const prog of programs) {

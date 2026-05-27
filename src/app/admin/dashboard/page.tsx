@@ -22,6 +22,9 @@ import SettingsView from "@/components/admin/modules/settings/SettingsView";
 import EnquiriesView from "@/components/admin/modules/enquiries/EnquiriesView";
 import NotesView from "@/components/admin/modules/notes/NotesView";
 import HomeworkView from "@/components/admin/modules/homework/Homeworkview ";
+import AnnouncementsView from "@/components/admin/modules/announcements/AnnouncementsView";
+
+// In renderPage():
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -63,6 +66,7 @@ export default function AdminDashboardPage() {
       case "exams":      return <ExamsView />;
       case "attendance": return <AttendenceView />;
       case "fees":       return <FeesView />;
+      case "announcements": return <AnnouncementsView />;
       case "enquiries":  return <EnquiriesView />;
       case "reports":    return <ReportsView />;
       case "settings":   return <SettingsView />;
