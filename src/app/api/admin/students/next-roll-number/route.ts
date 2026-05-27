@@ -1,3 +1,4 @@
+// api/students/next-roll-number/Route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";

@@ -127,6 +127,7 @@ model Program {
   scheduleSlots    ScheduleSlot[]
   timetableUploads TimetableUpload[]
   announcements    Announcement[]
+  exams            Exam[]                // ← NEW
 
   @@map("programs")
 }
@@ -147,11 +148,13 @@ model ProgramLevel {
   scheduleSlots    ScheduleSlot[]
   timetableUploads TimetableUpload[]
   announcements    Announcement[]
+  exams            Exam[]            // ← NEW
 
   @@unique([programId, name])
   @@map("program_levels")
 }
 
+// ─── Student ──────────────────────────────────────────────────────────────────
 // ─── Student ──────────────────────────────────────────────────────────────────
 
 model Student {
@@ -160,7 +163,9 @@ model Student {
   studentId      String    @unique
   rollNumber     String?
   fullName       String
+  photoUrl       String?
   dateOfBirth    DateTime?
+  admissionDate  DateTime?          // ← NEW
   gender         String?
   bloodGroup     String?
   phone          String?
@@ -186,6 +191,35 @@ model Student {
   @@map("students")
 }
 
+// ─── Exam ─────────────────────────────────────────────────────────────────────
+
+model Exam {
+  id            String    @id @default(cuid())
+  examName      String
+  description   String?
+  examStartDate DateTime?
+  examEndDate   DateTime?
+
+  programId     String?
+  program       Program?      @relation(fields: [programId], references: [id], onDelete: SetNull)
+
+  levelId       String?
+  level         ProgramLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
+
+  // ← ADD THESE FOUR
+  fileUrl       String?
+  fileType      String?
+  fileName      String?
+  storagePath   String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([programId])
+  @@index([levelId])
+  @@index([examStartDate])
+  @@map("exams")
+}
 // ─── Teacher ──────────────────────────────────────────────────────────────────
 
 model Teacher {
@@ -204,8 +238,6 @@ model Teacher {
 }
 
 // ─── Subject ──────────────────────────────────────────────────────────────────
-// Shared catalogue of subject names (e.g. "Mathematics", "Abacus Level 1").
-// Subjects are upserted by name so there are no duplicates.
 
 model Subject {
   id        String   @id @default(uuid())
@@ -218,7 +250,6 @@ model Subject {
 }
 
 // ─── TeacherSubject ───────────────────────────────────────────────────────────
-// Many-to-many join between Teacher and Subject.
 
 model TeacherSubject {
   teacherId  String
@@ -278,7 +309,7 @@ model Announcement {
   programId   String?
   levelId     String?
   fileUrl     String?
-  fileType    String?              // "pdf" | "image"
+  fileType    String?
   fileName    String?
   storagePath String?
   expiresAt   DateTime?
@@ -297,16 +328,15 @@ model Announcement {
 }
 
 // ─── ScheduleSlot ─────────────────────────────────────────────────────────────
-// One row = one class period (e.g. Monday P2 — Mathematics — Mrs. Sharma)
 
 model ScheduleSlot {
   id           String   @id @default(cuid())
   programId    String
   levelId      String?
-  dayOfWeek    String   // "Monday" | "Tuesday" | … | "Saturday"
-  periodNumber Int      // 1–12
-  startTime    String   // "09:00"
-  endTime      String   // "10:00"
+  dayOfWeek    String
+  periodNumber Int
+  startTime    String
+  endTime      String
   subjectName  String
   teacherName  String
   notes        String?
@@ -316,7 +346,6 @@ model ScheduleSlot {
   program Program       @relation(fields: [programId], references: [id])
   level   ProgramLevel? @relation(fields: [levelId], references: [id])
 
-  // No two classes can share the same period on the same day for a program+level
   @@unique([programId, levelId, dayOfWeek, periodNumber])
   @@index([programId])
   @@index([levelId])
@@ -324,7 +353,6 @@ model ScheduleSlot {
 }
 
 // ─── TimetableUpload ──────────────────────────────────────────────────────────
-// Stores uploaded timetable images / PDFs (uploaded directly to Supabase Storage)
 
 model TimetableUpload {
   id           String   @id @default(cuid())
@@ -334,7 +362,7 @@ model TimetableUpload {
   storagePath  String
   url          String
   mimeType     String
-  size         Int      // bytes
+  size         Int
   createdAt    DateTime @default(now())
 
   program Program?      @relation(fields: [programId], references: [id])
