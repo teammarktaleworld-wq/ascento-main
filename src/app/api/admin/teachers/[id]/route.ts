@@ -12,6 +12,7 @@ const supabaseAdmin = createClient(
 type Ctx = { params: Promise<{ id: string }> };
 
 // ── PATCH /api/admin/teachers/[id] ───────────────────────────────────────────
+// app/api/admin/teachers/[id]/route.ts  (PATCH section — merge with your existing DELETE)
 export async function PATCH(req: NextRequest, ctx: Ctx) {
   const guard = await requireAdmin(req);
   if (guard) return guard;
@@ -19,24 +20,23 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params;
 
   try {
-    const { name, phone, experience, subjects } = await req.json();
+    const { 
+      name, phone, experience, designation, 
+      wifeOrHusbandOf, subjects, photoUrl, dateOfBirth 
+    } = await req.json();
 
     const subjectNames: string[] =
       typeof subjects === "string"
         ? subjects.split(",").map((s) => s.trim()).filter(Boolean)
-        : Array.isArray(subjects)
-        ? subjects
-        : [];
+        : Array.isArray(subjects) ? subjects : [];
 
     const teacher = await prisma.$transaction(async (tx) => {
-      // Remove old subject links
       await tx.teacherSubject.deleteMany({ where: { teacherId: id } });
 
-      // Upsert new subjects
       const subjectRecords = await Promise.all(
         subjectNames.map((subjectName) =>
           tx.subject.upsert({
-            where: { name: subjectName },
+            where:  { name: subjectName },
             create: { name: subjectName },
             update: {},
           })
@@ -47,18 +47,20 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
         where: { id },
         data: {
           name,
-          phone: phone ?? null,
-          experience: experience ?? null,
+          phone:           phone           ?? null,
+          experience:      experience      ?? null,
+          designation:     designation     ?? null,
+          wifeOrHusbandOf: wifeOrHusbandOf ?? null,
+          photoUrl:        photoUrl        ?? null,
+          dateOfBirth:     dateOfBirth ? new Date(dateOfBirth) : null,
           subjects:
             subjectRecords.length > 0
               ? { create: subjectRecords.map((s) => ({ subjectId: s.id })) }
               : undefined,
-          user: {
-            update: { name, phone: phone ?? null },
-          },
+          user: { update: { name, phone: phone ?? null } },
         },
         include: {
-          user: true,
+          user:     true,
           subjects: { include: { subject: true } },
         },
       });
@@ -69,7 +71,6 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
-
 // ── DELETE /api/admin/teachers/[id] ──────────────────────────────────────────
 export async function DELETE(req: NextRequest, ctx: Ctx) {
   const guard = await requireAdmin(req);
