@@ -1,49 +1,97 @@
-// api/students/next-roll-number/Route.ts
+// // api/students/next-roll-number/Route.ts
+// import { NextRequest, NextResponse } from "next/server";
+// import { prisma } from "@/lib/prisma";
+// import { requireAdmin } from "@/lib/auth-helpers";
+
+// export async function GET(req: NextRequest) {
+//   try {
+//     // Admin auth
+//     const err = await requireAdmin(req);
+//     if (err) return err;
+
+//     // Get latest student
+//     const latestStudent = await prisma.student.findFirst({
+//       orderBy: {
+//         createdAt: "desc",
+//       },
+//       select: {
+//         rollNumber: true,
+//       },
+//     });
+
+//     // Default roll number
+//     let nextRollNumber = "1";
+
+//     // Increment if exists
+//     if (latestStudent?.rollNumber) {
+//       const current = parseInt(latestStudent.rollNumber, 10);
+
+//       if (!isNaN(current)) {
+//         nextRollNumber = String(current + 1);
+//       }
+//     }
+
+//     return NextResponse.json({
+//       rollNumber: nextRollNumber,
+//     });
+//   } catch (error) {
+//     console.error("Next roll number error:", error);
+
+//     return NextResponse.json(
+//       {
+//         error: "Internal server error",
+//       },
+//       {
+//         status: 500,
+//       }
+//     );
+//   }
+// }
+
+
+
+
+
+
+
+// app/api/admin/students/next-roll-number/route.ts
+// Roll number is scoped per program + level + section
+// e.g. Playschool > Nursery > Section A gets its own sequence: 01, 02, 03...
+
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";
 
 export async function GET(req: NextRequest) {
   try {
-    // Admin auth
     const err = await requireAdmin(req);
     if (err) return err;
 
-    // Get latest student
-    const latestStudent = await prisma.student.findFirst({
-      orderBy: {
-        createdAt: "desc",
-      },
-      select: {
-        rollNumber: true,
-      },
-    });
+    const { searchParams } = new URL(req.url);
+    const programId      = searchParams.get("programId")      ?? "";
+    const programLevelId = searchParams.get("programLevelId") ?? "";
+    const section        = searchParams.get("section")        ?? "";
 
-    // Default roll number
-    let nextRollNumber = "1";
+    // Build a scoped filter so each class/level/section has its own roll sequence
+    const where: Record<string, string> = {};
+    if (programId)      where.programId      = programId;
+    if (programLevelId) where.programLevelId = programLevelId;
+    if (section)        where.section        = section;
 
-    // Increment if exists
-    if (latestStudent?.rollNumber) {
-      const current = parseInt(latestStudent.rollNumber, 10);
+    // Count existing students in this exact scope
+    const count = await prisma.student.count({ where });
 
-      if (!isNaN(current)) {
-        nextRollNumber = String(current + 1);
-      }
-    }
+    const nextRollNumber = count + 1;
 
-    return NextResponse.json({
-      rollNumber: nextRollNumber,
-    });
+    // Zero-pad to 2 digits: 01, 02 ... 09, 10, 11 ...
+    const formatted = String(nextRollNumber).padStart(2, "0");
+
+    return NextResponse.json({ nextRollNumber, formatted });
   } catch (error) {
     console.error("Next roll number error:", error);
-
     return NextResponse.json(
-      {
-        error: "Internal server error",
-      },
-      {
-        status: 500,
-      }
+      { error: "Internal server error" },
+      { status: 500 }
     );
   }
 }

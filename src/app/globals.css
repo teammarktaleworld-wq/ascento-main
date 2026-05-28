@@ -60,3 +60,59 @@ body {
 *::after {
   box-sizing: border-box;
 }
+/*
+  Add these rules to your globals.css (or tailwind @layer base).
+  They fix the custom scrollbar in the sidebar and ensure
+  the admin shell never causes double-scrollbars on the page body.
+*/
+
+/* ── Prevent body from scrolling when admin dashboard is active ── */
+/* Applied via a class on <body> — see AdminDashboardPage notes below */
+body.admin-no-scroll {
+  overflow: hidden;
+}
+
+/* ── Sidebar custom scrollbar (webkit) ── */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 107, 107, 0.25);
+  border-radius: 99px;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 107, 107, 0.45);
+}
+
+/* ── Main content scrollbar ── */
+.main-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.main-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.main-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 99px;
+}
+.main-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/*
+  OPTIONAL — if your public navbar is NOT fixed, remove the marginTop
+  from AdminDashboardPage and set NAVBAR_HEIGHT = 0.
+  If it IS fixed (position:fixed), the shell's marginTop pushes
+  content below it correctly.
+
+  To prevent the body from also scrolling on admin pages, add this
+  to AdminDashboardPage's useEffect:
+
+    useEffect(() => {
+      document.body.classList.add('admin-no-scroll');
+      return () => document.body.classList.remove('admin-no-scroll');
+    }, []);
+*/
