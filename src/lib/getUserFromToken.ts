@@ -22,7 +22,7 @@
 
 
 
-
+//lib/getUserFromToken
 
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@supabase/supabase-js";
