@@ -1,12 +1,11 @@
-// "use client";
 
-// // ─────────────────────────────────────────────────────────────────
-// // context/AuthContext.tsx
-// //
-// // • Listens to Supabase auth state changes
-// // • Keeps user profile in React context (accessible everywhere)
-// // • NavbarWrapper reads from this — no prop drilling needed
-// // ─────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+// "use client";
 
 // import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 // import { supabase } from "@/lib/supabaseClient";
@@ -33,34 +32,57 @@
 // });
 
 // export function AuthProvider({ children }: { children: ReactNode }) {
-//   const [user, setUser]       = useState<AuthUser>(null);
+//   const [user, setUser] = useState<AuthUser>(null);
 //   const [loading, setLoading] = useState(true);
-//   const router                = useRouter();
+//   const router = useRouter();
 
-//   /* Helper: shape supabase user → AuthUser */
-//   const shapeUser = (supaUser: any): AuthUser => {
-//     if (!supaUser) return null;
-//     return {
-//       id:     supaUser.id,
-//       email:  supaUser.email ?? "",
-//       name:   supaUser.user_metadata?.name ?? supaUser.email?.split("@")[0] ?? "User",
-//       avatar: supaUser.user_metadata?.avatar_url ?? undefined,
-//       role:   supaUser.user_metadata?.role ?? "user",
-//     };
+//   // 🔥 NEW: fetch user from DB
+//   const fetchUser = async () => {
+//     const { data } = await supabase.auth.getSession();
+
+//     if (!data.session) {
+//       setUser(null);
+//       setLoading(false);
+//       return;
+//     }
+
+//     const token = data.session.access_token;
+
+//     try {
+//       const res = await fetch("/api/me", {
+//         headers: {
+//           Authorization: `Bearer ${token}`,
+//         },
+//       });
+
+//       if (!res.ok) throw new Error("Failed to fetch user");
+
+//       const dbUser = await res.json();
+
+//       setUser({
+//         id: dbUser.id,
+//         email: dbUser.email,
+//         name: dbUser.name ?? dbUser.email.split("@")[0],
+//         avatar: dbUser.avatarUrl ?? undefined,
+//         role: dbUser.role, // ✅ FROM DATABASE
+//       });
+//     } catch (err) {
+//       console.error(err);
+//       setUser(null);
+//     }
+
+//     setLoading(false);
 //   };
 
 //   useEffect(() => {
-//     /* 1. Get current session on mount */
-//     supabase.auth.getSession().then(({ data: { session } }) => {
-//       setUser(shapeUser(session?.user ?? null));
-//       setLoading(false);
-//     });
+//     // 1. Initial load
+//     fetchUser();
 
-//     /* 2. Subscribe to auth changes (login, logout, token refresh) */
-//     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-//       setUser(shapeUser(session?.user ?? null));
-//       setLoading(false);
-//     });
+//     // 2. Listen for auth changes
+//     const { data: { subscription } } =
+//       supabase.auth.onAuthStateChange(() => {
+//         fetchUser();
+//       });
 
 //     return () => subscription.unsubscribe();
 //   }, []);
@@ -78,8 +100,10 @@
 //   );
 // }
 
-// /* Hook for easy consumption */
 // export const useAuth = () => useContext(AuthContext);
+
+
+
 
 
 
@@ -104,38 +128,40 @@ export type AuthUser = {
 
 type AuthContextType = {
   user: AuthUser;
+  token: string | null;   // ← ADD THIS
   loading: boolean;
   signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
+  token: null,            // ← ADD THIS
   loading: true,
   signOut: async () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser>(null);
+  const [user,    setUser]    = useState<AuthUser>(null);
+  const [token,   setToken]   = useState<string | null>(null);  // ← ADD THIS
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // 🔥 NEW: fetch user from DB
   const fetchUser = async () => {
     const { data } = await supabase.auth.getSession();
 
     if (!data.session) {
       setUser(null);
+      setToken(null);       // ← ADD THIS
       setLoading(false);
       return;
     }
 
-    const token = data.session.access_token;
+    const accessToken = data.session.access_token;
+    setToken(accessToken);  // ← ADD THIS
 
     try {
       const res = await fetch("/api/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
 
       if (!res.ok) throw new Error("Failed to fetch user");
@@ -143,11 +169,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const dbUser = await res.json();
 
       setUser({
-        id: dbUser.id,
-        email: dbUser.email,
-        name: dbUser.name ?? dbUser.email.split("@")[0],
+        id:     dbUser.id,
+        email:  dbUser.email,
+        name:   dbUser.name ?? dbUser.email.split("@")[0],
         avatar: dbUser.avatarUrl ?? undefined,
-        role: dbUser.role, // ✅ FROM DATABASE
+        role:   dbUser.role,
       });
     } catch (err) {
       console.error(err);
@@ -158,14 +184,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    // 1. Initial load
     fetchUser();
 
-    // 2. Listen for auth changes
     const { data: { subscription } } =
-      supabase.auth.onAuthStateChange(() => {
-        fetchUser();
-      });
+      supabase.auth.onAuthStateChange(() => { fetchUser(); });
 
     return () => subscription.unsubscribe();
   }, []);
@@ -173,11 +195,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    setToken(null);         // ← ADD THIS
     router.push("/");
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signOut }}>
+    <AuthContext.Provider value={{ user, token, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );

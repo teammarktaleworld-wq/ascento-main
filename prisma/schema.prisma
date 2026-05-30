@@ -20,6 +20,7 @@ enum NoteType {
   DEMO
   REAL
 }
+
 enum AttendanceStatus {
   present
   absent
@@ -31,6 +32,26 @@ enum AnnouncementPriority {
   info
   normal
   urgent
+}
+
+enum WebinarStatus {
+  active
+  inactive
+}
+
+enum WebinarPlatform {
+  zoom
+  google_meet
+  microsoft_teams
+  other
+}
+
+enum NotificationType {
+  webinar
+  announcement
+  exam
+  attendance
+  general
 }
 
 enum AnnouncementAudience {
@@ -109,9 +130,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  student   Student?
-  teacher   Teacher?
-  enquiries Enquiry[] @relation("EnquiryCreatedBy")
+  student       Student?
+  teacher       Teacher?
+  enquiries     Enquiry[]      @relation("EnquiryCreatedBy")
+  notifications Notification[]
 
   @@map("users")
 }
@@ -133,7 +155,8 @@ model Program {
   scheduleSlots    ScheduleSlot[]
   timetableUploads TimetableUpload[]
   announcements    Announcement[]
-  exams            Exam[]                // ← NEW
+  exams            Exam[]
+  webinars         Webinar[]
 
   @@map("programs")
 }
@@ -154,13 +177,13 @@ model ProgramLevel {
   scheduleSlots    ScheduleSlot[]
   timetableUploads TimetableUpload[]
   announcements    Announcement[]
-  exams            Exam[]            // ← NEW
+  exams            Exam[]
+  webinars         Webinar[]
 
   @@unique([programId, name])
   @@map("program_levels")
 }
 
-// ─── Student ──────────────────────────────────────────────────────────────────
 // ─── Student ──────────────────────────────────────────────────────────────────
 
 model Student {
@@ -171,7 +194,7 @@ model Student {
   fullName       String
   photoUrl       String?
   dateOfBirth    DateTime?
-  admissionDate  DateTime?          // ← NEW
+  admissionDate  DateTime?
   gender         String?
   bloodGroup     String?
   phone          String?
@@ -189,7 +212,7 @@ model Student {
 
   programId      String?
   programLevelId String?
-   attendance Attendance[]
+  attendance     Attendance[]
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   program      Program?      @relation(fields: [programId], references: [id])
@@ -201,48 +224,46 @@ model Student {
 // ─── Exam ─────────────────────────────────────────────────────────────────────
 
 model Exam {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   examName      String
   description   String?
   examStartDate DateTime?
   examEndDate   DateTime?
-
   programId     String?
   program       Program?      @relation(fields: [programId], references: [id], onDelete: SetNull)
-
   levelId       String?
   level         ProgramLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
-
-  // ← ADD THESE FOUR
   fileUrl       String?
   fileType      String?
   fileName      String?
   storagePath   String?
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   @@index([programId])
   @@index([levelId])
   @@index([examStartDate])
   @@map("exams")
 }
-// ─── Teacher ──────────────────────────────────────────────────────────────────
-model Teacher {
-  id                String   @id @default(uuid())
-  userId            String   @unique
-  name              String
-  phone             String?
-  experience        String?
-  designation       String?
-  wifeOrHusbandOf   String?
-  photoUrl          String?
-  dateOfBirth       DateTime?   // ← ADD THIS
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
 
-  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subjects          TeacherSubject[]
+// ─── Teacher ──────────────────────────────────────────────────────────────────
+
+model Teacher {
+  id              String    @id @default(uuid())
+  userId          String    @unique
+  name            String
+  phone           String?
+  experience      String?
+  designation     String?
+  wifeOrHusbandOf String?
+  photoUrl        String?
+  dateOfBirth     DateTime?
+  status          String    @default("Active")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjects TeacherSubject[]
 
   @@map("teachers")
 }
@@ -257,6 +278,74 @@ model Subject {
   teachers TeacherSubject[]
 
   @@map("subjects")
+}
+
+// ─── Webinar ──────────────────────────────────────────────────────────────────
+
+model Webinar {
+  id           String          @id @default(cuid())
+  title        String
+  description  String?
+  platform     WebinarPlatform @default(zoom)
+  meetingLink  String
+  meetingId    String?
+  passcode     String?
+  hostName     String?
+  hostEmail    String?
+
+  scheduledAt  DateTime
+  durationMins Int             @default(60)
+
+  // active = upcoming/ongoing, inactive = past or manually disabled
+  status       WebinarStatus   @default(active)
+
+  // null = visible to everyone
+  programId    String?
+  levelId      String?
+
+  // Email tracking — increments on every send, never a one-time gate
+  emailSent         Boolean   @default(false)
+  emailSentAt       DateTime?
+  emailSentCount    Int       @default(0)
+
+  // In-app notification tracking — increments on every send
+  notificationSent      Boolean   @default(false)
+  notificationSentAt    DateTime?
+  notificationSentCount Int       @default(0)
+
+  bannerUrl    String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  program       Program?      @relation(fields: [programId], references: [id], onDelete: SetNull)
+  level         ProgramLevel? @relation(fields: [levelId],   references: [id], onDelete: SetNull)
+  notifications Notification[]
+
+  @@index([scheduledAt])
+  @@index([programId])
+  @@index([status])
+  @@map("webinars")
+}
+
+// ─── Notification ─────────────────────────────────────────────────────────────
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType @default(general)
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  link      String?
+  webinarId String?
+  createdAt DateTime         @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  webinar Webinar? @relation(fields: [webinarId], references: [id], onDelete: SetNull)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
 }
 
 // ─── TeacherSubject ───────────────────────────────────────────────────────────
@@ -308,8 +397,7 @@ model Enquiry {
   @@map("enquiries")
 }
 
-// ─── Announcement ─────────────────────────────────────────────────────────────
-
+// ─── Attendance ───────────────────────────────────────────────────────────────
 
 model Attendance {
   id        String           @id @default(cuid())
@@ -317,19 +405,19 @@ model Attendance {
   date      DateTime         @db.Date
   status    AttendanceStatus
   note      String?
-  markedBy  String?          // admin userId who marked
+  markedBy  String?
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
   student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  @@unique([studentId, date])   // one record per student per day
+  @@unique([studentId, date])
   @@index([date])
   @@index([studentId])
   @@map("attendance")
 }
 
-
+// ─── Announcement ─────────────────────────────────────────────────────────────
 
 model Announcement {
   id          String               @id @default(cuid())
@@ -375,7 +463,7 @@ model ScheduleSlot {
   updatedAt    DateTime @updatedAt
 
   program Program       @relation(fields: [programId], references: [id])
-  level   ProgramLevel? @relation(fields: [levelId], references: [id])
+  level   ProgramLevel? @relation(fields: [levelId],   references: [id])
 
   @@unique([programId, levelId, dayOfWeek, periodNumber])
   @@index([programId])
@@ -397,7 +485,7 @@ model TimetableUpload {
   createdAt    DateTime @default(now())
 
   program Program?      @relation(fields: [programId], references: [id])
-  level   ProgramLevel? @relation(fields: [levelId], references: [id])
+  level   ProgramLevel? @relation(fields: [levelId],   references: [id])
 
   @@index([programId])
   @@map("timetable_uploads")

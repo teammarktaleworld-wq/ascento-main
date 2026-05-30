@@ -3,8 +3,7 @@
 
 
 
-//lib/authhelper
-
+// lib/auth-helper.ts
 
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -62,4 +61,21 @@ export async function getAuthTeacher(req: Request) {
   const teacher = await prisma.teacher.findUnique({ where: { userId: dbUser.id } });
   if (!teacher) throw new Error("Teacher record not found");
   return { user: dbUser, teacher };
+}
+
+/**
+ * Returns the authenticated user's DB record, or null if unauthenticated.
+ * Use this in user-facing routes (notifications, profile, etc.)
+ * where you want to return 401 yourself rather than throw.
+ */
+export async function getSessionUser(req: Request) {
+  try {
+    const token = req.headers.get("authorization")?.replace("Bearer ", "");
+    if (!token) return null;
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+    if (error || !user) return null;
+    return prisma.user.findUnique({ where: { id: user.id } });
+  } catch {
+    return null;
+  }
 }
