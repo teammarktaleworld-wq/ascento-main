@@ -10,7 +10,8 @@
   import { Counter } from "@/ui/home/Counter";
   import { Blob } from "@/ui/home/Blob";
   import { Star } from "@/ui/home/Star";
-  import SummerCampBanner from "@/components/SummerCampBanner";
+  // import SummerCampBanner from "@/components/SummerCampBanner";
+  import AdmissionsBanner from "@/components/AdmissionsBanner";
 
   export default function Home() {
     const [imgSrc, setImgSrc] = useState("/Images/DSC_0037-scaled-1.jpg");
@@ -208,7 +209,7 @@
         `}</style>
 
         {/* ════ SUMMER CAMP BANNER ════ */}
-        <SummerCampBanner />
+        <AdmissionsBanner />
 
         {/* ════════════════════════════════
             HERO

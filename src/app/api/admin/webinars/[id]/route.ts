@@ -3,14 +3,26 @@
 
 
 
-// // app/api/admin/webinars/[id]/route.ts
+// // // app/api/admin/webinars/[id]/route.ts
+
+
+
+
+
+
+
+
+
+
+
+
+
 // import { NextRequest, NextResponse } from "next/server";
 // import { prisma } from "@/lib/prisma";
 // import { requireAdmin } from "@/lib/auth-helpers";
 
 // type RouteContext = { params: Promise<{ id: string }> };
 
-// // ── GET /api/admin/webinars/[id] ─────────────────────────────────────────────
 // export async function GET(req: NextRequest, ctx: RouteContext) {
 //   try {
 //     await requireAdmin(req);
@@ -30,12 +42,11 @@
 //   }
 // }
 
-// // ── PATCH /api/admin/webinars/[id] ───────────────────────────────────────────
 // export async function PATCH(req: NextRequest, ctx: RouteContext) {
 //   try {
 //     await requireAdmin(req);
 //     const { id } = await ctx.params;
-//     const body = await req.json();
+//     const body   = await req.json();
 
 //     const {
 //       title, description, platform, meetingLink, meetingId, passcode,
@@ -57,7 +68,7 @@
 //         ...(scheduledAt  !== undefined ? { scheduledAt: new Date(scheduledAt) } : {}),
 //         ...(durationMins !== undefined ? { durationMins: Number(durationMins) } : {}),
 //         ...(programId    !== undefined ? { programId: programId || null }       : {}),
-//         ...(levelId      !== undefined ? { levelId: levelId || null }           : {}),
+//         ...(levelId      !== undefined ? { levelId:   levelId   || null }       : {}),
 //         ...(bannerUrl    !== undefined ? { bannerUrl }                          : {}),
 //         ...(status       !== undefined ? { status }                             : {}),
 //       },
@@ -73,7 +84,6 @@
 //   }
 // }
 
-// // ── DELETE /api/admin/webinars/[id] ──────────────────────────────────────────
 // export async function DELETE(req: NextRequest, ctx: RouteContext) {
 //   try {
 //     await requireAdmin(req);
@@ -98,17 +108,20 @@
 
 
 
+// app/api/admin/webinars/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helpers";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
+// ── GET /api/admin/webinars/[id] ──────────────────────────────────────────────
 export async function GET(req: NextRequest, ctx: RouteContext) {
-  try {
-    await requireAdmin(req);
-    const { id } = await ctx.params;
+  const authErr = await requireAdmin(req);
+  if (authErr) return authErr;
 
+  try {
+    const { id } = await ctx.params;
     const webinar = await prisma.webinar.findUnique({
       where: { id },
       include: {
@@ -123,35 +136,48 @@ export async function GET(req: NextRequest, ctx: RouteContext) {
   }
 }
 
+// ── PATCH /api/admin/webinars/[id] ────────────────────────────────────────────
 export async function PATCH(req: NextRequest, ctx: RouteContext) {
+  const authErr = await requireAdmin(req);
+  if (authErr) return authErr;
+
   try {
-    await requireAdmin(req);
     const { id } = await ctx.params;
     const body   = await req.json();
 
     const {
       title, description, platform, meetingLink, meetingId, passcode,
-      hostName, hostEmail, scheduledAt, durationMins, programId, levelId,
-      bannerUrl, status,
+      hostName, hostEmail, scheduledAt, durationMins,
+      programId, levelId, bannerUrl,
+      status,    // "active" | "inactive"
+      isActive,  // boolean shorthand — maps to status
     } = body;
+
+    // Support both `status` string and `isActive` boolean from frontend
+    let resolvedStatus: "active" | "inactive" | undefined;
+    if (status !== undefined) {
+      resolvedStatus = status;
+    } else if (isActive !== undefined) {
+      resolvedStatus = isActive ? "active" : "inactive";
+    }
 
     const webinar = await prisma.webinar.update({
       where: { id },
       data: {
-        ...(title        !== undefined ? { title }                              : {}),
-        ...(description  !== undefined ? { description }                        : {}),
-        ...(platform     !== undefined ? { platform }                           : {}),
-        ...(meetingLink  !== undefined ? { meetingLink }                        : {}),
-        ...(meetingId    !== undefined ? { meetingId }                          : {}),
-        ...(passcode     !== undefined ? { passcode }                           : {}),
-        ...(hostName     !== undefined ? { hostName }                           : {}),
-        ...(hostEmail    !== undefined ? { hostEmail }                          : {}),
-        ...(scheduledAt  !== undefined ? { scheduledAt: new Date(scheduledAt) } : {}),
-        ...(durationMins !== undefined ? { durationMins: Number(durationMins) } : {}),
-        ...(programId    !== undefined ? { programId: programId || null }       : {}),
-        ...(levelId      !== undefined ? { levelId:   levelId   || null }       : {}),
-        ...(bannerUrl    !== undefined ? { bannerUrl }                          : {}),
-        ...(status       !== undefined ? { status }                             : {}),
+        ...(title            !== undefined ? { title }                              : {}),
+        ...(description      !== undefined ? { description }                        : {}),
+        ...(platform         !== undefined ? { platform }                           : {}),
+        ...(meetingLink      !== undefined ? { meetingLink }                        : {}),
+        ...(meetingId        !== undefined ? { meetingId }                          : {}),
+        ...(passcode         !== undefined ? { passcode }                           : {}),
+        ...(hostName         !== undefined ? { hostName }                           : {}),
+        ...(hostEmail        !== undefined ? { hostEmail }                          : {}),
+        ...(scheduledAt      !== undefined ? { scheduledAt: new Date(scheduledAt) } : {}),
+        ...(durationMins     !== undefined ? { durationMins: Number(durationMins) } : {}),
+        ...(programId        !== undefined ? { programId: programId || null }       : {}),
+        ...(levelId          !== undefined ? { levelId: levelId     || null }       : {}),
+        ...(bannerUrl        !== undefined ? { bannerUrl }                          : {}),
+        ...(resolvedStatus   !== undefined ? { status: resolvedStatus }             : {}),
       },
       include: {
         program: { select: { id: true, name: true } },
@@ -165,10 +191,14 @@ export async function PATCH(req: NextRequest, ctx: RouteContext) {
   }
 }
 
+// ── DELETE /api/admin/webinars/[id] ───────────────────────────────────────────
 export async function DELETE(req: NextRequest, ctx: RouteContext) {
+  const authErr = await requireAdmin(req);
+  if (authErr) return authErr;
+
   try {
-    await requireAdmin(req);
     const { id } = await ctx.params;
+    // Cascade deletes notifications via schema onDelete: SetNull/Cascade
     await prisma.webinar.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (err: any) {
