@@ -36,7 +36,10 @@ export async function getUserFromToken(
   token: string
 ) {
   console.log("TOKEN:", token);
-
+console.log(
+  "SERVICE KEY EXISTS:",
+  !!process.env.SUPABASE_SERVICE_ROLE_KEY
+);
   const { data, error } =
     await supabase.auth.getUser(token);
 
