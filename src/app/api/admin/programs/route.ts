@@ -1,8 +1,8 @@
 // app/api/admin/programs/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { prisma } from "@/lib/helpers/prisma";
+import { requireAdmin } from "@/lib/helpers/auth-helpers";
 
 // GET /api/admin/pronext-roll-number/route.tsgrams — list all programs with their levels
 export async function GET(req: NextRequest) {

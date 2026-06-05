@@ -6,7 +6,7 @@ import ExamsPage from "./ExamsPage";
 // ── Sub-components ────────────────────────────────────────────────────────────
 import DashboardStyles from "./DashboardStyles";
 import Sidebar from "./Sidebar";
-import Topbar from "./Topbar";
+import Topbar from "./Topbar.user";
 import HomePage from "./HomePage";
 import AnnouncementsPage from "./AnnouncementsPage";
 import SchedulePage from "./SchedulePage";
@@ -92,11 +92,11 @@ export default function UserDashboard() {
 
         {/* Main */}
         <div className="ud-main">
-          <Topbar
-            activePage={activePage}
-            onMenuClick={() => setSidebarOpen((o) => !o)}
-            onNotifClick={() => showToast("You have 1 urgent announcement!")}
-          />
+      <Topbar
+  title={activePage}
+  onMenuClick={() => setSidebarOpen((o) => !o)}
+  onNotificationsClick={() => showToast("You have 1 urgent announcement!")}
+/>
 
           <div className="ud-scroll">
             {renderPage()}

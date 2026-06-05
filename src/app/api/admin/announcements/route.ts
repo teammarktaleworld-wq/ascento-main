@@ -123,11 +123,11 @@
 
 // app/api/admin/announcements/route.ts
 import { NextRequest, NextResponse }      from "next/server";
-import { prisma }                          from "@/lib/prisma";
-import { requireAdmin }                    from "@/lib/auth-helpers";
-import { sendAnnouncementEmails }          from "@/lib/mailer";
-import { resolveRecipients }              from "@/lib/announcementRecipients";
-import { getAnnouncementTargets }          from "@/lib/notification-helpers";
+import { prisma }                          from "@/lib/helpers/prisma";
+import { requireAdmin }                    from "@/lib/helpers/auth-helpers";
+import { sendAnnouncementEmails }          from "@/lib/helpers/mailer";
+import { resolveRecipients }              from "@/lib/helpers/announcementRecipients";
+import { getAnnouncementTargets }          from "@/lib/helpers/notification-helpers";
 
 const announcementInclude = {
   program: { select: { id: true, name: true } },

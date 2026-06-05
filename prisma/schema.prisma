@@ -28,6 +28,17 @@ enum AttendanceStatus {
   holiday
 }
 
+
+
+
+enum FeeStatus {
+  Pending
+  Paid
+  Partial
+  Overdue
+  Waived
+}
+
 enum AnnouncementPriority {
   info
   normal
@@ -213,6 +224,7 @@ model Student {
   programId      String?
   programLevelId String?
   attendance     Attendance[]
+  fees StudentFee[]
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   program      Program?      @relation(fields: [programId], references: [id])
@@ -220,6 +232,46 @@ model Student {
 
   @@map("students")
 }
+
+
+
+
+// ─── StudentFee ───────────────────────────────────────────────────────────────
+
+
+
+model StudentFee {
+  id          String    @id @default(cuid())
+  studentId   String
+  feeType     String                      // e.g. "Tuition", "Admission", "Activity"
+  description String?
+  amount      Float
+  paidAmount  Float     @default(0)
+  dueDate     DateTime?
+  paidDate    DateTime?
+  status      FeeStatus @default(Pending)
+  month       String?                     // e.g. "June 2025"
+  academicYear String?
+  receiptNo   String?
+  remarks     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("student_fees")
+}
+
+
+
+
+
+
+
+
 
 // ─── Exam ─────────────────────────────────────────────────────────────────────
 

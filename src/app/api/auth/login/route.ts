@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabaseClient";
-import { prisma } from "@/lib/prisma";
+import { supabase } from "@/lib/helpers/supabaseClient";
+import { prisma } from "@/lib/helpers/prisma";
 
 // ─── POST /api/auth/login ─────────────────────────────────────────────────────
 // Accepts email + password, returns JWT access_token + user info.

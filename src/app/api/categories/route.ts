@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { supabase } from "@/lib/supabaseClient";
+import { prisma } from "@/lib/helpers/prisma";
+import { supabase } from "@/lib/helpers/supabaseClient";
 
 // ─── Auth helper: allow user or student roles ─────────────────────────────────
 async function requireUserOrStudent(

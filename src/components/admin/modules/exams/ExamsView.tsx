@@ -11,7 +11,7 @@
 //   FileText, Clock, BookOpen, ChevronDown, GraduationCap,
 //   Layers, Filter, Upload, Image, File, ExternalLink, Paperclip,
 // } from 'lucide-react';
-// import { supabase } from "@/lib/supabaseClient";
+// import { supabase } from "@/lib/helpers/supabaseClient";
 
 // // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -801,7 +801,7 @@ import {
   FileText, Clock, BookOpen, ChevronDown, GraduationCap,
   Layers, Filter, Upload, Image, ExternalLink,
 } from 'lucide-react';
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/helpers/supabaseClient";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

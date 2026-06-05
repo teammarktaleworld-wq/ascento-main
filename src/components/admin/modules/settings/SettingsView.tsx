@@ -11,7 +11,7 @@ import {
   Send,
   Settings as SettingsIcon
 } from 'lucide-react';
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/helpers/supabaseClient";
 
 /**
  * ==========================================

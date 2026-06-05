@@ -2,7 +2,7 @@
 
 // import { useEffect } from "react";
 // import { useRouter } from "next/navigation";
-// import { supabase } from "@/lib/supabaseClient";
+// import { supabase } from "@/lib/helpers/supabaseClient";
 
 // export default function Callback() {
 //   const router = useRouter();
@@ -44,7 +44,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/helpers/supabaseClient";
 
 export default function Callback() {
   const router = useRouter();

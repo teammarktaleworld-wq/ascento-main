@@ -98,7 +98,7 @@
 
 
 // import { NextRequest, NextResponse } from "next/server";
-// import { prisma } from "@/lib/prisma";
+// import { prisma } from "@/lib/helpers/prisma";
 // import { createClient } from "@supabase/supabase-js";
 // import { UserRole } from "@prisma/client";
 
@@ -187,7 +187,7 @@
 
 
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/helpers/prisma";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(

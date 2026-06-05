@@ -1,5 +1,5 @@
 // lib/announcementRecipients.ts
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/helpers/prisma";
 
 /**
  * Resolves the list of email addresses that should receive an announcement,

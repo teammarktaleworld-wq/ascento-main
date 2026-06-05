@@ -12,7 +12,7 @@ import {
   Receipt,
   Wallet
 } from 'lucide-react';
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/helpers/supabaseClient";
 
 /**
  * ==========================================

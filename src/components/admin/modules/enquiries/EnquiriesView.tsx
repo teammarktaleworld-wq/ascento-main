@@ -24,7 +24,7 @@
 //   Inbox,
 //   Building2
 // } from 'lucide-react';
-// import { supabase } from "@/lib/supabaseClient";
+// import { supabase } from "@/lib/helpers/supabaseClient";
 
 // /**
 //  * ==========================================
@@ -667,7 +667,7 @@ import {
   Baby,
   BookOpen,
 } from 'lucide-react';
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/helpers/supabaseClient";
 
 /**
  * ==========================================

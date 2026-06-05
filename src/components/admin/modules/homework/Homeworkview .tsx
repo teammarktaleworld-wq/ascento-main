@@ -1,7 +1,7 @@
 // "use client";
 
 // import { useCallback, useEffect, useState } from "react";
-// import { supabase } from "@/lib/supabaseClient";
+// import { supabase } from "@/lib/helpers/supabaseClient";
 
 // // ─── Types ────────────────────────────────────────────────────────────────────
 // type HWStatus = "upcoming" | "overdue" | "no-due-date";
@@ -1464,7 +1464,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/helpers/supabaseClient";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type FileType = "pdf" | "image";

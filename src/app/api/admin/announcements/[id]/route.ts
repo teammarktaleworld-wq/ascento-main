@@ -147,10 +147,10 @@
 
 // app/api/admin/announcements/[id]/route.ts
 import { NextRequest, NextResponse }         from "next/server";
-import { prisma }                             from "@/lib/prisma";
-import { requireAdmin }                       from "@/lib/auth-helpers";
-import { sendAnnouncementEmails }             from "@/lib/mailer";
-import { resolveRecipients }                 from "@/lib/announcementRecipients";
+import { prisma }                             from "@/lib/helpers/prisma";
+import { requireAdmin }                       from "@/lib/helpers/auth-helpers";
+import { sendAnnouncementEmails }             from "@/lib/helpers/mailer";
+import { resolveRecipients }                 from "@/lib/helpers/announcementRecipients";
 import { pushAnnouncementNotifications }      from "../route";
 import { createClient }                       from "@supabase/supabase-js";
 

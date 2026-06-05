@@ -5,7 +5,7 @@
 // "use client";
 
 // import { useCallback, useEffect, useRef, useState } from "react";
-// import { supabase } from "@/lib/supabaseClient";
+// import { supabase } from "@/lib/helpers/supabaseClient";
 
 // // ─── Types ────────────────────────────────────────────────────────────────────
 // type NoteType = "DEMO" | "REAL";
@@ -853,7 +853,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/helpers/supabaseClient";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type NoteType = "DEMO" | "REAL";

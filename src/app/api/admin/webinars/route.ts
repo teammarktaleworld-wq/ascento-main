@@ -5,7 +5,7 @@
 
 // // app/api/notifications/route.ts
 // import { NextRequest, NextResponse } from "next/server";
-// import { prisma } from "@/lib/prisma";
+// import { prisma } from "@/lib/helpers/prisma";
 // import { getSessionUser } from "@/lib/auth-helpers";
 
 // // ── GET /api/notifications ────────────────────────────────────────────────────
@@ -71,18 +71,12 @@
 
 
 
-
-
-
-
-
-
 // app/api/admin/webinars/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
-import { getWebinarTargets, getEmailTargets } from "@/lib/notification-helpers";
-import { sendWebinarEmail } from "@/lib/webinarEmail";
+import { prisma } from "@/lib/helpers/prisma";
+import { requireAdmin } from "@/lib/helpers/auth-helpers";
+import { getWebinarTargets, getEmailTargets } from "@/lib/helpers/notification-helpers";
+import { sendWebinarEmail } from "@/lib/helpers/webinarEmail";
 
 // ── GET /api/admin/webinars ───────────────────────────────────────────────────
 export async function GET(req: NextRequest) {

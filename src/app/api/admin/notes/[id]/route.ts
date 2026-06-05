@@ -9,8 +9,8 @@
 
 
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { prisma } from "@/lib/helpers/prisma";
+import { requireAdmin } from "@/lib/helpers/auth-helpers";
 import { createClient } from "@supabase/supabase-js";
 import { NoteType } from "@prisma/client";
 

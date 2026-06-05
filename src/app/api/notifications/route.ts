@@ -8,7 +8,7 @@
 
 // // app/api/notifications/route.ts
 // import { NextRequest, NextResponse } from "next/server";
-// import { prisma } from "@/lib/prisma";
+// import { prisma } from "@/lib/helpers/prisma";
 // import { getSessionUser } from "@/lib/auth-helpers";
 
 // // ── GET /api/notifications ────────────────────────────────────────────────────
@@ -77,8 +77,8 @@
 
 // app/api/notifications/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth-helpers";
+import { prisma } from "@/lib/helpers/prisma";
+import { getSessionUser } from "@/lib/helpers/auth-helpers";
 
 // ── GET /api/notifications ────────────────────────────────────────────────────
 export async function GET(req: NextRequest) {

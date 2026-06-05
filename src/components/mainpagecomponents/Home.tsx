@@ -11,7 +11,7 @@
   import { Blob } from "@/ui/home/Blob";
   import { Star } from "@/ui/home/Star";
   // import SummerCampBanner from "@/components/SummerCampBanner";
-  import AdmissionsBanner from "@/components/AdmissionsBanner";
+  import AdmissionsBanner from "@/components/mainpagecomponents/AdmissionsBanner";
 
   export default function Home() {
     const [imgSrc, setImgSrc] = useState("/Images/DSC_0037-scaled-1.jpg");

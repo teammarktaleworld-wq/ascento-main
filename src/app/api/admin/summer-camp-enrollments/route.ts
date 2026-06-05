@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { prisma } from "@/lib/helpers/prisma";
+import { requireAdmin } from "@/lib/helpers/auth-helpers";
 
 // GET — list all summer camp enrollments
 export async function GET(req: Request) {

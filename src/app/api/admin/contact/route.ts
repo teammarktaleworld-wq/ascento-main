@@ -1,5 +1,5 @@
 // import { NextResponse } from "next/server";
-// import { prisma } from "@/lib/prisma";
+// import { prisma } from "@/lib/helpers/prisma";
 
 // export async function POST(req: Request) {
 //   try {
@@ -56,8 +56,8 @@
 
 
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { prisma } from "@/lib/helpers/prisma";
+import { requireAdmin } from "@/lib/helpers/auth-helpers";
 
 export async function POST(req: Request) {
   try {

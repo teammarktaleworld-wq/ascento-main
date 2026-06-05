@@ -12,7 +12,7 @@
 //   Clock,
 //   CheckCircle2
 // } from 'lucide-react';
-// import { supabase } from "@/lib/supabaseClient";
+// import { supabase } from "@/lib/helpers/supabaseClient";
 
 // /**
 //  * ==========================================
@@ -379,7 +379,7 @@ import {
   BarChart2, Users, AlertCircle, BookOpen, TrendingUp, Download,
   Filter, RefreshCw, Edit2, Eye, Percent, Award, XCircle,
 } from 'lucide-react';
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/helpers/supabaseClient";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // API HELPER

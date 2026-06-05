@@ -5,8 +5,8 @@
 
 
 // import { NextRequest, NextResponse } from "next/server";
-// import { prisma } from "@/lib/prisma";
-// import { requireAdmin } from "@/lib/auth-helpers";
+// import { prisma } from "@/lib/helpers/prisma";
+// import { requireAdmin } from "@/lib/helpers/auth-helpers";
 // import { createClient } from "@supabase/supabase-js";
 
 // const supabaseAdmin = createClient(
@@ -131,8 +131,8 @@
 
 
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
+import { prisma } from "@/lib/helpers/prisma";
+import { requireAdmin } from "@/lib/helpers/auth-helpers";
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseAdmin = createClient(

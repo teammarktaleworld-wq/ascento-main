@@ -7,7 +7,7 @@
 
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/mainpagecomponents/Navbar";
 
 export default function NavbarWrapper() {
   const { user, signOut } = useAuth();

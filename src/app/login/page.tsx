@@ -7,7 +7,7 @@
 
 // import { useState } from "react";
 // import { useRouter } from "next/navigation";
-// import { supabase } from "@/lib/supabaseClient";
+// import { supabase } from "@/lib/helpers/supabaseClient";
 // import Link from "next/link";
 
 // async function upsertUserToDB(accessToken: string) {
@@ -389,7 +389,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/helpers/supabaseClient";
 import Link from "next/link";
 
 // ─── Call our unified login API ───────────────────────────────────────────────

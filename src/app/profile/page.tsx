@@ -5,7 +5,7 @@
 
 // import { useEffect, useState } from "react";
 // import { useRouter } from "next/navigation";
-// import { supabase } from "@/lib/supabaseClient";
+// import { supabase } from "@/lib/helpers/supabaseClient";
 // import {
 //   Loader2, Camera, Mail, Phone, Shield, BookOpen, Calendar,
 //   User, Lock, Bell, LogOut, CheckCircle2, AlertCircle, ChevronRight,
@@ -512,7 +512,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/helpers/supabaseClient";
 import {
   Loader2, Camera, Mail, Phone, Shield, BookOpen, Calendar,
   User, Lock, Bell, LogOut, CheckCircle2, AlertCircle, ChevronRight, Menu, X,

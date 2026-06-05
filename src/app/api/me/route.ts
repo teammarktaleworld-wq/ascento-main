@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUserFromToken } from "@/lib/getUserFromToken";
+import { getUserFromToken } from "@/lib/helpers/getUserFromToken";
 
 export async function GET(req: NextRequest) {
   const token = req.headers.get("authorization")?.replace("Bearer ", "");

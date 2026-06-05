@@ -1,4 +1,4 @@
-// import { prisma } from "@/lib/prisma";
+// import { prisma } from "@/lib/helpers/prisma";
 // import { createClient } from "@supabase/supabase-js";
 
 // const supabase = createClient(
@@ -24,7 +24,7 @@
 
 //lib/getUserFromToken
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/helpers/prisma";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(

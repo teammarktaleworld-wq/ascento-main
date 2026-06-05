@@ -19,7 +19,7 @@ import {
   Camera, Upload, MoreHorizontal, ToggleLeft, ToggleRight,
   FileText, Calendar, Award, MapPin,
 } from 'lucide-react';
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/helpers/supabaseClient";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const SCHOOL_NAME    = "Ascento Playschool";

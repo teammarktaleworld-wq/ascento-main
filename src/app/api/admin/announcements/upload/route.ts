@@ -1,6 +1,6 @@
 // app/api/admin/announcements/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { requireAdmin }              from "@/lib/auth-helpers";
+import { requireAdmin }              from "@/lib/helpers/auth-helpers";
 import { createClient }              from "@supabase/supabase-js";
 
 const supabaseAdmin = createClient(

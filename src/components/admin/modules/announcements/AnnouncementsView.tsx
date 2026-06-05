@@ -8,7 +8,7 @@ import {
   Paperclip, FileText, Image as ImageIcon,
   Send, Mail, CheckCircle, XCircle, Eye, EyeOff,
 } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/helpers/supabaseClient";
 
 // ── API helper ────────────────────────────────────────────────────────────────
 async function apiFetch(path: string, options?: RequestInit) {

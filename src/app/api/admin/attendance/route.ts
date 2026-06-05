@@ -1,9 +1,9 @@
 // app/api/admin/attendance/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helpers";
-import { getUserFromToken } from "@/lib/getUserFromToken";
+import { prisma } from "@/lib/helpers/prisma";
+import { requireAdmin } from "@/lib/helpers/auth-helpers";
+import { getUserFromToken } from "@/lib/helpers/getUserFromToken";
 
 // ── GET /api/admin/attendance?date=YYYY-MM-DD&programId=xxx&levelId=yyy ───────
 // Returns students (filtered) + existing attendance records for that date
