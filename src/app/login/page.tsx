@@ -1,8 +1,13 @@
+
+
+
+
 // "use client";
 
 // // app/login/page.tsx
 // // ─────────────────────────────────────────────────────────────────
-// // Ascento-branded login page (Supabase + Prisma)
+// // Ascento-branded login page — now calls /api/auth/login
+// // so the same endpoint works for Flutter too.
 // // ─────────────────────────────────────────────────────────────────
 
 // import { useState } from "react";
@@ -10,15 +15,30 @@
 // import { supabase } from "@/lib/helpers/supabaseClient";
 // import Link from "next/link";
 
-// async function upsertUserToDB(accessToken: string) {
-//   try {
-//     await fetch("/api/auth/upsert-user", {
-//       method: "POST",
-//       headers: { Authorization: `Bearer ${accessToken}` },
-//     });
-//   } catch (e) {
-//     console.error("DB upsert failed:", e);
-//   }
+// // ─── Call our unified login API ───────────────────────────────────────────────
+// interface LoginResult {
+//   access_token: string;
+//   refresh_token: string;
+//   expires_in: number;
+//   user: {
+//     id: string;
+//     email: string;
+//     name: string;
+//     role: string;
+//     avatarUrl: string | null;
+//   };
+// }
+
+// async function callLoginApi(email: string, password: string): Promise<LoginResult> {
+//   const res = await fetch("/api/auth/login", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ email, password }),
+//   });
+
+//   const json = await res.json();
+//   if (!res.ok) throw new Error(json.error ?? "Login failed");
+//   return json as LoginResult;
 // }
 
 // export default function LoginPage() {
@@ -35,18 +55,20 @@
 //     setError("");
 
 //     try {
-//       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-//       if (error) throw error;
+//       // ── 1. Call unified API (same one Flutter uses) ────────────────────────
+//       const result = await callLoginApi(email.trim(), password);
 
-//       // Sync to Prisma users table
-//       if (data.session?.access_token) {
-//         await upsertUserToDB(data.session.access_token);
-//       }
+//       // ── 2. Hydrate Supabase client session so existing hooks/middleware work
+//       //       (setSession accepts the tokens returned by our API)
+//       await supabase.auth.setSession({
+//         access_token: result.access_token,
+//         refresh_token: result.refresh_token,
+//       });
 
-//       const role = data.user?.user_metadata?.role?.trim().toLowerCase() || "user";
-//       router.push(role === "admin" ? "/admin" : "/profile");
-//     } catch (err: any) {
-//       setError(err.message || "Invalid email or password.");
+//       // ── 3. Route by role ───────────────────────────────────────────────────
+//       router.push(result.user.role === "admin" ? "/admin" : "/profile");
+//     } catch (err: unknown) {
+//       setError(err instanceof Error ? err.message : "Invalid email or password.");
 //     } finally {
 //       setLoading(false);
 //     }
@@ -61,8 +83,8 @@
 //         options: { redirectTo: `${window.location.origin}/auth/callback` },
 //       });
 //       if (error) throw error;
-//     } catch (err: any) {
-//       setError(err.message || "Google Sign-In failed.");
+//     } catch (err: unknown) {
+//       setError(err instanceof Error ? err.message : "Google Sign-In failed.");
 //       setLoading(false);
 //     }
 //   };
@@ -83,8 +105,6 @@
 //           overflow: hidden;
 //           font-family: 'Nunito', system-ui, sans-serif;
 //         }
-
-//         /* Blobs */
 //         .login-blob {
 //           position: absolute;
 //           border-radius: 50%;
@@ -92,7 +112,6 @@
 //           pointer-events: none;
 //           z-index: 0;
 //         }
-
 //         .login-card {
 //           position: relative;
 //           z-index: 1;
@@ -104,8 +123,6 @@
 //           box-shadow: 0 24px 80px rgba(255,107,107,.12), 0 4px 20px rgba(0,0,0,.06);
 //           border: 2px solid rgba(255,107,107,.08);
 //         }
-
-//         /* Header */
 //         .login-icon {
 //           width: 72px; height: 72px;
 //           border-radius: 22px;
@@ -130,8 +147,6 @@
 //           font-weight: 700;
 //           margin-bottom: 32px;
 //         }
-
-//         /* Error */
 //         .login-error {
 //           background: #FFF0F0;
 //           border: 2px solid #FFD6D6;
@@ -145,8 +160,6 @@
 //           align-items: center;
 //           gap: 8px;
 //         }
-
-//         /* Fields */
 //         .login-field { margin-bottom: 18px; }
 //         .login-label {
 //           display: block;
@@ -190,8 +203,6 @@
 //           font-size: 18px; color: #999;
 //           padding: 4px;
 //         }
-
-//         /* Submit */
 //         .login-submit {
 //           width: 100%;
 //           padding: 15px;
@@ -212,8 +223,6 @@
 //           box-shadow: 0 14px 32px rgba(255,107,107,.5);
 //         }
 //         .login-submit:disabled { opacity: .65; cursor: not-allowed; }
-
-//         /* Divider */
 //         .login-divider {
 //           display: flex; align-items: center; gap: 14px;
 //           margin: 24px 0;
@@ -224,8 +233,6 @@
 //           text-transform: uppercase; color: #CCC;
 //           white-space: nowrap;
 //         }
-
-//         /* Google */
 //         .login-google {
 //           width: 100%;
 //           padding: 13px;
@@ -246,8 +253,6 @@
 //           transform: translateY(-2px);
 //         }
 //         .login-google:disabled { opacity: .65; cursor: not-allowed; }
-
-//         /* Footer link */
 //         .login-footer {
 //           margin-top: 28px;
 //           text-align: center;
@@ -261,8 +266,6 @@
 //           text-decoration: none;
 //         }
 //         .login-footer a:hover { text-decoration: underline; }
-
-//         /* Spinner */
 //         @keyframes spin { to { transform: rotate(360deg); } }
 //         .spinner {
 //           width: 20px; height: 20px;
@@ -274,25 +277,21 @@
 //       `}</style>
 
 //       <div className="login-page">
-//         {/* Background blobs */}
 //         <div className="login-blob" style={{ width: 500, height: 500, background: "#FFE0E0", top: "-15%", right: "-10%", opacity: 0.5 }} />
 //         <div className="login-blob" style={{ width: 350, height: 350, background: "#E0F7FA", bottom: "-10%", left: "-8%", opacity: 0.5 }} />
 //         <div className="login-blob" style={{ width: 200, height: 200, background: "#EDE7FF", top: "40%", left: "5%", opacity: 0.4 }} />
 
 //         <div className="login-card">
-//           {/* Header */}
 //           <div className="login-icon">🔑</div>
 //           <h1 className="login-title">Welcome Back!</h1>
 //           <p className="login-subtitle">Sign in to your Ascento account</p>
 
-//           {/* Error */}
 //           {error && (
 //             <div className="login-error">
 //               <span>⚠️</span> {error}
 //             </div>
 //           )}
 
-//           {/* Form */}
 //           <form onSubmit={handleLogin}>
 //             <div className="login-field">
 //               <label className="login-label">Email Address</label>
@@ -373,18 +372,12 @@
 
 
 
-
-
-
-
-
-
 "use client";
 
 // app/login/page.tsx
 // ─────────────────────────────────────────────────────────────────
-// Ascento-branded login page — now calls /api/auth/login
-// so the same endpoint works for Flutter too.
+// Ascento-branded login page — calls /api/auth/login to authenticate,
+// then /api/auth/upsert-user to sync the user to DB.
 // ─────────────────────────────────────────────────────────────────
 
 import { useState } from "react";
@@ -392,7 +385,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/helpers/supabaseClient";
 import Link from "next/link";
 
-// ─── Call our unified login API ───────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface LoginResult {
   access_token: string;
   refresh_token: string;
@@ -406,18 +399,30 @@ interface LoginResult {
   };
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 async function callLoginApi(email: string, password: string): Promise<LoginResult> {
   const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
-
   const json = await res.json();
   if (!res.ok) throw new Error(json.error ?? "Login failed");
   return json as LoginResult;
 }
 
+async function upsertUserToDB(accessToken: string) {
+  try {
+    await fetch("/api/auth/upsert-user", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+  } catch (e) {
+    console.error("DB upsert failed:", e);
+  }
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function LoginPage() {
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
@@ -432,17 +437,19 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // ── 1. Call unified API (same one Flutter uses) ────────────────────────
+      // ── 1. Authenticate ──────────────────────────────────────────────────
       const result = await callLoginApi(email.trim(), password);
 
-      // ── 2. Hydrate Supabase client session so existing hooks/middleware work
-      //       (setSession accepts the tokens returned by our API)
+      // ── 2. Sync user to DB (non-blocking; mirrors what register does) ────
+      await upsertUserToDB(result.access_token);
+
+      // ── 3. Hydrate Supabase client session so hooks/middleware work ───────
       await supabase.auth.setSession({
         access_token: result.access_token,
         refresh_token: result.refresh_token,
       });
 
-      // ── 3. Route by role ───────────────────────────────────────────────────
+      // ── 4. Route by role ─────────────────────────────────────────────────
       router.push(result.user.role === "admin" ? "/admin" : "/profile");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Invalid email or password.");
@@ -739,3 +746,7 @@ export default function LoginPage() {
     </>
   );
 }
+
+
+
+

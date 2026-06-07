@@ -33,15 +33,23 @@ export async function GET(req: Request) {
   const auth = await requireUserOrStudent(req);
   if (auth instanceof NextResponse) return auth;
 
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      _count: { select: { notes: true } },
-    },
-  });
+  // const categories = await prisma.category.findMany({
+  //   orderBy: { name: "asc" },
+  //   select: {
+  //     id: true,
+  //     name: true,
+  //     description: true,
+  //     _count: { select: { notes: true } },
+  //   },
+  // });
+  const categories = await prisma.noteCategory.findMany({
+  orderBy: { name: "asc" },
+  select: {
+    id: true,
+    name: true,
+    description: true,
+  },
+});
 
   return NextResponse.json({ categories });
 }

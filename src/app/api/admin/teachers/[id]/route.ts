@@ -12,7 +12,70 @@ const supabaseAdmin = createClient(
 type Ctx = { params: Promise<{ id: string }> };
 
 // ── PATCH /api/admin/teachers/[id] ───────────────────────────────────────────
-// app/api/admin/teachers/[id]/route.ts  (PATCH section — merge with your existing DELETE)
+// // app/api/admin/teachers/[id]/route.ts  (PATCH section — merge with your existing DELETE)
+// export async function PATCH(req: NextRequest, ctx: Ctx) {
+//   const guard = await requireAdmin(req);
+//   if (guard) return guard;
+
+//   const { id } = await ctx.params;
+
+//   try {
+//     const { 
+//       name, phone, experience, designation, 
+//       wifeOrHusbandOf, subjects, photoUrl, dateOfBirth 
+//     } = await req.json();
+
+//     const subjectNames: string[] =
+//       typeof subjects === "string"
+//         ? subjects.split(",").map((s) => s.trim()).filter(Boolean)
+//         : Array.isArray(subjects) ? subjects : [];
+
+//     const teacher = await prisma.$transaction(async (tx) => {
+//       await tx.teacherSubject.deleteMany({ where: { teacherId: id } });
+
+//       const subjectRecords = await Promise.all(
+//         subjectNames.map((subjectName) =>
+//           tx.subject.upsert({
+//             where:  { name: subjectName },
+//             create: { name: subjectName },
+//             update: {},
+//           })
+//         )
+//       );
+
+//       return tx.teacher.update({
+//         where: { id },
+//         data: {
+//           name,
+//           phone:           phone           ?? null,
+//           experience:      experience      ?? null,
+//           designation:     designation     ?? null,
+//           wifeOrHusbandOf: wifeOrHusbandOf ?? null,
+//           photoUrl:        photoUrl        ?? null,
+//           dateOfBirth:     dateOfBirth ? new Date(dateOfBirth) : null,
+//           subjects:
+//             subjectRecords.length > 0
+//               ? { create: subjectRecords.map((s) => ({ subjectId: s.id })) }
+//               : undefined,
+//           user: { update: { name, phone: phone ?? null } },
+//         },
+//         include: {
+//           user:     true,
+//           subjects: { include: { subject: true } },
+//         },
+//       });
+//     });
+
+//     return NextResponse.json(teacher);
+//   } catch (err: any) {
+//     return NextResponse.json({ error: err.message }, { status: 500 });
+//   }
+// }
+
+
+
+
+
 export async function PATCH(req: NextRequest, ctx: Ctx) {
   const guard = await requireAdmin(req);
   if (guard) return guard;
@@ -20,23 +83,56 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   const { id } = await ctx.params;
 
   try {
-    const { 
-      name, phone, experience, designation, 
-      wifeOrHusbandOf, subjects, photoUrl, dateOfBirth 
+    const {
+      name,
+      email,
+      phone,
+      experience,
+      designation,
+      wifeOrHusbandOf,
+      subjects,
+      photoUrl,
+      dateOfBirth,
+      status,
     } = await req.json();
+
+    const existingTeacher = await prisma.teacher.findUnique({
+      where: { id },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!existingTeacher) {
+      return NextResponse.json(
+        { error: "Teacher not found" },
+        { status: 404 }
+      );
+    }
 
     const subjectNames: string[] =
       typeof subjects === "string"
-        ? subjects.split(",").map((s) => s.trim()).filter(Boolean)
-        : Array.isArray(subjects) ? subjects : [];
+        ? subjects
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : Array.isArray(subjects)
+        ? subjects
+        : [];
 
     const teacher = await prisma.$transaction(async (tx) => {
-      await tx.teacherSubject.deleteMany({ where: { teacherId: id } });
+      // Remove old subject mappings
+      await tx.teacherSubject.deleteMany({
+        where: {
+          teacherId: id,
+        },
+      });
 
+      // Create / get subjects
       const subjectRecords = await Promise.all(
         subjectNames.map((subjectName) =>
           tx.subject.upsert({
-            where:  { name: subjectName },
+            where: { name: subjectName },
             create: { name: subjectName },
             update: {},
           })
@@ -46,31 +142,92 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
       return tx.teacher.update({
         where: { id },
         data: {
-          name,
-          phone:           phone           ?? null,
-          experience:      experience      ?? null,
-          designation:     designation     ?? null,
+          name: name ?? undefined,
+          phone: phone ?? null,
+          experience: experience ?? null,
+          designation: designation ?? null,
           wifeOrHusbandOf: wifeOrHusbandOf ?? null,
-          photoUrl:        photoUrl        ?? null,
-          dateOfBirth:     dateOfBirth ? new Date(dateOfBirth) : null,
+          photoUrl: photoUrl ?? null,
+          status: status ?? undefined,
+
+          dateOfBirth: dateOfBirth
+            ? new Date(dateOfBirth)
+            : null,
+
           subjects:
             subjectRecords.length > 0
-              ? { create: subjectRecords.map((s) => ({ subjectId: s.id })) }
+              ? {
+                  create: subjectRecords.map((s) => ({
+                    subjectId: s.id,
+                  })),
+                }
               : undefined,
-          user: { update: { name, phone: phone ?? null } },
+
+          user: {
+            update: {
+              ...(name !== undefined && { name }),
+              ...(phone !== undefined && {
+                phone: phone ?? null,
+              }),
+              ...(email !== undefined && { email }),
+            },
+          },
         },
+
         include: {
-          user:     true,
-          subjects: { include: { subject: true } },
+          user: true,
+          subjects: {
+            include: {
+              subject: true,
+            },
+          },
         },
       });
     });
 
+    // Sync email to Supabase
+    if (
+      email &&
+      email !== existingTeacher.user.email
+    ) {
+      const { error: authError } =
+        await supabaseAdmin.auth.admin.updateUserById(
+          existingTeacher.userId,
+          {
+            email,
+            email_confirm: true,
+          }
+        );
+
+      if (authError) {
+        console.error(
+          "Failed to update Supabase email:",
+          authError.message
+        );
+      }
+    }
+
     return NextResponse.json(teacher);
   } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error(err);
+
+    return NextResponse.json(
+      {
+        error: err.message || "Failed to update teacher",
+      },
+      { status: 500 }
+    );
   }
 }
+
+
+
+
+
+
+
+
+
 // ── DELETE /api/admin/teachers/[id] ──────────────────────────────────────────
 export async function DELETE(req: NextRequest, ctx: Ctx) {
   const guard = await requireAdmin(req);

@@ -25,16 +25,19 @@ import FeesView from "@/components/admin/modules/fees/FeesView";
 import ReportsView from "@/components/admin/modules/reports/ReportsView";
 import SettingsView from "@/components/admin/modules/settings/SettingsView";
 import EnquiriesView from "@/components/admin/modules/enquiries/EnquiriesView";
-import NotesView from "@/components/admin/modules/notes/NotesView";
 import HomeworkView from "@/components/admin/modules/homework/Homeworkview ";
 import AnnouncementsView from "@/components/admin/modules/announcements/AnnouncementsView";
 import WebinarsView from "@/components/admin/modules/webinars/Webinarsview ";
 import NotificationsView from "@/components/admin/modules/notifications/Notificationsview ";
+import UsersView from "@/components/admin/modules/users/UsersView";
+import NotesLibraryAdmin from "@/components/admin/modules/notes/NotesLibraryAdmin";
 
 const NAVBAR_HEIGHT = 80;
 
 function renderPage(tab: string) {
   switch (tab) {
+    case "users":
+      return <UsersView />;
     case "students":
       return <StudentsView />;
     case "teachers":
@@ -60,7 +63,7 @@ function renderPage(tab: string) {
     case "settings":
       return <SettingsView />;
     case "notes":
-      return <NotesView />;
+      return <NotesLibraryAdmin />;
     case "homework":
       return <HomeworkView />;
     default:
@@ -82,7 +85,7 @@ export default function AdminDashboardPage() {
       const res = await fetch("/api/notifications?limit=1");
       const data = await res.json();
       setUnreadCount(data.unreadCount ?? 0);
-    } catch {}
+    } catch { }
   }, []);
 
   useEffect(() => {

@@ -3,66 +3,149 @@
 
 
 
-// // app/api/notifications/route.ts
+// // app/api/admin/webinars/route.ts
 // import { NextRequest, NextResponse } from "next/server";
 // import { prisma } from "@/lib/helpers/prisma";
-// import { getSessionUser } from "@/lib/auth-helpers";
+// import { requireAdmin } from "@/lib/helpers/auth-helpers";
+// import { getWebinarTargets, getEmailTargets } from "@/lib/helpers/notification-helpers";
+// import { sendWebinarEmail } from "@/lib/helpers/webinarEmail";
 
-// // ── GET /api/notifications ────────────────────────────────────────────────────
+// // ── GET /api/admin/webinars ───────────────────────────────────────────────────
 // export async function GET(req: NextRequest) {
-//   try {
-//     const user = await getSessionUser(req);
-//     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//   const authErr = await requireAdmin(req);
+//   if (authErr) return authErr;
 
+//   try {
 //     const { searchParams } = new URL(req.url);
-//     const unreadOnly = searchParams.get("unread") === "true";
-//     const limit      = Math.min(Number(searchParams.get("limit") ?? 50), 200);
+//     const programId = searchParams.get("programId");
+//     const status    = searchParams.get("status");
 
-//     // Every user (including admin) sees only their own Notification rows.
-//     // Admin gets notifications because getWebinarTargets() now includes admins.
-//     const notifications = await prisma.notification.findMany({
+//     const webinars = await prisma.webinar.findMany({
 //       where: {
-//         userId: user.id,
-//         ...(unreadOnly ? { isRead: false } : {}),
+//         ...(programId ? { programId } : {}),
+//         ...(status    ? { status: status as any } : {}),
 //       },
-//       orderBy: { createdAt: "desc" },
-//       take: limit,
 //       include: {
-//         webinar: {
-//           select: {
-//             id: true, title: true, scheduledAt: true,
-//             meetingLink: true, platform: true, status: true,
-//           },
-//         },
+//         program: { select: { id: true, name: true } },
+//         level:   { select: { id: true, name: true } },
+//       },
+//       orderBy: { scheduledAt: "asc" },
+//     });
+
+//     return NextResponse.json(webinars);
+//   } catch (err: any) {
+//     return NextResponse.json({ error: err.message }, { status: 500 });
+//   }
+// }
+
+// // ── POST /api/admin/webinars ──────────────────────────────────────────────────
+// export async function POST(req: NextRequest) {
+//   const authErr = await requireAdmin(req);
+//   if (authErr) return authErr;
+
+//   try {
+//     const body = await req.json();
+
+//     const {
+//       title, description, platform, meetingLink, meetingId, passcode,
+//       hostName, hostEmail, scheduledAt, durationMins,
+//       programId, levelId, bannerUrl,
+//       isActive, sendEmail,
+//     } = body;
+
+//     if (!title || !meetingLink || !scheduledAt) {
+//       return NextResponse.json(
+//         { error: "title, meetingLink and scheduledAt are required" },
+//         { status: 400 }
+//       );
+//     }
+
+//     // New schema: status is "active" | "inactive" (not scheduled/live/etc.)
+//     const webinar = await prisma.webinar.create({
+//       data: {
+//         title,
+//         description:  description  || null,
+//         platform:     platform     || "zoom",
+//         meetingLink,
+//         meetingId:    meetingId    || null,
+//         passcode:     passcode     || null,
+//         hostName:     hostName     || null,
+//         hostEmail:    hostEmail    || null,
+//         scheduledAt:  new Date(scheduledAt),
+//         durationMins: durationMins ? Number(durationMins) : 60,
+//         programId:    programId    || null,
+//         levelId:      levelId      || null,
+//         bannerUrl:    bannerUrl    || null,
+//         status:       isActive === false ? "inactive" : "active",
+//       },
+//       include: {
+//         program: { select: { id: true, name: true } },
+//         level:   { select: { id: true, name: true } },
 //       },
 //     });
 
-//     const unreadCount = await prisma.notification.count({
-//       where: { userId: user.id, isRead: false },
-//     });
+//     // Auto-create in-app notifications for all targets
+//     await createWebinarNotifications(webinar);
 
-//     return NextResponse.json({ notifications, unreadCount });
+//     // Optionally send emails immediately on create
+//     if (sendEmail) {
+//       await sendWebinarEmails(webinar);
+//       await prisma.webinar.update({
+//         where: { id: webinar.id },
+//         data:  { emailSent: true, emailSentAt: new Date(), emailSentCount: { increment: 1 } },
+//       });
+//     }
+
+//     return NextResponse.json(webinar, { status: 201 });
 //   } catch (err: any) {
 //     return NextResponse.json({ error: err.message }, { status: 500 });
 //   }
 // }
 
-// // ── PATCH /api/notifications — mark all read ──────────────────────────────────
-// export async function PATCH(req: NextRequest) {
-//   try {
-//     const user = await getSessionUser(req);
-//     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+// // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-//     await prisma.notification.updateMany({
-//       where: { userId: user.id, isRead: false },
-//       data:  { isRead: true },
-//     });
+// async function createWebinarNotifications(webinar: any) {
+//   const targets = await getWebinarTargets(webinar);
+//   if (!targets.length) return;
 
-//     return NextResponse.json({ success: true });
-//   } catch (err: any) {
-//     return NextResponse.json({ error: err.message }, { status: 500 });
-//   }
+//   const dateStr = new Date(webinar.scheduledAt).toLocaleString("en-IN", {
+//     dateStyle: "medium", timeStyle: "short",
+//   });
+
+//   await prisma.notification.createMany({
+//     data: targets.map(t => ({
+//       userId:    t.userId,
+//       type:      "webinar" as const,
+//       title:     `📹 Webinar: ${webinar.title}`,
+//       message:   `Scheduled on ${dateStr}. Click to join.`,
+//       link:      webinar.meetingLink,
+//       webinarId: webinar.id,
+//       isRead:    false,
+//     })),
+//     skipDuplicates: true,
+//   });
+
+//   await prisma.webinar.update({
+//     where: { id: webinar.id },
+//     data: {
+//       notificationSent:      true,
+//       notificationSentAt:    new Date(),
+//       notificationSentCount: { increment: 1 },
+//     },
+//   });
 // }
+
+// async function sendWebinarEmails(webinar: any) {
+//   const targets = await getEmailTargets(webinar);
+//   await Promise.allSettled(
+//     targets.map(({ email, name }) =>
+//       sendWebinarEmail({ email, webinar, recipientName: name })
+//     )
+//   );
+// }
+
+
+
 
 
 
@@ -118,7 +201,9 @@ export async function POST(req: NextRequest) {
       title, description, platform, meetingLink, meetingId, passcode,
       hostName, hostEmail, scheduledAt, durationMins,
       programId, levelId, bannerUrl,
-      isActive, sendEmail,
+      status, isActive,
+      sendEmail,        // boolean — send email on create
+      sendNotification, // boolean — send in-app notification on create
     } = body;
 
     if (!title || !meetingLink || !scheduledAt) {
@@ -128,7 +213,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // New schema: status is "active" | "inactive" (not scheduled/live/etc.)
+    // Resolve status: explicit "active"/"inactive" > isActive boolean > default "active"
+    let resolvedStatus: "active" | "inactive" = "active";
+    if (status === "active" || status === "inactive") {
+      resolvedStatus = status;
+    } else if (isActive === false) {
+      resolvedStatus = "inactive";
+    }
+
     const webinar = await prisma.webinar.create({
       data: {
         title,
@@ -144,7 +236,7 @@ export async function POST(req: NextRequest) {
         programId:    programId    || null,
         levelId:      levelId      || null,
         bannerUrl:    bannerUrl    || null,
-        status:       isActive === false ? "inactive" : "active",
+        status:       resolvedStatus,
       },
       include: {
         program: { select: { id: true, name: true } },
@@ -152,19 +244,34 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Auto-create in-app notifications for all targets
-    await createWebinarNotifications(webinar);
+    // ── Optionally send in-app notifications ──────────────────────────────────
+    if (sendNotification) {
+      await sendWebinarNotifications(webinar);
+    }
 
-    // Optionally send emails immediately on create
+    // ── Optionally send emails ────────────────────────────────────────────────
     if (sendEmail) {
       await sendWebinarEmails(webinar);
       await prisma.webinar.update({
         where: { id: webinar.id },
-        data:  { emailSent: true, emailSentAt: new Date(), emailSentCount: { increment: 1 } },
+        data:  {
+          emailSent:      true,
+          emailSentAt:    new Date(),
+          emailSentCount: { increment: 1 },
+        },
       });
     }
 
-    return NextResponse.json(webinar, { status: 201 });
+    // Return the latest webinar state (counts may have changed)
+    const fresh = await prisma.webinar.findUnique({
+      where: { id: webinar.id },
+      include: {
+        program: { select: { id: true, name: true } },
+        level:   { select: { id: true, name: true } },
+      },
+    });
+
+    return NextResponse.json(fresh, { status: 201 });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
@@ -172,13 +279,20 @@ export async function POST(req: NextRequest) {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-async function createWebinarNotifications(webinar: any) {
+/**
+ * Deletes ALL existing notifications for this webinar across all users,
+ * then creates fresh unread ones. This way every "send" is a true re-alert.
+ */
+async function sendWebinarNotifications(webinar: any) {
   const targets = await getWebinarTargets(webinar);
   if (!targets.length) return;
 
   const dateStr = new Date(webinar.scheduledAt).toLocaleString("en-IN", {
     dateStyle: "medium", timeStyle: "short",
   });
+
+  // Wipe old notifications so every send = fresh unread for everyone
+  await prisma.notification.deleteMany({ where: { webinarId: webinar.id } });
 
   await prisma.notification.createMany({
     data: targets.map(t => ({

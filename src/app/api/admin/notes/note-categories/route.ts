@@ -1,3 +1,7 @@
+// app/api/admin/notes/note-categories/route.ts
+// GET  /api/admin/note-categories
+// POST /api/admin/note-categories
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/helpers/prisma";
 import { requireAdmin } from "@/lib/helpers/auth-helpers";
@@ -6,7 +10,7 @@ export async function GET(req: Request) {
   const err = await requireAdmin(req);
   if (err) return err;
 
-  const categories = await prisma.category.findMany({
+  const categories = await prisma.noteCategory.findMany({
     orderBy: { name: "asc" },
     include: { _count: { select: { notes: true } } },
   });
@@ -24,10 +28,10 @@ export async function POST(req: Request) {
 
   const { name, description = "" } = body;
   if (!name?.trim())
-    return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    return NextResponse.json({ error: "name is required" }, { status: 400 });
 
   try {
-    const category = await prisma.category.create({
+    const category = await prisma.noteCategory.create({
       data: { name: name.trim(), description: description.trim() },
       include: { _count: { select: { notes: true } } },
     });
@@ -35,6 +39,6 @@ export async function POST(req: Request) {
   } catch (e: any) {
     if (e.code === "P2002")
       return NextResponse.json({ error: "Category name already exists" }, { status: 409 });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to create category" }, { status: 500 });
   }
 }
