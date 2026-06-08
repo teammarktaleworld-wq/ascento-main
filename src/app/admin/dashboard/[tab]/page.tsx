@@ -3,7 +3,7 @@
 
 
 
-
+// src\app\admin\dashboard\[tab]\page.tsx
 
 "use client";
 

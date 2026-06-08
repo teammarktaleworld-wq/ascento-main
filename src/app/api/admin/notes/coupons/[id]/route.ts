@@ -1,7 +1,5 @@
 // app/api/admin/notes/coupons/[id]/route.ts
-// GET    /api/admin/coupons/[id]
-// PATCH  /api/admin/coupons/[id]  — update or toggle active
-// DELETE /api/admin/coupons/[id]
+
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/helpers/prisma";

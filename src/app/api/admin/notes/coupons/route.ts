@@ -1,6 +1,4 @@
 // app/api/admin/notes/coupons/route.ts
-// GET  /api/admin/coupons   — list all coupons (with filters)
-// POST /api/admin/coupons   — create coupon
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/helpers/prisma";

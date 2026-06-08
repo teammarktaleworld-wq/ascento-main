@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/helpers/auth-helpers";
 import { supabaseAdmin } from "@/lib/helpers/supabaseAdmin";
 
-// ── POST /api/admin/upload-pdf ────────────────────────────────────────────────
 // Accepts multipart/form-data with fields:
 //   file   — the PDF File
 //   bucket — Supabase storage bucket name

@@ -1,4 +1,8 @@
+// src\components\admin\modules\announcements\AnnouncementsView.tsx
+
+
 "use client";
+
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
