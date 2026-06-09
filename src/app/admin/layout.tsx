@@ -1,4 +1,4 @@
-
+// src\app\admin\layout.tsx
 "use client";
 
 import Sidebar from "@/components/admin/layout/Sidebar";

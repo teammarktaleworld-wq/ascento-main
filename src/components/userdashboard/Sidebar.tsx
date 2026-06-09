@@ -201,7 +201,7 @@ import { Search, X, ChevronRight, School } from "lucide-react";
 
 export type NavPage =
   | "home" | "announcements" | "schedule" | "notes"
-  | "homework" | "attendance" | "exams" | "fees" | "profile" | "notifications";
+  | "homework" | "attendance" | "exams" | "profile" | "notifications";
 
 interface NavItem { id: NavPage; icon: string; label: string; group: string }
 
@@ -214,7 +214,6 @@ const NAV_ITEMS: NavItem[] = [
   { id: "homework",      icon: "📂", label: "Homework Files",  group: "Academics" },
   { id: "attendance",    icon: "✅", label: "Attendance",      group: "Academics" },
   { id: "exams",         icon: "📝", label: "Exams",           group: "Academics" },
-  { id: "fees",          icon: "💳", label: "Fees",            group: "Account" },
   { id: "profile",       icon: "👤", label: "My Profile",      group: "Account" },
 ];
 
@@ -246,15 +245,26 @@ export default function Sidebar({
     const q = search.toLowerCase();
     return NAV_ITEMS.filter((m) => m.label.toLowerCase().includes(q));
   }, [search]);
-
-  const navigate = (id: NavPage) => {
+const navigate = (id: NavPage) => {
+  if (id === "profile") {
+    router.push("/profile");
+  } else {
     router.push(`/dashboard/${id}`);
-    onClose?.();
-  };
+  }
+  onClose?.();
+};
 
-  const isActive = (id: NavPage) =>
+  const isActive = (id: NavPage) => {
+  if (id === "profile") {
+    return pathname === "/profile";
+  }
+
+  return (
     pathname === `/dashboard/${id}` ||
-    (id === "home" && (pathname === "/dashboard" || pathname === "/dashboard/home"));
+    (id === "home" &&
+      (pathname === "/dashboard" || pathname === "/dashboard/home"))
+  );
+};
 
   const renderItem = (item: NavItem) => {
     const active = isActive(item.id);
