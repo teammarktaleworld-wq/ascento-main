@@ -160,6 +160,7 @@ import { useAuth } from "@/context/AuthContext";
 
 import DashboardPage from "@/components/userdashboard/DashboardPage";
 import AnnouncementsPage from "@/components/userdashboard/AnnouncementsPage";
+import OnlineExamPortal from "@/components/userdashboard/OnlineExamPortal";
 import SchedulePage from "@/components/userdashboard/SchedulePage";
 import NotesPage from "@/components/userdashboard/NotesPage";
 import HomeworkFilesPage from "@/components/userdashboard/HomeworkFilesPage";
@@ -212,6 +213,7 @@ export default function TabPage() {
     case "home":          return <DashboardPage     key={tabKey} {...sharedProps} />;
     case "announcements": return <AnnouncementsPage key={tabKey} {...sharedProps} />;
     case "schedule":      return <SchedulePage      key={tabKey} {...sharedProps} />;
+    case "online-exams":  return <OnlineExamPortal  key={tabKey} {...sharedProps} />;
     case "notes":         return <NotesPage         key={tabKey} {...sharedProps} />;
     case "homework":      return <HomeworkFilesPage key={tabKey} />;
     case "attendance":    return <AttendancePage    key={tabKey} {...sharedProps} />;
