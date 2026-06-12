@@ -286,6 +286,7 @@ export async function POST(req: NextRequest) {
       const to = await resolveRecipients({ audience, programId, levelId });
 
       emailResult = await sendAnnouncementEmails({
+        
         to,
         title: announcement.title,
         message: announcement.message,
