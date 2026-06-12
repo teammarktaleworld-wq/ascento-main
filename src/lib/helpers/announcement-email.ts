@@ -1,5 +1,4 @@
-// src\app\api\admin\announcements\notify-email\route.ts// ─────────────────────────────────────────────────────────────────────────────
-// Announcement email sender — uses Resend (same as notify-email/route.ts).
+// src\lib\helpers\announcement-email.ts// Announcement email sender — uses Resend (same as notify-email/route.ts).
 //
 // STUDENTS  → parentEmail  (Student.parentEmail)
 // TEACHERS  → user email   (User.email via Teacher.userId)

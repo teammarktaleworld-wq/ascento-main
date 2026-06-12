@@ -1,5 +1,3 @@
-
-
 // // app/api/admin/announcements/route.ts
 // import { NextRequest, NextResponse }      from "next/server";
 // import { prisma }                          from "@/lib/helpers/prisma";
@@ -149,7 +147,7 @@
 
 //   // Re-alert: mark any existing announcement notifications as unread
 //   await prisma.notification.updateMany({
-//     where: { 
+//     where: {
 //       type:    "announcement",
 //       title:   `${emoji} ${announcement.title}`,
 //       message: { contains: announcement.id }, // message won't contain id — so this safely no-ops
@@ -174,36 +172,23 @@
 //   return targets.length;
 // }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // app/api/admin/announcements/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
-import { prisma }                     from "@/lib/helpers/prisma";
-import { requireAdmin }               from "@/lib/helpers/auth-helpers";
+import { prisma } from "@/lib/helpers/prisma";
+import { requireAdmin } from "@/lib/helpers/auth-helpers";
 import {
   sendAnnouncementEmails,
   logEmailDelivery,
   resolveRecipients,
-}                                     from "@/app/api/admin/announcements/notify-email/route";
-import { getAnnouncementTargets }     from "@/lib/helpers/notification-helpers";
+} from "@/lib/helpers/announcement-email";
+import { getAnnouncementTargets } from "@/lib/helpers/notification-helpers";
+import type { EmailResult } from "@/lib/helpers/announcement-email";
+
 
 const announcementInclude = {
   program: { select: { id: true, name: true } },
-  level:   { select: { id: true, name: true } },
+  level: { select: { id: true, name: true } },
 } as const;
 
 // ── GET /api/admin/announcements ──────────────────────────────────────────────
@@ -213,18 +198,18 @@ export async function GET(req: NextRequest) {
 
   try {
     const { searchParams } = new URL(req.url);
-    const audience  = searchParams.get("audience")  ?? undefined;
+    const audience = searchParams.get("audience") ?? undefined;
     const programId = searchParams.get("programId") ?? undefined;
-    const levelId   = searchParams.get("levelId")   ?? undefined;
-    const active    = searchParams.get("active");
+    const levelId = searchParams.get("levelId") ?? undefined;
+    const active = searchParams.get("active");
 
     const announcements = await prisma.announcement.findMany({
       where: {
-        ...(audience  ? { audience: audience as any } : {}),
-        ...(programId ? { programId }                 : {}),
-        ...(levelId   ? { levelId }                   : {}),
-        ...(active === "true"  ? { isActive: true }   : {}),
-        ...(active === "false" ? { isActive: false }  : {}),
+        ...(audience ? { audience: audience as any } : {}),
+        ...(programId ? { programId } : {}),
+        ...(levelId ? { levelId } : {}),
+        ...(active === "true" ? { isActive: true } : {}),
+        ...(active === "false" ? { isActive: false } : {}),
       },
       include: announcementInclude,
       orderBy: { createdAt: "desc" },
@@ -244,33 +229,44 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const {
-      title, message, priority, audience,
-      programId, levelId, expiresAt,
-      sendEmail        = false,
+      title,
+      message,
+      priority,
+      audience,
+      programId,
+      levelId,
+      expiresAt,
+      sendEmail = false,
       sendNotification = false,
-      fileUrl, storagePath, fileType, fileName,
+      fileUrl,
+      storagePath,
+      fileType,
+      fileName,
     } = body;
 
     if (!title?.trim() || !message?.trim())
-      return NextResponse.json({ error: "Title and message are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Title and message are required" },
+        { status: 400 },
+      );
 
     // ── Create ───────────────────────────────────────────────────────────────
     const announcement = await prisma.announcement.create({
       data: {
-        title:          title.trim(),
-        message:        message.trim(),
-        priority:       priority    ?? "normal",
-        audience:       audience    ?? "all",
-        programId:      programId   ?? null,
-        levelId:        levelId     ?? null,
-        expiresAt:      expiresAt   ? new Date(expiresAt) : null,
-        isActive:       true,
-        emailSent:      false,
+        title: title.trim(),
+        message: message.trim(),
+        priority: priority ?? "normal",
+        audience: audience ?? "all",
+        programId: programId ?? null,
+        levelId: levelId ?? null,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+        isActive: true,
+        emailSent: false,
         emailSentCount: 0,
-        fileUrl:        fileUrl     ?? null,
-        storagePath:    storagePath ?? null,
-        fileType:       fileType    ?? null,
-        fileName:       fileName    ?? null,
+        fileUrl: fileUrl ?? null,
+        storagePath: storagePath ?? null,
+        fileType: fileType ?? null,
+        fileName: fileName ?? null,
       },
       include: announcementInclude,
     });
@@ -282,20 +278,22 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Email ────────────────────────────────────────────────────────────────
-    let emailResult: { sent: number; failed: number } | null = null;
+    // let emailResult: { sent: number; failed: number } | null = null;
+
+    let emailResult: EmailResult | null = null;
 
     if (sendEmail) {
       const to = await resolveRecipients({ audience, programId, levelId });
 
       emailResult = await sendAnnouncementEmails({
         to,
-        title:     announcement.title,
-        message:   announcement.message,
-        priority:  announcement.priority,
-        audience:  announcement.audience,
-        fileUrl:   announcement.fileUrl,
-        fileName:  announcement.fileName,
-        fileType:  announcement.fileType,
+        title: announcement.title,
+        message: announcement.message,
+        priority: announcement.priority,
+        audience: announcement.audience,
+        fileUrl: announcement.fileUrl,
+        fileName: announcement.fileName,
+        fileType: announcement.fileType,
         expiresAt: announcement.expiresAt?.toISOString() ?? null,
       });
 
@@ -305,12 +303,12 @@ export async function POST(req: NextRequest) {
       if (emailResult.sent > 0) {
         await prisma.announcement.update({
           where: { id: announcement.id },
-          data:  {
-            emailSent:      true,
+          data: {
+            emailSent: true,
             emailSentCount: { increment: emailResult.sent },
           },
         });
-        (announcement as any).emailSent      = true;
+        (announcement as any).emailSent = true;
         (announcement as any).emailSentCount = emailResult.sent;
       }
     }
@@ -318,10 +316,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         ...announcement,
-        ...(emailResult ? { emailResult }  : {}),
-        ...(notifCount  ? { notifCount }   : {}),
+        ...(emailResult ? { emailResult } : {}),
+        ...(notifCount ? { notifCount } : {}),
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (err: any) {
     console.error("[POST /announcements]", err);
@@ -331,34 +329,39 @@ export async function POST(req: NextRequest) {
 
 // ── Helper: push in-app notifications ─────────────────────────────────────────
 export async function pushAnnouncementNotifications(announcement: {
-  id:        string;
-  title:     string;
-  message:   string;
-  audience:  string;
-  priority:  string;
+  id: string;
+  title: string;
+  message: string;
+  audience: string;
+  priority: string;
   programId: string | null;
-  levelId:   string | null;
+  levelId: string | null;
 }): Promise<number> {
   const targets = await getAnnouncementTargets({
-    audience:  announcement.audience,
+    audience: announcement.audience,
     programId: announcement.programId,
-    levelId:   announcement.levelId,
+    levelId: announcement.levelId,
   });
 
   if (!targets.length) return 0;
 
-  const emoji: Record<string, string> = { urgent: "🚨", normal: "📢", info: "ℹ️" };
+  const emoji: Record<string, string> = {
+    urgent: "🚨",
+    normal: "📢",
+    info: "ℹ️",
+  };
   const e = emoji[announcement.priority] ?? "📢";
 
   await prisma.notification.createMany({
     data: targets.map((t) => ({
-      userId:  t.userId,
-      type:    "announcement" as const,
-      title:   `${e} ${announcement.title}`,
-      message: announcement.message.length > 120
-        ? announcement.message.slice(0, 120) + "…"
-        : announcement.message,
-      isRead:  false,
+      userId: t.userId,
+      type: "announcement" as const,
+      title: `${e} ${announcement.title}`,
+      message:
+        announcement.message.length > 120
+          ? announcement.message.slice(0, 120) + "…"
+          : announcement.message,
+      isRead: false,
     })),
     skipDuplicates: true,
   });

@@ -519,6 +519,8 @@ model AnnouncementEmailLog {
   announcementId String
   userId         String
   email          String
+    errorMsg       String?      // ← add this
+
   status         String       // "sent" | "failed"
   sentAt         DateTime?
   createdAt      DateTime     @default(now())

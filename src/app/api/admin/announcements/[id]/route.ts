@@ -164,9 +164,10 @@ import {
   sendAnnouncementEmails,
   logEmailDelivery,
   resolveRecipients,
-}                                          from "@/app/api/admin/announcements/notify-email/route";
+}                                          from "@/lib/helpers/announcement-email";
 import { pushAnnouncementNotifications }   from "../route";
 import { supabaseAdmin }                   from "@/lib/helpers/supabaseAdmin";
+import type { EmailResult } from "@/lib/helpers/announcement-email";
 
 const announcementInclude = {
   program: { select: { id: true, name: true } },
@@ -255,7 +256,8 @@ export async function PATCH(req: NextRequest, ctx: Ctx) {
   }
 
   // ── Send / resend emails ──────────────────────────────────────────────────
-  let emailResult: { sent: number; failed: number } | null = null;
+  // let emailResult: { sent: number; failed: number } | null = null;
+  let emailResult: EmailResult | null = null;
 
   if (sendEmail) {
     const to = await resolveRecipients({
