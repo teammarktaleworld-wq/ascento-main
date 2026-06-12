@@ -201,7 +201,7 @@ import { Search, X, ChevronRight, School } from "lucide-react";
 
 export type NavPage =
   | "home" | "announcements" | "schedule" | "notes"
-  | "homework" | "attendance" | "exams" | "profile" | "notifications";
+  | "homework" | "attendance" | "exams" | "profile" | "notifications" | "online-exams";
 
 interface NavItem { id: NavPage; icon: string; label: string; group: string }
 
@@ -214,6 +214,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: "homework",      icon: "📂", label: "Homework Files",  group: "Academics" },
   { id: "attendance",    icon: "✅", label: "Attendance",      group: "Academics" },
   { id: "exams",         icon: "📝", label: "Exams",           group: "Academics" },
+  { id: "online-exams",  icon: "💻", label: "Online Exam Portal",  group: "Academics" },
   { id: "profile",       icon: "👤", label: "My Profile",      group: "Account" },
 ];
 
