@@ -229,6 +229,76 @@
 
 
 
+// // app/api/admin/webinars/[id]/send-notification/route.ts
+// import { NextRequest, NextResponse } from "next/server";
+// import { prisma } from "@/lib/helpers/prisma";
+// import { requireAdmin } from "@/lib/helpers/auth-helpers";
+// import { getWebinarTargets } from "@/lib/helpers/notification-helpers";
+
+// type RouteContext = { params: Promise<{ id: string }> };
+
+// export async function POST(req: NextRequest, ctx: RouteContext) {
+//   try {
+//     const authErr = await requireAdmin(req);
+//     if (authErr) return authErr;
+
+//     const { id } = await ctx.params;
+
+//     const webinar = await prisma.webinar.findUnique({ where: { id } });
+//     if (!webinar) return NextResponse.json({ error: "Webinar not found" }, { status: 404 });
+
+//     const targets = await getWebinarTargets(webinar);
+//     if (!targets.length) return NextResponse.json({ count: 0 });
+
+//     const dateStr = new Date(webinar.scheduledAt).toLocaleString("en-IN", {
+//       dateStyle: "medium", timeStyle: "short",
+//     });
+
+//     // Delete ALL existing notifications for this webinar (all users)
+//     // so each send creates a fresh unread notification for everyone
+//     await prisma.notification.deleteMany({ where: { webinarId: webinar.id } });
+
+//     // Create fresh notifications for all targets
+//     await prisma.notification.createMany({
+//       data: targets.map(t => ({
+//         userId:    t.userId,
+//         type:      "webinar" as const,
+//         title:     `📹 Webinar: ${webinar.title}`,
+//         message:   `Scheduled on ${dateStr}. Click to join.`,
+//         link:      webinar.meetingLink,
+//         webinarId: webinar.id,
+//         isRead:    false,
+//       })),
+//       skipDuplicates: true,
+//     });
+
+//     await prisma.webinar.update({
+//       where: { id },
+//       data: {
+//         notificationSent:      true,
+//         notificationSentAt:    new Date(),
+//         notificationSentCount: { increment: 1 },
+//       },
+//     });
+
+//     return NextResponse.json({ count: targets.length });
+//   } catch (err: any) {
+//     return NextResponse.json({ error: err.message }, { status: 500 });
+//   }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
 // app/api/admin/webinars/[id]/send-notification/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/helpers/prisma";
@@ -238,50 +308,89 @@ import { getWebinarTargets } from "@/lib/helpers/notification-helpers";
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function POST(req: NextRequest, ctx: RouteContext) {
-  try {
-    const authErr = await requireAdmin(req);
-    if (authErr) return authErr;
+  const authErr = await requireAdmin(req);
+  if (authErr) return authErr;
 
+  try {
     const { id } = await ctx.params;
 
     const webinar = await prisma.webinar.findUnique({ where: { id } });
     if (!webinar) return NextResponse.json({ error: "Webinar not found" }, { status: 404 });
 
     const targets = await getWebinarTargets(webinar);
-    if (!targets.length) return NextResponse.json({ count: 0 });
+    if (!targets.length) return NextResponse.json({ count: 0, sent: 0, failed: 0, results: [] });
 
     const dateStr = new Date(webinar.scheduledAt).toLocaleString("en-IN", {
       dateStyle: "medium", timeStyle: "short",
     });
 
-    // Delete ALL existing notifications for this webinar (all users)
-    // so each send creates a fresh unread notification for everyone
+    // Wipe old notifications so every send = fresh unread for everyone
     await prisma.notification.deleteMany({ where: { webinarId: webinar.id } });
 
-    // Create fresh notifications for all targets
-    await prisma.notification.createMany({
-      data: targets.map(t => ({
-        userId:    t.userId,
-        type:      "webinar" as const,
-        title:     `📹 Webinar: ${webinar.title}`,
-        message:   `Scheduled on ${dateStr}. Click to join.`,
-        link:      webinar.meetingLink,
-        webinarId: webinar.id,
-        isRead:    false,
+    // Create notifications and track per-user result
+    type NotifResult = { userId: string; name: string; success: boolean; errorMsg?: string };
+    const results: NotifResult[] = [];
+
+    await Promise.allSettled(
+      targets.map(async t => {
+        try {
+          await prisma.notification.create({
+            data: {
+              userId:    t.userId,
+              type:      "webinar",
+              title:     `📹 Webinar: ${webinar.title}`,
+              message:   `Scheduled on ${dateStr}. Click to join.`,
+              link:      webinar.meetingLink,
+              webinarId: webinar.id,
+              isRead:    false,
+            },
+          });
+          results.push({ userId: t.userId, name: t.name ?? t.userId, success: true });
+        } catch (err: any) {
+          results.push({ userId: t.userId, name: t.name ?? t.userId, success: false, errorMsg: err?.message });
+        }
+      })
+    );
+
+    const now    = new Date();
+    const sent   = results.filter(r => r.success).length;
+    const failed = results.length - sent;
+
+    // ── Persist per-recipient notification logs ───────────────────────────────
+    await prisma.webinarNotificationLog.deleteMany({ where: { webinarId: id } });
+
+    await prisma.webinarNotificationLog.createMany({
+      data: results.map(r => ({
+        webinarId: id,
+        userId:    r.userId,
+        name:      r.name,
+        status:    r.success ? "sent" : "failed",
+        errorMsg:  r.errorMsg ?? null,
+        sentAt:    r.success ? now : null,
       })),
-      skipDuplicates: true,
     });
 
+    // ── Update webinar counters ───────────────────────────────────────────────
     await prisma.webinar.update({
       where: { id },
       data: {
         notificationSent:      true,
-        notificationSentAt:    new Date(),
+        notificationSentAt:    now,
         notificationSentCount: { increment: 1 },
       },
     });
 
-    return NextResponse.json({ count: targets.length });
+    return NextResponse.json({
+      count:  targets.length,
+      sent,
+      failed,
+      results: results.map(r => ({
+        userId:   r.userId,
+        name:     r.name,
+        success:  r.success,
+        errorMsg: r.errorMsg,
+      })),
+    });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

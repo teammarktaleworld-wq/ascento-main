@@ -6,18 +6,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/helpers/prisma";
 import { requireAdmin } from "@/lib/helpers/auth-helpers";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/helpers/supabaseAdmin"; // ← replaced
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+
 const BUCKET = "test-papers";
 
 async function removeFromStorage(paths: (string | null | undefined)[]) {
   const valid = paths.filter((p): p is string => !!p);
   if (!valid.length) return;
-  const { error } = await supabase.storage.from(BUCKET).remove(valid);
+  const { error } = await supabaseAdmin.storage.from(BUCKET).remove(valid);
   if (error) console.error("Storage remove warning:", error.message);
 }
 

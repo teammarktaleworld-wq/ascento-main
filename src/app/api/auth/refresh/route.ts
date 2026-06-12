@@ -1,28 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/helpers/supabaseAdmin"; // ← replaced
 
-// Use service-role client so we can refresh any session server-side
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-// ─── POST /api/auth/refresh ───────────────────────────────────────────────────
-// Accepts a refresh_token, returns a new access_token.
-// Call this when any API returns 401 (token expired).
-//
-// Request body (JSON):
-//   { "refresh_token": "..." }
-//
-// Success 200:
-//   {
-//     "access_token": "...",
-//     "refresh_token": "...",   ← new refresh token (rotate it)
-//     "expires_in": 3600
-//   }
-//
-// Error 400 → missing refresh_token
-// Error 401 → invalid or expired refresh_token
 
 export async function POST(req: Request) {
   let body: { refresh_token?: string };

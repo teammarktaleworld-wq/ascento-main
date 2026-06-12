@@ -160,7 +160,159 @@
 
 
 
+// // src\app\admin\dashboard\[tab]\page.tsx
+// "use client";
 
+// import { useEffect, useCallback, useState } from "react";
+// import { useAuth } from "@/context/AuthContext";
+// import { useRouter, useParams } from "next/navigation";
+// import { Loader2 } from "lucide-react";
+
+// import Sidebar from "@/components/admin/layout/Sidebar";
+// import TopBar from "@/components/admin/layout/TopBar";
+
+// import DashboardView from "@/components/admin/modules/dashboard/DashboardView";
+// import StudentsView from "@/components/admin/modules/students/StudentsView";
+// import TeachersView from "@/components/admin/modules/teachers/TeachersView";
+// import ScheduleView from "@/components/admin/modules/schedule/ScheduleView";
+// import ExamsView from "@/components/admin/modules/exams/ExamsView";
+// import AttendenceView from "@/components/admin/modules/attendance/AttendenceView";
+// import FeesView from "@/components/admin/modules/fees/FeesView";
+// import ReportsView from "@/components/admin/modules/reports/ReportsView";
+// import SettingsView from "@/components/admin/modules/settings/SettingsView";
+// import EnquiriesView from "@/components/admin/modules/enquiries/EnquiriesView";
+// import HomeworkView from "@/components/admin/modules/homework/Homeworkview ";
+// import AnnouncementsView from "@/components/admin/modules/announcements/AnnouncementsView";
+// import WebinarsView from "@/components/admin/modules/webinars/Webinarsview ";
+// import NotificationsView from "@/components/admin/modules/notifications/Notificationsview ";
+// import UsersView from "@/components/admin/modules/users/UsersView";
+// import NotesLibraryAdmin from "@/components/admin/modules/notes/NotesLibraryAdmin";
+
+// const NAVBAR_HEIGHT = 80;
+
+// function renderPage(tab: string, tabKey: string) {
+//   switch (tab) {
+//     case "users":         return <UsersView         key={tabKey} />;
+//     case "students":      return <StudentsView       key={tabKey} />;
+//     case "teachers":      return <TeachersView       key={tabKey} />;
+//     case "schedule":      return <ScheduleView       key={tabKey} />;
+//     case "exams":         return <ExamsView          key={tabKey} />;
+//     case "attendance":    return <AttendenceView     key={tabKey} />;
+//     case "fees":          return <FeesView           key={tabKey} />;
+//     case "announcements": return <AnnouncementsView  key={tabKey} />;
+//     case "enquiries":     return <EnquiriesView      key={tabKey} />;
+//     case "webinars":      return <WebinarsView       key={tabKey} />;
+//     case "notifications": return <NotificationsView  key={tabKey} />;
+//     case "reports":       return <ReportsView        key={tabKey} />;
+//     case "settings":      return <SettingsView       key={tabKey} />;
+//     case "notes":         return <NotesLibraryAdmin  key={tabKey} />;
+//     case "homework":      return <HomeworkView       key={tabKey} />;
+//     default:              return <DashboardView      key={tabKey} />;
+//   }
+// }
+
+// export default function AdminDashboardPage() {
+//   const params              = useParams();
+//   const tab                 = (params?.tab as string) || "dashboard";
+//   const { user, token, loading } = useAuth(); // ← token from context
+//   const router              = useRouter();
+//   const [unreadCount, setUnreadCount] = useState(0);
+
+//   // ── Token-gated notification polling ─────────────────────────────────────
+//   const fetchUnreadCount = useCallback(async () => {
+//     if (!token) return; // ← never fire without token
+//     try {
+//       const res = await fetch("/api/notifications?limit=1", {
+//         headers: { Authorization: `Bearer ${token}` },
+//         cache: "no-store",
+//       });
+//       if (!res.ok) return;
+//       const data = await res.json();
+//       setUnreadCount(data.unreadCount ?? 0);
+//     } catch {}
+//   }, [token]); // ← rebuilds when token changes
+
+//   // ── Only poll once token + admin confirmed ────────────────────────────────
+//   useEffect(() => {
+//     if (!token || user?.role !== "admin") return;
+//     fetchUnreadCount();
+//     const id = setInterval(fetchUnreadCount, 60_000);
+//     return () => clearInterval(id);
+//   }, [token, user, fetchUnreadCount]);
+
+//   // ── Reset count when token clears (signout) ───────────────────────────────
+//   useEffect(() => {
+//     if (!token) setUnreadCount(0);
+//   }, [token]);
+
+//   useEffect(() => {
+//     document.body.style.overflow = "hidden";
+//     return () => { document.body.style.overflow = ""; };
+//   }, []);
+
+//   // ── Auth redirect — wait for ready before acting ──────────────────────────
+//   useEffect(() => {
+//     if (!ready) return;
+//     if (!user)                  { router.replace("/login");     return; }
+//     if (user.role !== "admin")  { router.replace("/dashboard"); return; }
+//   }, [ready, user, router]);
+
+//   // ── Loading state ─────────────────────────────────────────────────────────
+//   if (loading || !ready) {
+//     return (
+//       <div
+//         className="fixed flex items-center justify-center bg-[#FFFDF7]"
+//         style={{ top: NAVBAR_HEIGHT, left: 0, right: 0, bottom: 0 }}
+//       >
+//         <Loader2 className="animate-spin text-[#FF6B6B]" size={28} />
+//       </div>
+//     );
+//   }
+
+//   // Redirect in flight — render nothing
+//   if (!user || user.role !== "admin") return null;
+
+//   // tabKey: user.id scopes to this admin, tab scopes to current page
+//   // Both together guarantee clean remount on user switch OR tab switch
+//   const tabKey = `${user.id}-${tab}`;
+
+//   return (
+//     // key=user.id — full remount if admin user changes
+//     <div
+//       key={user.id}
+//       className="fixed flex"
+//       style={{ top: NAVBAR_HEIGHT, left: 0, right: 0, bottom: 0 }}
+//     >
+//       <Sidebar notificationCount={unreadCount} />
+
+//       <div className="flex flex-col flex-1">
+//         <TopBar
+//           title={tab}
+//           onNotificationsClick={() => router.push("/admin/dashboard/notifications")}
+//         />
+//         <main className="flex-1 overflow-y-auto p-6">
+//           {renderPage(tab, tabKey)}
+//         </main>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// src\app\admin\dashboard\[tab]\page.tsx
 "use client";
 
 import { useEffect, useCallback, useState } from "react";
@@ -212,15 +364,15 @@ function renderPage(tab: string, tabKey: string) {
 }
 
 export default function AdminDashboardPage() {
-  const params              = useParams();
-  const tab                 = (params?.tab as string) || "dashboard";
-  const { user, token, loading, ready } = useAuth(); // ← token from context
-  const router              = useRouter();
+  const params                   = useParams();
+  const tab                      = (params?.tab as string) || "dashboard";
+  const { user, token, loading } = useAuth();
+  const router                   = useRouter();
   const [unreadCount, setUnreadCount] = useState(0);
 
   // ── Token-gated notification polling ─────────────────────────────────────
   const fetchUnreadCount = useCallback(async () => {
-    if (!token) return; // ← never fire without token
+    if (!token) return;
     try {
       const res = await fetch("/api/notifications?limit=1", {
         headers: { Authorization: `Bearer ${token}` },
@@ -230,7 +382,7 @@ export default function AdminDashboardPage() {
       const data = await res.json();
       setUnreadCount(data.unreadCount ?? 0);
     } catch {}
-  }, [token]); // ← rebuilds when token changes
+  }, [token]);
 
   // ── Only poll once token + admin confirmed ────────────────────────────────
   useEffect(() => {
@@ -250,15 +402,15 @@ export default function AdminDashboardPage() {
     return () => { document.body.style.overflow = ""; };
   }, []);
 
-  // ── Auth redirect — wait for ready before acting ──────────────────────────
+  // ── Auth redirect — wait for loading to finish before acting ──────────────
   useEffect(() => {
-    if (!ready) return;
-    if (!user)                  { router.replace("/login");     return; }
-    if (user.role !== "admin")  { router.replace("/dashboard"); return; }
-  }, [ready, user, router]);
+    if (loading) return;                             // ← was: if (!ready) return
+    if (!user)                 { router.replace("/login");     return; }
+    if (user.role !== "admin") { router.replace("/dashboard"); return; }
+  }, [loading, user, router]);                       // ← was: [ready, user, router]
 
   // ── Loading state ─────────────────────────────────────────────────────────
-  if (loading || !ready) {
+  if (loading) {                                     // ← was: if (loading || !ready)
     return (
       <div
         className="fixed flex items-center justify-center bg-[#FFFDF7]"
@@ -272,12 +424,9 @@ export default function AdminDashboardPage() {
   // Redirect in flight — render nothing
   if (!user || user.role !== "admin") return null;
 
-  // tabKey: user.id scopes to this admin, tab scopes to current page
-  // Both together guarantee clean remount on user switch OR tab switch
   const tabKey = `${user.id}-${tab}`;
 
   return (
-    // key=user.id — full remount if admin user changes
     <div
       key={user.id}
       className="fixed flex"

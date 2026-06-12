@@ -3,12 +3,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/helpers/prisma";
 import { requireAdmin } from "@/lib/helpers/auth-helpers";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { supabaseAdmin } from "@/lib/helpers/supabaseAdmin"
 
 const BUCKET = "homework-files";
 
@@ -51,7 +46,7 @@ export async function PATCH(
     if (storagePath) {
       const existing = await prisma.homeworkFile.findUnique({ where: { id } });
       if (existing && existing.storagePath !== storagePath) {
-        await supabase.storage.from(BUCKET).remove([existing.storagePath]);
+        await supabaseAdmin.storage.from(BUCKET).remove([existing.storagePath]);
       }
     }
 
@@ -94,7 +89,7 @@ export async function DELETE(
     }
 
     // Delete from Supabase Storage first
-    await supabase.storage.from(BUCKET).remove([existing.storagePath]);
+    await supabaseAdmin.storage.from(BUCKET).remove([existing.storagePath]);
 
     // Then delete from DB
     await prisma.homeworkFile.delete({ where: { id } });

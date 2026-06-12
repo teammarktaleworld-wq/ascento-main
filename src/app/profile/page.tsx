@@ -135,74 +135,152 @@ export default function ProfilePage() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [city, setCity] = useState("");
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const { data } = await supabase.auth.getSession();
-      const token = data.session?.access_token;
+  // useEffect(() => {
+  //   const loadUser = async () => {
+  //     const { data } = await supabase.auth.getSession();
+  //     const token = data.session?.access_token;
 
-      if (!token) {
-        router.push("/login");
-        return;
-      }
+  //     if (!token) {
+  //       router.push("/login");
+  //       return;
+  //     }
 
-      const res = await fetch("/api/user/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+  //     const res = await fetch("/api/user/me", {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
 
-      const dbUser = await res.json();
+  //     const dbUser = await res.json();
 
-      setUser(dbUser);
-      setName(dbUser?.name || "");
-      setPhoneNumber(dbUser?.phone || "");
-      setCity(dbUser?.city || "");
-      setLoading(false);
-    };
+  //     setUser(dbUser);
+  //     setName(dbUser?.name || "");
+  //     setPhoneNumber(dbUser?.phone || "");
+  //     setCity(dbUser?.city || "");
+  //     setLoading(false);
+  //   };
 
-    loadUser();
+  //   loadUser();
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (!session?.user) router.push("/login");
+  //   const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
+  //     if (!session?.user) router.push("/login");
+  //   });
+
+  //   return () => listener.subscription.unsubscribe();
+  // }, [router]);
+
+  // const handleUpdateProfile = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (!user) return;
+
+  //   setSaving(true);
+  //   setMessage({ type: "", text: "" });
+
+  //   try {
+  //     const { data } = await supabase.auth.getSession();
+  //     const token = data.session?.access_token;
+  //     if (!token) throw new Error("No session");
+
+  //     await fetch("/api/user/update", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+  //       body: JSON.stringify({ name, phone: phoneNumber, city }),
+  //     });
+
+  //     const res = await fetch("/api/user/me", {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+  //     const updatedUser = await res.json();
+
+  //     setUser(updatedUser);
+  //     setName(updatedUser?.name || "");
+  //     setPhoneNumber(updatedUser?.phone || "");
+  //     setCity(updatedUser?.city || "");
+
+  //     setMessage({ type: "success", text: "Profile updated successfully! 🎉" });
+  //   } catch (err: any) {
+  //     setMessage({ type: "error", text: err.message });
+  //   } finally {
+  //     setSaving(false);
+  //   }
+  // };
+
+// app/profile/page.tsx
+// Only the changed parts shown — replace the two fetch calls
+
+useEffect(() => {
+  const loadUser = async () => {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    const res = await fetch("/api/me", {                    // ← changed
+      headers: { Authorization: `Bearer ${token}` },
     });
 
-    return () => listener.subscription.unsubscribe();
-  }, [router]);
-
-  const handleUpdateProfile = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-
-    setSaving(true);
-    setMessage({ type: "", text: "" });
-
-    try {
-      const { data } = await supabase.auth.getSession();
-      const token = data.session?.access_token;
-      if (!token) throw new Error("No session");
-
-      await fetch("/api/user/update", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ name, phone: phoneNumber, city }),
-      });
-
-      const res = await fetch("/api/user/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const updatedUser = await res.json();
-
-      setUser(updatedUser);
-      setName(updatedUser?.name || "");
-      setPhoneNumber(updatedUser?.phone || "");
-      setCity(updatedUser?.city || "");
-
-      setMessage({ type: "success", text: "Profile updated successfully! 🎉" });
-    } catch (err: any) {
-      setMessage({ type: "error", text: err.message });
-    } finally {
-      setSaving(false);
+    if (!res.ok) {                                          // ← added guard
+      router.push("/login");
+      return;
     }
+
+    const dbUser = await res.json();
+
+    setUser(dbUser);
+    setName(dbUser?.name || "");
+    setPhoneNumber(dbUser?.phone || "");
+    setCity(dbUser?.city || "");
+    setLoading(false);
   };
 
+  loadUser();
+
+  const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
+    if (!session?.user) router.push("/login");
+  });
+
+  return () => listener.subscription.unsubscribe();
+}, [router]);
+
+
+const handleUpdateProfile = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!user) return;
+
+  setSaving(true);
+  setMessage({ type: "", text: "" });
+
+  try {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) throw new Error("No session");
+
+    await fetch("/api/user/update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ name, phone: phoneNumber, city }),
+    });
+
+    const res = await fetch("/api/me", {                    // ← changed
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const updatedUser = await res.json();
+
+    setUser(updatedUser);
+    setName(updatedUser?.name || "");
+    setPhoneNumber(updatedUser?.phone || "");
+    setCity(updatedUser?.city || "");
+
+    setMessage({ type: "success", text: "Profile updated successfully! 🎉" });
+  } catch (err: any) {
+    setMessage({ type: "error", text: err.message });
+  } finally {
+    setSaving(false);
+  }
+};
+
+  
 const handleSignOut = async () => {
   // Clear all HTTP cache
   if ('caches' in window) {

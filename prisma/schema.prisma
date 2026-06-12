@@ -7,13 +7,579 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ─── Enums ───────────────────────────────────────────────────────────────────
+model SummerCampEnrollment {
+  id         String   @id @default(uuid())
+  childName  String
+  parentName String?
+  phone      String
+  email      String?
+  ageGroup   String
+  program    String
+  message    String?
+  status     String   @default("New")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("summer_camp_enrollments")
+}
+
+model ContactEnquiry {
+  id          Int      @id @default(autoincrement())
+  name        String
+  phone       String
+  email       String?
+  childAge    String?
+  reason      String?
+  message     String?
+  program     String?
+  submittedAt DateTime @default(now())
+
+  @@map("contact_enquiries")
+}
+
+model User {
+  id            String         @id
+  email         String         @unique
+  name          String?
+  phone         String?
+  avatarUrl     String?
+  role          UserRole       @default(user)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  city          String?
+  status        UserStatus     @default(Active)
+  forceLogoutAt DateTime?
+  enquiries     Enquiry[]      @relation("EnquiryCreatedBy")
+  notifications Notification[]
+  purchases     Purchase[]
+  student       Student?
+  teacher       Teacher?
+    emailLogs  AnnouncementEmailLog[]
+
+
+  @@map("users")
+}
+
+model NoteCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  notes       Note[]
+
+  @@map("note_categories")
+}
+
+model Note {
+  id              String        @id @default(cuid())
+  serialId        Int           @unique
+  title           String
+  label           String        @default("")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  categoryId      String?
+  demoPath        String?
+  demoUrl         String?
+  discountPercent Float?
+  price           Float         @default(0)
+  realPath        String?
+  realUrl         String?
+  coupons         Coupon[]      @relation("NoteCoupons")
+  category        NoteCategory? @relation(fields: [categoryId], references: [id])
+  purchases       Purchase[]
+
+  @@index([categoryId])
+  @@index([price])
+  @@map("notes")
+}
+
+model TestPaperCategory {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  description String      @default("")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  papers      TestPaper[]
+
+  @@map("test_paper_categories")
+}
+
+model TestPaper {
+  id              String             @id @default(cuid())
+  serialId        Int                @unique
+  title           String
+  label           String             @default("")
+  categoryId      String?
+  price           Float              @default(0)
+  discountPercent Float?
+  fileUrl         String?
+  filePath        String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  demoPath        String?
+  demoUrl         String?
+  realPath        String?
+  realUrl         String?
+  coupons         Coupon[]           @relation("TestPaperCoupons")
+  purchases       Purchase[]
+  category        TestPaperCategory? @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([price])
+  @@map("test_papers")
+}
+
+model Coupon {
+  id              String      @id @default(cuid())
+  code            String      @unique
+  discountPercent Float
+  scope           CouponScope @default(global)
+  noteId          String?
+  testPaperId     String?
+  maxUses         Int?
+  usedCount       Int         @default(0)
+  expiresAt       DateTime?
+  isActive        Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  note            Note?       @relation("NoteCoupons", fields: [noteId], references: [id])
+  testPaper       TestPaper?  @relation("TestPaperCoupons", fields: [testPaperId], references: [id])
+  purchases       Purchase[]
+
+  @@index([code])
+  @@index([scope])
+  @@index([isActive])
+  @@map("coupons")
+}
+
+model Purchase {
+  id              String     @id @default(cuid())
+  userId          String
+  noteId          String?
+  testPaperId     String?
+  couponId        String?
+  originalPrice   Float
+  finalPrice      Float
+  discountApplied Float      @default(0)
+  purchasedAt     DateTime   @default(now())
+  coupon          Coupon?    @relation(fields: [couponId], references: [id])
+  note            Note?      @relation(fields: [noteId], references: [id])
+  testPaper       TestPaper? @relation(fields: [testPaperId], references: [id])
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([noteId])
+  @@index([testPaperId])
+  @@index([purchasedAt])
+  @@map("purchases")
+}
+
+model Program {
+  id               String            @id @default(uuid())
+  name             String            @unique
+  description      String?
+  hasLevels        Boolean           @default(false)
+  sortOrder        Int               @default(0)
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  announcements    Announcement[]
+  exams            Exam[]
+  levels           ProgramLevel[]
+  scheduleSlots    ScheduleSlot[]
+  students         Student[]
+  timetableUploads TimetableUpload[]
+  webinars         Webinar[]
+
+  @@map("programs")
+}
+
+model ProgramLevel {
+  id               String            @id @default(uuid())
+  programId        String
+  name             String
+  sortOrder        Int               @default(0)
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  announcements    Announcement[]
+  exams            Exam[]
+  program          Program           @relation(fields: [programId], references: [id], onDelete: Cascade)
+  scheduleSlots    ScheduleSlot[]
+  students         Student[]
+  timetableUploads TimetableUpload[]
+  webinars         Webinar[]
+
+  @@unique([programId, name])
+  @@map("program_levels")
+}
+
+model Student {
+  id             String        @id @default(uuid())
+  userId         String        @unique
+  studentId      String        @unique
+  rollNumber     String?
+  fullName       String
+  dateOfBirth    DateTime?
+  gender         String?
+  bloodGroup     String?
+  phone          String?
+  address        String?
+  city           String?
+  state          String?
+  parentName     String?
+  parentPhone    String?
+  parentEmail    String?
+  status         String        @default("Active")
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  academicYear   String?
+  section        String?
+  programId      String?
+  programLevelId String?
+  photoUrl       String?
+  admissionDate  DateTime?
+  attendance     Attendance[]
+  fees           StudentFee[]
+  program        Program?      @relation(fields: [programId], references: [id])
+  programLevel   ProgramLevel? @relation(fields: [programLevelId], references: [id])
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("students")
+}
+
+model StudentFee {
+  id           String    @id @default(cuid())
+  studentId    String
+  feeType      String
+  description  String?
+  amount       Float
+  paidAmount   Float     @default(0)
+  dueDate      DateTime?
+  paidDate     DateTime?
+  status       FeeStatus @default(Pending)
+  month        String?
+  academicYear String?
+  receiptNo    String?
+  remarks      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  student      Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("student_fees")
+}
+
+model Exam {
+  id             String         @id @default(cuid())
+  examName       String
+  description    String?
+  examStartDate  DateTime?
+  examEndDate    DateTime?
+  programId      String?
+  levelId        String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  fileName       String?
+  fileType       String?
+  fileUrl        String?
+  storagePath    String?
+  emailSentAt    DateTime?
+  emailSentCount Int            @default(0)
+  notifSentAt    DateTime?
+  notifSentCount Int            @default(0)
+  level          ProgramLevel?  @relation(fields: [levelId], references: [id])
+  program        Program?       @relation(fields: [programId], references: [id])
+  notifications  Notification[]
+
+  @@index([programId])
+  @@index([levelId])
+  @@index([examStartDate])
+  @@map("exams")
+}
+
+model Teacher {
+  id              String           @id @default(uuid())
+  userId          String           @unique
+  name            String
+  phone           String?
+  experience      String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  designation     String?
+  photoUrl        String?
+  wifeOrHusbandOf String?
+  dateOfBirth     DateTime?
+  status          String           @default("Active")
+  subjects        TeacherSubject[]
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("teachers")
+}
+
+model Subject {
+  id        String           @id @default(uuid())
+  name      String           @unique
+  createdAt DateTime         @default(now())
+  teachers  TeacherSubject[]
+
+  @@map("subjects")
+}
+model Webinar {
+  id                    String          @id @default(cuid())
+  title                 String
+  description           String?
+  platform              WebinarPlatform @default(zoom)
+  meetingLink           String
+  meetingId             String?
+  passcode              String?
+  hostName              String?
+  hostEmail             String?
+  scheduledAt           DateTime
+  durationMins          Int             @default(60)
+  status                WebinarStatus   @default(active)
+  programId             String?
+  levelId               String?
+  emailSent             Boolean         @default(false)
+  emailSentAt           DateTime?
+  bannerUrl             String?
+  attachmentUrl         String?
+  attachmentName        String?
+  attachmentType        String?
+  attachmentSize        Int?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  emailSentCount        Int             @default(0)
+  notificationSent      Boolean         @default(false)
+  notificationSentAt    DateTime?
+  notificationSentCount Int             @default(0)
+  notifications         Notification[]
+  emailLogs             WebinarEmailLog[]
+  notificationLogs      WebinarNotificationLog[]
+  level                 ProgramLevel?   @relation(fields: [levelId], references: [id])
+  program               Program?        @relation(fields: [programId], references: [id])
+
+  @@index([scheduledAt])
+  @@index([programId])
+  @@index([status])
+  @@map("webinars")
+}
+
+model WebinarEmailLog {
+  id         String    @id @default(cuid())
+  webinarId  String
+  studentId  String?
+  userId     String?
+  email      String
+  name       String
+  status     String    // "sent" | "failed"
+  errorMsg   String?
+  resendId   String?
+  sentAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  webinar    Webinar   @relation(fields: [webinarId], references: [id], onDelete: Cascade)
+
+  @@index([webinarId])
+  @@index([status])
+  @@map("webinar_email_logs")
+}
+
+model WebinarNotificationLog {
+  id         String    @id @default(cuid())
+  webinarId  String
+  userId     String
+  name       String
+  status     String    // "sent" | "failed"
+  errorMsg   String?
+  sentAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  webinar    Webinar   @relation(fields: [webinarId], references: [id], onDelete: Cascade)
+
+  @@index([webinarId])
+  @@index([status])
+  @@map("webinar_notification_logs")
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType @default(general)
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  link      String?
+  webinarId String?
+  createdAt DateTime         @default(now())
+  examId    String?
+  exam      Exam?            @relation(fields: [examId], references: [id])
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  webinar   Webinar?         @relation(fields: [webinarId], references: [id])
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@index([examId])
+  @@map("notifications")
+}
+
+model TeacherSubject {
+  teacherId  String
+  subjectId  String
+  assignedAt DateTime @default(now())
+  subject    Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  teacher    Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@id([teacherId, subjectId])
+  @@map("teacher_subjects")
+}
+
+model HomeworkFile {
+  id          String   @id @default(uuid())
+  serialId    Int      @unique
+  title       String
+  label       String?
+  fileType    String
+  fileUrl     String
+  storagePath String
+  createdAt   DateTime @default(now())
+
+  @@map("homework_files")
+}
+
+model Enquiry {
+  id          String   @id @default(uuid())
+  studentName String
+  email       String
+  phone       String?
+  course      String?
+  source      String?
+  message     String?
+  status      String   @default("New")
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   User?    @relation("EnquiryCreatedBy", fields: [createdById], references: [id])
+
+  @@map("enquiries")
+}
+
+model Attendance {
+  id        String           @id @default(cuid())
+  studentId String
+  date      DateTime         @db.Date
+  status    AttendanceStatus
+  note      String?
+  markedBy  String?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  student   Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, date])
+  @@index([date])
+  @@index([studentId])
+  @@map("attendance")
+}
+
+model Announcement {
+  id          String               @id @default(cuid())
+  title       String
+  message     String
+  priority    AnnouncementPriority @default(normal)
+  audience    AnnouncementAudience @default(all)
+  programId   String?
+  levelId     String?
+  expiresAt   DateTime?
+  isActive    Boolean              @default(true)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  emailSent   Boolean              @default(false)
+  fileName    String?
+  fileType    String?
+  fileUrl     String?
+  storagePath String?
+  level       ProgramLevel?        @relation(fields: [levelId], references: [id])
+  program     Program?             @relation(fields: [programId], references: [id])
+   emailSentCount  Int                    @default(0)
+emailLogs       AnnouncementEmailLog[]
+
+
+  @@index([audience])
+  @@index([programId])
+  @@index([isActive])
+  @@map("announcements")
+}
+
+
+model AnnouncementEmailLog {
+  id             String       @id @default(cuid())
+  announcementId String
+  userId         String
+  email          String
+  status         String       // "sent" | "failed"
+  sentAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([announcementId, userId])
+  @@index([announcementId])
+  @@index([status])
+  @@map("announcement_email_logs")
+}
+
+
+
+
+
+model ScheduleSlot {
+  id           String        @id @default(cuid())
+  programId    String
+  levelId      String?
+  dayOfWeek    String
+  periodNumber Int
+  startTime    String
+  endTime      String
+  subjectName  String
+  teacherName  String
+  notes        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  level        ProgramLevel? @relation(fields: [levelId], references: [id])
+  program      Program       @relation(fields: [programId], references: [id])
+
+  @@unique([programId, levelId, dayOfWeek, periodNumber])
+  @@index([programId])
+  @@index([levelId])
+  @@map("schedule_slots")
+}
+
+model TimetableUpload {
+  id           String        @id @default(cuid())
+  programId    String?
+  levelId      String?
+  originalName String
+  storagePath  String
+  url          String
+  mimeType     String
+  size         Int
+  createdAt    DateTime      @default(now())
+  level        ProgramLevel? @relation(fields: [levelId], references: [id])
+  program      Program?      @relation(fields: [programId], references: [id])
+
+  @@index([programId])
+  @@map("timetable_uploads")
+}
 
 enum UserRole {
   admin
   student
-  teacher
   user
+  teacher
 }
 
 enum UserStatus {
@@ -71,587 +637,14 @@ enum NotificationType {
 
 enum AnnouncementAudience {
   all
-  students
-  teachers
   program
   level
+  teachers
+  students
 }
 
 enum CouponScope {
-  global // applies to any note or test paper
-  note // applies to one specific note
-  test_paper // applies to one specific test paper
-}
-
-// ─── Models ──────────────────────────────────────────────────────────────────
-
-model SummerCampEnrollment {
-  id         String   @id @default(uuid())
-  childName  String
-  parentName String?
-  phone      String
-  email      String?
-  ageGroup   String
-  program    String
-  message    String?
-  status     String   @default("New")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@map("summer_camp_enrollments")
-}
-
-model ContactEnquiry {
-  id          Int      @id @default(autoincrement())
-  name        String
-  phone       String
-  email       String?
-  childAge    String?
-  reason      String?
-  message     String?
-  program     String?
-  submittedAt DateTime @default(now())
-
-  @@map("contact_enquiries")
-}
-
-model User {
-  id        String     @id
-  email     String     @unique
-  name      String?
-  phone     String?
-  city      String?
-  avatarUrl String?
-  role      UserRole   @default(user)
-  status    UserStatus @default(Active)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-
-  student       Student?
-  teacher       Teacher?
-  enquiries     Enquiry[]      @relation("EnquiryCreatedBy")
-  notifications Notification[]
-  purchases     Purchase[]
-
-  @@map("users")
-}
-
-// ─── Note Category ────────────────────────────────────────────────────────────
-
-model NoteCategory {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String   @default("")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  notes Note[]
-
-  @@map("note_categories")
-}
-
-// ─── Note ─────────────────────────────────────────────────────────────────────
-// Each note has a Demo PDF and/or a Real (full) PDF.
-// At least one must be present. Price + optional discount.
-
-model Note {
-  id              String   @id @default(cuid())
-  serialId        Int      @unique
-  title           String
-  label           String   @default("")
-  categoryId      String?
-  price           Float    @default(0) // 0 = free
-  discountPercent Float? // e.g. 20 = 20% off
-  // Demo version
-  demoUrl         String?
-  demoPath        String? // Supabase storage path
-  // Real (full) version
-  realUrl         String?
-  realPath        String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  category  NoteCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  coupons   Coupon[]      @relation("NoteCoupons")
-  purchases Purchase[]
-
-  @@index([categoryId])
-  @@index([price])
-  @@map("notes")
-}
-
-// ─── Test Paper Category ──────────────────────────────────────────────────────
-
-model TestPaperCategory {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String   @default("")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  papers TestPaper[]
-
-  @@map("test_paper_categories")
-}
-
-// ─── Test Paper ───────────────────────────────────────────────────────────────
-
-model TestPaper {
-  id         String  @id @default(cuid())
-  serialId   Int     @unique
-  title      String
-  label      String  @default("")
-  categoryId String?
-
-  price           Float  @default(0)
-  discountPercent Float?
-
-  // Demo PDF
-  demoUrl  String?
-  demoPath String?
-
-  // Purchased PDF
-  realUrl  String?
-  realPath String?
-
-  // Legacy fields
-  fileUrl  String?
-  filePath String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  category  TestPaperCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  coupons   Coupon[]           @relation("TestPaperCoupons")
-  purchases Purchase[]
-
-  @@index([categoryId])
-  @@index([price])
-  @@map("test_papers")
-}
-
-// ─── Coupon ───────────────────────────────────────────────────────────────────
-
-model Coupon {
-  id              String      @id @default(cuid())
-  code            String      @unique
-  discountPercent Float // 1–100
-  scope           CouponScope @default(global)
-  // If scope = note, this links to the specific note
-  noteId          String?
-  // If scope = test_paper, this links to the specific paper
-  testPaperId     String?
-  maxUses         Int? // null = unlimited
-  usedCount       Int         @default(0)
-  expiresAt       DateTime?
-  isActive        Boolean     @default(true)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-
-  note      Note?      @relation("NoteCoupons", fields: [noteId], references: [id], onDelete: SetNull)
-  testPaper TestPaper? @relation("TestPaperCoupons", fields: [testPaperId], references: [id], onDelete: SetNull)
-  purchases Purchase[]
-
-  @@index([code])
-  @@index([scope])
-  @@index([isActive])
-  @@map("coupons")
-}
-
-// ─── Purchase ─────────────────────────────────────────────────────────────────
-
-model Purchase {
-  id              String   @id @default(cuid())
-  userId          String
-  // Exactly one of these is set
-  noteId          String?
-  testPaperId     String?
-  couponId        String? // coupon used, if any
-  originalPrice   Float // price before discount
-  finalPrice      Float // price actually paid (0 if free/fully discounted)
-  discountApplied Float    @default(0) // amount saved
-  purchasedAt     DateTime @default(now())
-
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  note      Note?      @relation(fields: [noteId], references: [id], onDelete: SetNull)
-  testPaper TestPaper? @relation(fields: [testPaperId], references: [id], onDelete: SetNull)
-  coupon    Coupon?    @relation(fields: [couponId], references: [id], onDelete: SetNull)
-
-  @@index([userId])
-  @@index([noteId])
-  @@index([testPaperId])
-  @@index([purchasedAt])
-  @@map("purchases")
-}
-
-// ─── Program ─────────────────────────────────────────────────────────────────
-
-model Program {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String?
-  hasLevels   Boolean  @default(false)
-  sortOrder   Int      @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  levels           ProgramLevel[]
-  students         Student[]
-  scheduleSlots    ScheduleSlot[]
-  timetableUploads TimetableUpload[]
-  announcements    Announcement[]
-  exams            Exam[]
-  webinars         Webinar[]
-
-  @@map("programs")
-}
-
-// ─── ProgramLevel ─────────────────────────────────────────────────────────────
-
-model ProgramLevel {
-  id        String   @id @default(uuid())
-  programId String
-  name      String
-  sortOrder Int      @default(0)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  program          Program           @relation(fields: [programId], references: [id], onDelete: Cascade)
-  students         Student[]
-  scheduleSlots    ScheduleSlot[]
-  timetableUploads TimetableUpload[]
-  announcements    Announcement[]
-  exams            Exam[]
-  webinars         Webinar[]
-
-  @@unique([programId, name])
-  @@map("program_levels")
-}
-
-// ─── Student ──────────────────────────────────────────────────────────────────
-
-model Student {
-  id            String    @id @default(uuid())
-  userId        String    @unique
-  studentId     String    @unique
-  rollNumber    String?
-  fullName      String
-  photoUrl      String?
-  dateOfBirth   DateTime?
-  admissionDate DateTime?
-  gender        String?
-  bloodGroup    String?
-  phone         String?
-  address       String?
-  city          String?
-  state         String?
-  parentName    String?
-  parentPhone   String?
-  parentEmail   String?
-  status        String    @default("Active")
-  section       String?
-  academicYear  String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  programId      String?
-  programLevelId String?
-
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  program      Program?      @relation(fields: [programId], references: [id])
-  programLevel ProgramLevel? @relation(fields: [programLevelId], references: [id])
-  attendance   Attendance[]
-  fees         StudentFee[]
-
-  @@map("students")
-}
-
-// ─── StudentFee ───────────────────────────────────────────────────────────────
-
-model StudentFee {
-  id           String    @id @default(cuid())
-  studentId    String
-  feeType      String
-  description  String?
-  amount       Float
-  paidAmount   Float     @default(0)
-  dueDate      DateTime?
-  paidDate     DateTime?
-  status       FeeStatus @default(Pending)
-  month        String?
-  academicYear String?
-  receiptNo    String?
-  remarks      String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@index([studentId])
-  @@index([status])
-  @@index([dueDate])
-  @@map("student_fees")
-}
-
-// ─── Exam ─────────────────────────────────────────────────────────────────────
-
-model Exam {
-  id            String    @id @default(cuid())
-  examName      String
-  description   String?
-  examStartDate DateTime?
-  examEndDate   DateTime?
-  programId     String?
-  levelId       String?
-  fileUrl       String?
-  fileType      String?
-  fileName      String?
-  storagePath   String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  program Program?      @relation(fields: [programId], references: [id], onDelete: SetNull)
-  level   ProgramLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
-
-  @@index([programId])
-  @@index([levelId])
-  @@index([examStartDate])
-  @@map("exams")
-}
-
-// ─── Teacher ──────────────────────────────────────────────────────────────────
-
-model Teacher {
-  id              String    @id @default(uuid())
-  userId          String    @unique
-  name            String
-  phone           String?
-  experience      String?
-  designation     String?
-  wifeOrHusbandOf String?
-  photoUrl        String?
-  dateOfBirth     DateTime?
-  status          String    @default("Active")
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  subjects TeacherSubject[]
-
-  @@map("teachers")
-}
-
-// ─── Subject ──────────────────────────────────────────────────────────────────
-
-model Subject {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  createdAt DateTime @default(now())
-
-  teachers TeacherSubject[]
-
-  @@map("subjects")
-}
-
-// ─── Webinar ──────────────────────────────────────────────────────────────────
-
-model Webinar {
-  id                    String          @id @default(cuid())
-  title                 String
-  description           String?
-  platform              WebinarPlatform @default(zoom)
-  meetingLink           String
-  meetingId             String?
-  passcode              String?
-  hostName              String?
-  hostEmail             String?
-  scheduledAt           DateTime
-  durationMins          Int             @default(60)
-  status                WebinarStatus   @default(active)
-  programId             String?
-  levelId               String?
-  emailSent             Boolean         @default(false)
-  emailSentAt           DateTime?
-  emailSentCount        Int             @default(0)
-  notificationSent      Boolean         @default(false)
-  notificationSentAt    DateTime?
-  notificationSentCount Int             @default(0)
-  bannerUrl             String?
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @updatedAt
-
-  program       Program?       @relation(fields: [programId], references: [id], onDelete: SetNull)
-  level         ProgramLevel?  @relation(fields: [levelId], references: [id], onDelete: SetNull)
-  notifications Notification[]
-
-  @@index([scheduledAt])
-  @@index([programId])
-  @@index([status])
-  @@map("webinars")
-}
-
-// ─── Notification ─────────────────────────────────────────────────────────────
-
-model Notification {
-  id        String           @id @default(cuid())
-  userId    String
-  type      NotificationType @default(general)
-  title     String
-  message   String
-  isRead    Boolean          @default(false)
-  link      String?
-  webinarId String?
-  createdAt DateTime         @default(now())
-
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  webinar Webinar? @relation(fields: [webinarId], references: [id], onDelete: SetNull)
-
-  @@index([userId, isRead])
-  @@index([createdAt])
-  @@map("notifications")
-}
-
-// ─── TeacherSubject ───────────────────────────────────────────────────────────
-
-model TeacherSubject {
-  teacherId  String
-  subjectId  String
-  assignedAt DateTime @default(now())
-
-  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-
-  @@id([teacherId, subjectId])
-  @@map("teacher_subjects")
-}
-
-// ─── HomeworkFile ─────────────────────────────────────────────────────────────
-
-model HomeworkFile {
-  id          String   @id @default(uuid())
-  serialId    Int      @unique
-  title       String
-  label       String?
-  fileType    String
-  fileUrl     String
-  storagePath String
-  createdAt   DateTime @default(now())
-
-  @@map("homework_files")
-}
-
-// ─── Enquiry ──────────────────────────────────────────────────────────────────
-
-model Enquiry {
-  id          String   @id @default(uuid())
-  studentName String
-  email       String
-  phone       String?
-  course      String?
-  source      String?
-  message     String?
-  status      String   @default("New")
-  createdById String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  createdBy User? @relation("EnquiryCreatedBy", fields: [createdById], references: [id])
-
-  @@map("enquiries")
-}
-
-// ─── Attendance ───────────────────────────────────────────────────────────────
-
-model Attendance {
-  id        String           @id @default(cuid())
-  studentId String
-  date      DateTime         @db.Date
-  status    AttendanceStatus
-  note      String?
-  markedBy  String?
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-
-  @@unique([studentId, date])
-  @@index([date])
-  @@index([studentId])
-  @@map("attendance")
-}
-
-// ─── Announcement ─────────────────────────────────────────────────────────────
-
-model Announcement {
-  id          String               @id @default(cuid())
-  title       String
-  message     String
-  priority    AnnouncementPriority @default(normal)
-  audience    AnnouncementAudience @default(all)
-  programId   String?
-  levelId     String?
-  fileUrl     String?
-  fileType    String?
-  fileName    String?
-  storagePath String?
-  expiresAt   DateTime?
-  isActive    Boolean              @default(true)
-  emailSent   Boolean              @default(false)
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
-
-  program Program?      @relation(fields: [programId], references: [id], onDelete: SetNull)
-  level   ProgramLevel? @relation(fields: [levelId], references: [id], onDelete: SetNull)
-
-  @@index([audience])
-  @@index([programId])
-  @@index([isActive])
-  @@map("announcements")
-}
-
-// ─── ScheduleSlot ─────────────────────────────────────────────────────────────
-
-model ScheduleSlot {
-  id           String   @id @default(cuid())
-  programId    String
-  levelId      String?
-  dayOfWeek    String
-  periodNumber Int
-  startTime    String
-  endTime      String
-  subjectName  String
-  teacherName  String
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  program Program       @relation(fields: [programId], references: [id])
-  level   ProgramLevel? @relation(fields: [levelId], references: [id])
-
-  @@unique([programId, levelId, dayOfWeek, periodNumber])
-  @@index([programId])
-  @@index([levelId])
-  @@map("schedule_slots")
-}
-
-// ─── TimetableUpload ──────────────────────────────────────────────────────────
-
-model TimetableUpload {
-  id           String   @id @default(cuid())
-  programId    String?
-  levelId      String?
-  originalName String
-  storagePath  String
-  url          String
-  mimeType     String
-  size         Int
-  createdAt    DateTime @default(now())
-
-  program Program?      @relation(fields: [programId], references: [id])
-  level   ProgramLevel? @relation(fields: [levelId], references: [id])
-
-  @@index([programId])
-  @@map("timetable_uploads")
+  global
+  note
+  test_paper
 }

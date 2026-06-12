@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/helpers/prisma";
-import { supabase } from "@/lib/helpers/supabaseClient";
-
+import { supabaseAdmin } from "@/lib/helpers/supabaseAdmin";
 async function requireUserOrStudent(
   req: Request
 ): Promise<{ userId: string; role: string } | NextResponse> {
   const token = (req.headers.get("Authorization") ?? "").replace("Bearer ", "").trim();
   if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { data: { user }, error } = await supabase.auth.getUser(token);
+  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
   if (error || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const dbUser = await prisma.user.findUnique({

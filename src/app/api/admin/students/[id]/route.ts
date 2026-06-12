@@ -1,14 +1,14 @@
+
+
+
 // app/api/admin/students/[id]/route.ts
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/helpers/prisma";
 import { requireAdmin } from "@/lib/helpers/auth-helpers";
-import { createClient } from "@supabase/supabase-js";
+import { supabaseAdmin } from "@/lib/helpers/supabaseAdmin"; // ← replaced
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
+
 
 // ── GET /api/admin/students/:id ───────────────────────────────────────────────
 export async function GET(
@@ -26,53 +26,10 @@ export async function GET(
   return NextResponse.json(student);
 }
 
-// // ── PATCH /api/admin/students/:id ─────────────────────────────────────────────
-// export async function PATCH(
-//   req: NextRequest,
-//   context: { params: Promise<{ id: string }> },
-// ) {
-//   const err = await requireAdmin(req);
-//   if (err) return err;
-
-//   const { id } = await context.params;
-//   const body = await req.json();
-
-//   const student = await prisma.student.update({
-//     where: { id },
-//     data: {
-//       fullName:       body.fullName       ?? undefined,
-//       photoUrl:       body.photoUrl       !== undefined ? (body.photoUrl || null)       : undefined,
-//       dateOfBirth:    body.dateOfBirth    ? new Date(body.dateOfBirth)                  : undefined,
-//       gender:         body.gender         ?? undefined,
-//       bloodGroup:     body.bloodGroup     ?? undefined,
-//       phone:          body.phone          ?? undefined,
-//       address:        body.address        ?? undefined,
-//       city:           body.city           ?? undefined,
-//       state:          body.state          ?? undefined,
-//       parentName:     body.parentName     ?? undefined,
-//       parentPhone:    body.parentPhone    ?? undefined,
-//       parentEmail:    body.parentEmail    ?? undefined,
-//       rollNumber:     body.rollNumber     ?? undefined,
-//       status:         body.status         ?? undefined,
-//       section:        body.section        !== undefined ? (body.section        || null) : undefined,
-//       academicYear:   body.academicYear   !== undefined ? (body.academicYear   || null) : undefined,
-//       programId:      body.programId      !== undefined ? (body.programId      || null) : undefined,
-//       programLevelId: body.programLevelId !== undefined ? (body.programLevelId || null) : undefined,
-//     },
-//     include: { program: true, programLevel: true },
-//   });
-
-//   return NextResponse.json(student);
-// }
-
-
-
-
-
-
+// ── PATCH /api/admin/students/:id ─────────────────────────────────────────────
 export async function PATCH(
   req: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> },
 ) {
   const err = await requireAdmin(req);
   if (err) return err;
@@ -86,27 +43,33 @@ export async function PATCH(
   });
 
   if (!existingStudent) {
-    return NextResponse.json(
-      { error: "Student not found" },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: "Student not found" }, { status: 404 });
   }
 
+  // Stamp forceLogoutAt on ANY status change — Active→Inactive, Inactive→Active, etc.
+  // This also keeps User.status in sync with Student.status so /api/me reads correctly.
+  const statusChanged =
+    body.status !== undefined &&
+    body.status !== existingStudent.status;
+
   const result = await prisma.$transaction(async (tx) => {
-    // Update User table if name/email changed
-    if (body.fullName !== undefined || body.email !== undefined) {
+    // Build User update — always keep User.status in sync with Student.status
+    const userUpdateData: Record<string, unknown> = {};
+
+    if (body.fullName !== undefined) userUpdateData.name  = body.fullName;
+    if (body.email    !== undefined) userUpdateData.email = body.email;
+
+    if (statusChanged) {
+      // Mirror status onto User table so /api/me sees the correct value
+      userUpdateData.status       = body.status;
+      // Stamp forceLogoutAt on every status change so the 30s poll kicks the session
+      userUpdateData.forceLogoutAt = new Date();
+    }
+
+    if (Object.keys(userUpdateData).length > 0) {
       await tx.user.update({
-        where: {
-          id: existingStudent.userId,
-        },
-        data: {
-          ...(body.fullName !== undefined && {
-            name: body.fullName,
-          }),
-          ...(body.email !== undefined && {
-            email: body.email,
-          }),
-        },
+        where: { id: existingStudent.userId },
+        data:  userUpdateData,
       });
     }
 
@@ -129,19 +92,19 @@ export async function PATCH(
           ? new Date(body.admissionDate)
           : undefined,
 
-        gender: body.gender ?? undefined,
+        gender:     body.gender     ?? undefined,
         bloodGroup: body.bloodGroup ?? undefined,
-        phone: body.phone ?? undefined,
-        address: body.address ?? undefined,
-        city: body.city ?? undefined,
-        state: body.state ?? undefined,
+        phone:      body.phone      ?? undefined,
+        address:    body.address    ?? undefined,
+        city:       body.city       ?? undefined,
+        state:      body.state      ?? undefined,
 
-        parentName: body.parentName ?? undefined,
+        parentName:  body.parentName  ?? undefined,
         parentPhone: body.parentPhone ?? undefined,
         parentEmail: body.parentEmail ?? undefined,
 
         rollNumber: body.rollNumber ?? undefined,
-        status: body.status ?? undefined,
+        status:     body.status     ?? undefined,
 
         section:
           body.section !== undefined
@@ -164,8 +127,8 @@ export async function PATCH(
             : undefined,
       },
       include: {
-        user: true,
-        program: true,
+        user:         true,
+        program:      true,
         programLevel: true,
       },
     });
@@ -174,29 +137,19 @@ export async function PATCH(
   });
 
   // Update Supabase email outside transaction
-  if (
-    body.email &&
-    body.email !== existingStudent.user.email
-  ) {
-    const { error: authError } =
-      await supabaseAdmin.auth.admin.updateUserById(
-        existingStudent.userId,
-        {
-          email: body.email,
-          email_confirm: true,
-        }
-      );
-
+  if (body.email && body.email !== existingStudent.user.email) {
+    const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(
+      existingStudent.userId,
+      { email: body.email, email_confirm: true },
+    );
     if (authError) {
-      console.error(
-        "Supabase email update failed:",
-        authError
-      );
+      console.error("Supabase email update failed:", authError);
     }
   }
 
   return NextResponse.json(result);
 }
+
 // ── DELETE /api/admin/students/:id ────────────────────────────────────────────
 export async function DELETE(
   req: NextRequest,
