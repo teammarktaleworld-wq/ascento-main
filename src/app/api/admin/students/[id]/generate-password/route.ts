@@ -1,14 +1,242 @@
-// app/api/admin/students/[id]/generate-password/route.ts
+
+
+
+// // app/api/admin/students/[id]/generate-password/route.ts
+
+// import { NextRequest, NextResponse } from "next/server";
+// import { prisma } from "@/lib/helpers/prisma";
+// import { requireAdmin } from "@/lib/helpers/auth-helpers";
+// import { Resend } from "resend";
+// import { supabaseAdmin } from "@/lib/helpers/supabaseAdmin"; // ← replaced
+
+
+// const resend = new Resend(process.env.RESEND_API_KEY);
+
+// const SCHOOL_NAME = process.env.NEXT_PUBLIC_SCHOOL_NAME ?? "Ascento Playschool";
+// const FROM_EMAIL  = process.env.RESEND_FROM_EMAIL       ?? "noreply@ascentoabacus.com";
+// const PORTAL_URL  = process.env.NEXT_PUBLIC_SITE_URL    ?? "https://myascento.com";
+
+// function generatePassword(): string {
+//   const upper   = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+//   const lower   = "abcdefghjkmnpqrstuvwxyz";
+//   const digits  = "23456789";
+//   const special = "@#$!";
+//   const rand = (s: string) => s[Math.floor(Math.random() * s.length)];
+//   const required = [rand(upper), rand(lower), rand(digits), rand(special)];
+//   const rest = Array.from({ length: 4 }, () => rand(upper + lower + digits));
+//   return [...required, ...rest].sort(() => Math.random() - 0.5).join("");
+// }
+
+// function buildCredentialsEmail(opts: {
+//   studentName: string;
+//   studentId:   string;
+//   loginEmail:  string;
+//   password:    string;
+//   portalUrl:   string;
+//   schoolName:  string;
+// }): string {
+//   const { studentName, studentId, loginEmail, password, portalUrl, schoolName } = opts;
+//   return `
+// <!DOCTYPE html>
+// <html>
+// <head>
+//   <meta charset="UTF-8">
+//   <meta name="viewport" content="width=device-width,initial-scale=1"/>
+//   <title>Login Credentials — ${schoolName}</title>
+// </head>
+// <body style="margin:0;padding:0;background:#f5f5f5;font-family:Arial,sans-serif">
+//   <div style="max-width:520px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;border:1px solid #eee;box-shadow:0 4px 24px rgba(0,0,0,0.07)">
+
+//     <!-- Header -->
+//     <div style="background:linear-gradient(135deg,#e91e8c,#9c27b0);padding:28px 28px 20px">
+//       <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+//         <div style="width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;color:#fff;flex-shrink:0">A</div>
+//         <div>
+//           <div style="color:#fff;font-weight:900;font-size:15px;line-height:1.2">${schoolName}</div>
+//           <div style="color:rgba(255,255,255,.7);font-size:11px;margin-top:1px">Student Portal</div>
+//         </div>
+//       </div>
+//       <h1 style="color:#fff;font-size:22px;font-weight:900;margin:0 0 6px">🔐 Login Credentials</h1>
+//       <p style="color:rgba(255,255,255,.8);font-size:13px;margin:0">For <strong>${studentName}</strong></p>
+//     </div>
+
+//     <!-- Body -->
+//     <div style="padding:28px">
+//       <p style="color:#555;font-size:14px;margin:0 0 22px;line-height:1.7">
+//         Dear Parent / Guardian,<br/>
+//         A new password has been generated for <strong>${studentName}</strong>'s student portal account.
+//         All previous sessions have been signed out for security. Please use the credentials below to log in.
+//       </p>
+
+//       <!-- Credentials card -->
+//       <div style="background:#f8f4ff;border:1px solid rgba(233,30,140,.15);border-radius:12px;padding:20px;margin-bottom:20px">
+//         <p style="margin:0 0 14px;font-size:10px;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:2px">Login Details</p>
+
+//         <table style="width:100%;border-collapse:collapse">
+//           <tr>
+//             <td style="padding:10px 0;border-bottom:1px solid #ece8f8;vertical-align:top">
+//               <span style="color:#999;font-size:11px;display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:1px">Student ID</span>
+//               <strong style="color:#1A1A2E;font-size:15px;font-family:monospace;letter-spacing:1px">${studentId}</strong>
+//             </td>
+//           </tr>
+//           <tr>
+//             <td style="padding:10px 0;border-bottom:1px solid #ece8f8;vertical-align:top">
+//               <span style="color:#999;font-size:11px;display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:1px">Login Email</span>
+//               <strong style="color:#1A1A2E;font-size:15px">${loginEmail}</strong>
+//             </td>
+//           </tr>
+//           <tr>
+//             <td style="padding:12px 0 6px;vertical-align:top">
+//               <span style="color:#999;font-size:11px;display:block;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">New Password</span>
+//               <div style="display:inline-block;background:#fff;border:2px dashed rgba(233,30,140,.4);border-radius:8px;padding:12px 20px;font-family:monospace;font-size:24px;font-weight:900;color:#e91e8c;letter-spacing:5px">${password}</div>
+//             </td>
+//           </tr>
+//         </table>
+//       </div>
+
+//       <!-- CTA button -->
+//       <div style="text-align:center;margin-bottom:24px">
+//         <a href="${portalUrl}" style="display:inline-block;background:linear-gradient(135deg,#e91e8c,#9c27b0);color:#fff;font-weight:900;font-size:15px;padding:14px 36px;border-radius:10px;text-decoration:none;letter-spacing:0.5px">
+//           Open Student Portal →
+//         </a>
+//       </div>
+
+//       <!-- Steps -->
+//       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 16px;margin-bottom:20px">
+//         <p style="color:#166534;font-size:12px;margin:0 0 8px;font-weight:700">How to log in:</p>
+//         <ol style="margin:0;padding-left:18px;color:#166534;font-size:12px;line-height:1.8">
+//           <li>Visit <a href="${portalUrl}" style="color:#e91e8c;font-weight:700">${portalUrl}</a></li>
+//           <li>Enter the login email above</li>
+//           <li>Enter the new password shown above</li>
+//           <li>Ask your child to change the password after first login</li>
+//         </ol>
+//       </div>
+
+//       <!-- Warning -->
+//       <div style="background:#fff8ee;border:1px solid rgba(255,179,71,.4);border-radius:10px;padding:14px 16px">
+//         <p style="color:#92650a;font-size:12px;margin:0;line-height:1.7">
+//           ⚠️ <strong>Important:</strong> Do not share these credentials with anyone other than your child.
+//           This password was generated by the school administrator and replaces any previous password.
+//         </p>
+//       </div>
+//     </div>
+
+//     <!-- Footer -->
+//     <div style="padding:16px 28px;border-top:1px solid #f0eef8;text-align:center">
+//       <p style="color:#ccc;font-size:11px;margin:0">${schoolName} · Student Portal · Automated message — do not reply</p>
+//     </div>
+//   </div>
+// </body>
+// </html>`;
+// }
+
+// export async function POST(
+//   req: NextRequest,
+//   context: { params: Promise<{ id: string }> },
+// ) {
+//   const authErr = await requireAdmin(req);
+//   if (authErr) return authErr;
+
+//   const { id } = await context.params;
+
+//   const student = await prisma.student.findUnique({
+//     where: { id },
+//     include: { user: true },
+//   });
+//   if (!student) {
+//     return NextResponse.json({ error: "Student not found" }, { status: 404 });
+//   }
+
+//   const newPassword = generatePassword();
+
+//   // 1. Update password in Supabase Auth
+//   const { error: pwErr } = await supabaseAdmin.auth.admin.updateUserById(
+//     student.userId,
+//     { password: newPassword },
+//   );
+//   if (pwErr) {
+//     return NextResponse.json({ error: pwErr.message }, { status: 500 });
+//   }
+
+//   // 2. Sign out all existing sessions (non-fatal)
+//   const { error: signOutErr } = await supabaseAdmin.auth.admin.signOut(
+//     student.userId,
+//     "global",
+//   );
+//   if (signOutErr) {
+//     console.warn("Session revoke warning (non-fatal):", signOutErr.message);
+//   }
+
+//   // 3. Stamp forceLogoutAt so any active browser session is kicked on next /api/me call
+//   const forceLogoutAt = new Date();
+//   await prisma.user.update({
+//     where: { id: student.userId },
+//     data: { forceLogoutAt },
+//   });
+
+//   // 4. Send credentials email via Resend
+//   let emailSent  = false;
+//   let emailError = "";
+//   const parentEmail = student.parentEmail ?? null;
+
+//   if (parentEmail) {
+//     try {
+//       console.log(`[generate-password] Attempting to send email to: ${parentEmail}`);
+//       console.log(`[generate-password] Using FROM_EMAIL: ${FROM_EMAIL}`);
+//       console.log(`[generate-password] RESEND_API_KEY set: ${!!process.env.RESEND_API_KEY}`);
+
+//       const sendResult = await resend.emails.send({
+//         from:    FROM_EMAIL,
+//         to:      parentEmail,
+//         subject: `🔐 Login Credentials for ${student.fullName} — ${SCHOOL_NAME}`,
+//         html:    buildCredentialsEmail({
+//           studentName: student.fullName,
+//           studentId:   student.studentId,
+//           loginEmail:  student.user.email,
+//           password:    newPassword,
+//           portalUrl:   PORTAL_URL,
+//           schoolName:  SCHOOL_NAME,
+//         }),
+//       });
+
+//       console.log(`[generate-password] Resend result:`, JSON.stringify(sendResult));
+
+//       if (sendResult.error) {
+//         console.warn("[generate-password] Resend error:", sendResult.error);
+//         emailError = sendResult.error.message ?? "Resend error";
+//       } else {
+//         emailSent = true;
+//         console.log(`[generate-password] Email sent successfully, id: ${sendResult.data?.id}`);
+//       }
+//     } catch (err: any) {
+//       console.error("[generate-password] Email send exception:", err);
+//       emailError = err?.message ?? "Unknown error";
+//     }
+//   } else {
+//     console.log("[generate-password] No parentEmail on record — skipping email send");
+//   }
+
+//   return NextResponse.json({
+//     studentId:    student.studentId,
+//     email:        student.user.email,
+//     password:     newPassword,
+//     parentEmail:  parentEmail ?? undefined,
+//     emailSent,
+//     emailError:   emailError || undefined,
+//     forceLogoutAt,
+//   });
+// }
+
+
+
+
+
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/helpers/prisma";
 import { requireAdmin } from "@/lib/helpers/auth-helpers";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
+import { supabaseAdmin } from "@/lib/helpers/supabaseAdmin";
+import { sendCredentialsEmail } from "@/lib/helpers/sendCredentialsEmail";
 
 function generatePassword(): string {
   const upper   = "ABCDEFGHJKLMNPQRSTUVWXYZ";
@@ -21,13 +249,12 @@ function generatePassword(): string {
   return [...required, ...rest].sort(() => Math.random() - 0.5).join("");
 }
 
-// POST /api/admin/students/:id/generate-password
 export async function POST(
   req: NextRequest,
   context: { params: Promise<{ id: string }> },
 ) {
-  const err = await requireAdmin(req);
-  if (err) return err;
+  const authErr = await requireAdmin(req);
+  if (authErr) return authErr;
 
   const { id } = await context.params;
 
@@ -35,24 +262,68 @@ export async function POST(
     where: { id },
     include: { user: true },
   });
-
   if (!student) {
     return NextResponse.json({ error: "Student not found" }, { status: 404 });
   }
 
   const newPassword = generatePassword();
 
-  const { error } = await supabaseAdmin.auth.admin.updateUserById(student.userId, {
-    password: newPassword,
+  // 1. Update password in Supabase Auth
+  const { error: pwErr } = await supabaseAdmin.auth.admin.updateUserById(
+    student.userId,
+    { password: newPassword },
+  );
+  if (pwErr) {
+    return NextResponse.json({ error: pwErr.message }, { status: 500 });
+  }
+
+  // 2. Sign out all existing sessions (non-fatal)
+  const { error: signOutErr } = await supabaseAdmin.auth.admin.signOut(
+    student.userId,
+    "global",
+  );
+  if (signOutErr) {
+    console.warn("Session revoke warning (non-fatal):", signOutErr.message);
+  }
+
+  // 3. Stamp forceLogoutAt so any active browser session is kicked on next /api/me call
+  const forceLogoutAt = new Date();
+  await prisma.user.update({
+    where: { id: student.userId },
+    data: { forceLogoutAt },
   });
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  // 4. Send credentials email via shared helper
+  const parentEmail  = student.parentEmail ?? null;
+  let emailSent      = false;
+  let emailError:     string | undefined;
+  let emailMessageId: string | undefined;
+
+  if (parentEmail) {
+    const result = await sendCredentialsEmail({
+      parentEmail,
+      studentName:  student.fullName,
+      studentId:    student.studentId,
+      loginEmail:   student.user.email,
+      password:     newPassword,
+      isNewStudent: false,
+      logPrefix:    "[generate-password]",
+    });
+    emailSent      = result.emailSent;
+    emailError     = result.emailError;
+    emailMessageId = result.emailMessageId;
+  } else {
+    console.log("[generate-password] No parentEmail on record — skipping email send");
   }
 
   return NextResponse.json({
-    studentId: student.studentId,
-    email: student.user.email,
-    password: newPassword,
+    studentId:      student.studentId,
+    email:          student.user.email,
+    password:       newPassword,
+    parentEmail:    parentEmail ?? undefined,
+    emailSent,
+    emailMessageId,
+    emailError,
+    forceLogoutAt,
   });
 }

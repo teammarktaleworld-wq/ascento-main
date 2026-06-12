@@ -1,3 +1,5 @@
+// src\app\api\schedule\programs\route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/helpers/prisma";
 import { getSessionUser } from "@/lib/helpers/auth-helpers";

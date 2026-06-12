@@ -124,12 +124,6 @@
 // }
 
 
-
-
-
-
-
-
 // app/api/me/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/helpers/supabaseAdmin";
@@ -146,7 +140,20 @@ export async function GET(req: NextRequest) {
     const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
     if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    return NextResponse.json(dbUser);
+    // ← ADD THESE TWO CHECKS
+    if (dbUser.status !== "Active") {
+      return NextResponse.json({ error: "Account disabled" }, { status: 403 });
+    }
+
+    return NextResponse.json({
+      id:           dbUser.id,
+      email:        dbUser.email,
+      name:         dbUser.name,
+      avatarUrl:    dbUser.avatarUrl,
+      role:         dbUser.role,
+      status:       dbUser.status,
+      forceLogoutAt: dbUser.forceLogoutAt, // ← AuthContext needs this
+    });
   } catch (err) {
     console.error("/api/me error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

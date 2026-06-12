@@ -8,14 +8,9 @@
 import { NextResponse } from "next/server";
 import { prisma }       from "@/lib/helpers/prisma";
 import { requireAdmin } from "@/lib/helpers/auth-helpers";
-import { createClient } from "@supabase/supabase-js";
 import { randomUUID }   from "crypto";
+import { supabaseAdmin } from "@/lib/helpers/supabaseAdmin"; // ← replaced
 
-// Service-role client — can write to storage without signed URLs
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
 
 const BUCKET = "timetable-uploads";
 

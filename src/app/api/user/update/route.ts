@@ -1,15 +1,7 @@
 // app/api/user/update/route.ts
-
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { createClient } from "@supabase/supabase-js";
-
-const prisma = new PrismaClient();
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { prisma } from "@/lib/helpers/prisma";
+import { supabaseAdmin } from "@/lib/helpers/supabaseAdmin"; // ← replaced
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,7 +12,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ✅ Verify user
-    const { data, error } = await supabase.auth.getUser(token);
+    const { data, error } = await supabaseAdmin.auth.getUser(token);
 
     if (error || !data.user) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });

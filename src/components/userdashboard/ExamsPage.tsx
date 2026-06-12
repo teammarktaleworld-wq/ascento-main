@@ -258,7 +258,7 @@ function EmptyState({ filtered }: { filtered: boolean }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ExamsPage() {
-  const { user, token, ready } = useAuth();
+  const { user, token } = useAuth();
   const router = useRouter();
 
   const [exams,   setExams]   = useState<Exam[]>([]);
@@ -267,30 +267,65 @@ export default function ExamsPage() {
   const [filter,  setFilter]  = useState<FilterType>("all");
 
   // Auth guard — layout already handles this but kept as safety net
-  useEffect(() => {
-    if (ready && !user) router.push("/login");
-  }, [ready, user, router]);
+  // useEffect(() => {
+  //   if (ready && !user) router.push("/login");
+  // }, [ready, user, router]);
 
-  // Fetch
-  useEffect(() => {
-    if (!ready || !token) return;
-    (async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch("/api/exams", {
-          headers: { Authorization: `Bearer ${token}` },
-          cache: "no-store",
-        });
-        if (!res.ok) throw new Error(`Error ${res.status}`);
-        setExams(await res.json());
-      } catch (e: any) {
-        setError(e.message ?? "Failed to load exams");
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [ready, token]);
+  // // Fetch
+  // useEffect(() => {
+  //   if (!ready || !token) return;
+  //   (async () => {
+  //     setLoading(true);
+  //     setError(null);
+  //     try {
+  //       const res = await fetch("/api/exams", {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //         cache: "no-store",
+  //       });
+  //       if (!res.ok) throw new Error(`Error ${res.status}`);
+  //       setExams(await res.json());
+  //     } catch (e: any) {
+  //       setError(e.message ?? "Failed to load exams");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   })();
+  // }, [ready, token]);
+
+
+
+
+
+
+
+  // Replace both useEffects that reference `ready` at the top of ExamsPage()
+
+// Auth guard
+useEffect(() => {
+  if (!token && !loading) router.push("/login");  // ← loading comes from useState above
+}, [token, router]);                               //   but actually layout handles this,
+                                                   //   so you can just delete this entirely
+
+// Fetch
+useEffect(() => {
+  if (!token) return;                              // ← just gate on token
+  (async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/exams", {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      });
+      if (!res.ok) throw new Error(`Error ${res.status}`);
+      setExams(await res.json());
+    } catch (e: any) {
+      setError(e.message ?? "Failed to load exams");
+    } finally {
+      setLoading(false);
+    }
+  })();
+}, [token]);                                       // ← removed `ready`
 
   // ── Loading — inline spinner, NOT a full-page takeover ──
   if (loading) {

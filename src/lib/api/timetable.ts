@@ -1,17 +1,14 @@
 // lib/api/timetable.ts
-import { createClient } from "@supabase/supabase-js";
-
-// Browser-side Supabase client (anon key) — used only to read the session token
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// lib/api/timetable.ts
+import { createBrowserClient } from "@supabase/ssr";
 
 /** Returns the current session's Bearer token, or throws if not logged in. */
 async function getToken(): Promise<string> {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+  const { data: { session } } = await supabase.auth.getSession();
   if (!session?.access_token) throw new Error("Not authenticated");
   return session.access_token;
 }
