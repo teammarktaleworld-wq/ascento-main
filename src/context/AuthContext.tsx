@@ -943,6 +943,468 @@
 
 
 
+// // context/AuthContext.tsx
+// "use client";
+
+// import React, {
+//   createContext,
+//   useContext,
+//   useEffect,
+//   useRef,
+//   useState,
+// } from "react";
+// import { supabase } from "@/lib/helpers/supabaseClient";
+// import type { Session } from "@supabase/supabase-js";
+
+// export type AuthUser = {
+//   id:      string;
+//   email:   string;
+//   name:    string;
+//   avatar?: string;
+//   role:    string;
+//   status?: string;
+// } | null;
+
+// interface AuthContextValue {
+//   user:    AuthUser;
+//   token:   string | null;
+//   loading: boolean;
+//   signOut: () => Promise<void>;
+// }
+
+// const AuthContext = createContext<AuthContextValue>({
+//   user:    null,
+//   token:   null,
+//   loading: true,
+//   signOut: async () => {},
+// });
+
+// export function AuthProvider({ children }: { children: React.ReactNode }) {
+//   const [user,    setUser]    = useState<AuthUser>(null);
+//   const [token,   setToken]   = useState<string | null>(null);
+//   const [loading, setLoading] = useState(true);
+
+//   const signOutRef = useRef<() => Promise<void>>(async () => {});
+
+//   const signOut = async () => {
+//     setUser(null);
+//     setToken(null);
+//     localStorage.removeItem("loginTime");                // ← was sessionStorage
+//     await supabase.auth.signOut();
+//   };
+
+//   useEffect(() => {
+//     signOutRef.current = signOut;
+//   });
+
+//   const loadUser = async (
+//     accessToken: string,
+//     supabaseMeta: Record<string, unknown> = {},
+//   ) => {
+//     setToken(accessToken);
+//     try {
+//       const res = await fetch("/api/me", {
+//         headers: { Authorization: `Bearer ${accessToken}` },
+//         cache:   "no-store",
+//       });
+
+//       if (!res.ok) {
+//         console.warn("/api/me returned", res.status);
+//         await signOutRef.current();
+//         return;
+//       }
+
+//       const dbUser = await res.json();
+//       const loginTime = Number(localStorage.getItem("loginTime") ?? "0"); // ← was sessionStorage
+
+//       if (dbUser.status && dbUser.status !== "Active") {
+//         await signOutRef.current();
+//         return;
+//       }
+
+//       if (
+//         dbUser.forceLogoutAt &&
+//         new Date(dbUser.forceLogoutAt).getTime() > loginTime
+//       ) {
+//         await signOutRef.current();
+//         return;
+//       }
+
+//       setUser({
+//         id:     dbUser.id,
+//         email:  dbUser.email,
+//         name:
+//           dbUser.name ||
+//           (supabaseMeta?.full_name as string) ||
+//           (supabaseMeta?.name     as string) ||
+//           dbUser.email?.split("@")[0] ||
+//           "User",
+//         avatar:
+//           dbUser.avatarUrl ||
+//           (supabaseMeta?.avatar_url as string) ||
+//           (supabaseMeta?.picture   as string) ||
+//           undefined,
+//         role:   dbUser.role,
+//         status: dbUser.status,
+//       });
+//     } catch (err) {
+//       console.error("loadUser error:", err);
+//       await signOutRef.current();
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     supabase.auth.getSession().then(({ data: { session } }) => {
+//       if (session) {
+//         // Survive page refresh + server restarts — localStorage persists
+//         if (!localStorage.getItem("loginTime")) {        // ← was sessionStorage
+//           localStorage.setItem("loginTime", String(Date.now()));
+//         }
+//         loadUser(session.access_token, session.user.user_metadata);
+//       } else {
+//         setLoading(false);
+//       }
+//     });
+
+//     const { data: { subscription } } = supabase.auth.onAuthStateChange(
+//       async (event, session: Session | null) => {
+//         if (event === "SIGNED_IN" && session) {
+//           localStorage.setItem("loginTime", String(Date.now())); // ← was sessionStorage
+//           await loadUser(session.access_token, session.user.user_metadata);
+//         }
+
+//         if (event === "TOKEN_REFRESHED" && session) {
+//           setToken(session.access_token);
+//         }
+
+//         if (event === "SIGNED_OUT") {
+//           setUser(null);
+//           setToken(null);
+//           setLoading(false);
+//         }
+//       },
+//     );
+
+//     return () => subscription.unsubscribe();
+//     // eslint-disable-next-line react-hooks/exhaustive-deps
+//   }, []);
+
+//   // ── Background validation every 30s ───────────────────────────────────────
+//   useEffect(() => {
+//     if (!token) return;
+
+//     const interval = setInterval(async () => {
+//       try {
+//         const res = await fetch("/api/me", {
+//           headers: { Authorization: `Bearer ${token}` },
+//           cache:   "no-store",
+//         });
+
+//         if (!res.ok) {
+//           await signOutRef.current();
+//           return;
+//         }
+
+//         const dbUser    = await res.json();
+//         const loginTime = Number(localStorage.getItem("loginTime") ?? "0"); // ← was sessionStorage
+
+//         if (dbUser.status && dbUser.status !== "Active") {
+//           await signOutRef.current();
+//           return;
+//         }
+
+//         if (
+//           dbUser.forceLogoutAt &&
+//           new Date(dbUser.forceLogoutAt).getTime() > loginTime
+//         ) {
+//           await signOutRef.current();
+//         }
+//       } catch (err) {
+//         console.error("Background auth check failed:", err);
+//       }
+//     }, 30_000);
+
+//     return () => clearInterval(interval);
+//   }, [token]);
+
+//   return (
+//     <AuthContext.Provider value={{ user, token, loading, signOut }}>
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// }
+
+// export function useAuth() {
+//   return useContext(AuthContext);
+// }
+
+
+
+
+
+
+
+
+
+// // context/AuthContext.tsx
+// "use client";
+
+// import React, {
+//   createContext,
+//   useContext,
+//   useEffect,
+//   useRef,
+//   useState,
+// } from "react";
+// import { supabase } from "@/lib/helpers/supabaseClient";
+// import type { Session } from "@supabase/supabase-js";
+
+// export type AuthUser = {
+//   id:      string;
+//   email:   string;
+//   name:    string;
+//   avatar?: string;
+//   role:    string;
+//   status?: string;
+// } | null;
+
+// interface AuthContextValue {
+//   user:    AuthUser;
+//   token:   string | null;
+//   loading: boolean;
+//   signOut: () => Promise<void>;
+// }
+
+// const AuthContext = createContext<AuthContextValue>({
+//   user:    null,
+//   token:   null,
+//   loading: true,
+//   signOut: async () => {},
+// });
+
+// export function AuthProvider({ children }: { children: React.ReactNode }) {
+//   const [user,    setUser]    = useState<AuthUser>(null);
+//   const [token,   setToken]   = useState<string | null>(null);
+//   const [loading, setLoading] = useState(true);
+
+//   const signOutRef     = useRef<() => Promise<void>>(async () => {});
+//   const loadingUserRef = useRef(false); // ← dedup guard
+
+//   const signOut = async () => {
+//     setUser(null);
+//     setToken(null);
+//     localStorage.removeItem("loginTime");
+//     await supabase.auth.signOut();
+//   };
+
+//   useEffect(() => {
+//     signOutRef.current = signOut;
+//   });
+
+//   const loadUser = async (
+//     accessToken: string,
+//     supabaseMeta: Record<string, unknown> = {},
+//     retryCount = 0,
+//   ) => {
+//     // Prevent concurrent calls (duplicate SIGNED_IN + getSession race)
+//     if (loadingUserRef.current) return;
+//     loadingUserRef.current = true;
+
+//     console.log(`loadUser start (attempt ${retryCount + 1})`);
+
+//     setToken(accessToken);
+//     try {
+//       const res = await fetch("/api/me", {
+//         headers: { Authorization: `Bearer ${accessToken}` },
+//         cache:   "no-store",
+//       });
+
+//       console.log("/api/me status", res.status);
+
+//       // User row not created yet — upsert-user is still in flight.
+//       // Retry up to 5 times (5 s total) instead of signing out.
+//       if (res.status === 404) {
+//         if (retryCount >= 5) {
+//           console.error("User sync failed after 5 retries, signing out");
+//           await signOutRef.current();
+//           return;
+//         }
+//         console.log(`User not synced yet, retrying in 1s... (${retryCount + 1}/5)`);
+//         loadingUserRef.current = false; // release lock before retry
+//         setTimeout(() => {
+//           loadUser(accessToken, supabaseMeta, retryCount + 1);
+//         }, 1000);
+//         return;
+//       }
+
+//       // Transient server error (Prisma hiccup, cold start) — retry once after 2 s.
+//       if (res.status === 500) {
+//         if (retryCount >= 5) {
+//           console.error("Server error persisted after 5 retries, signing out");
+//           await signOutRef.current();
+//           return;
+//         }
+//         console.warn(`Server error on /api/me, retrying in 2s... (${retryCount + 1}/5)`);
+//         loadingUserRef.current = false;
+//         setTimeout(() => {
+//           loadUser(accessToken, supabaseMeta, retryCount + 1);
+//         }, 2000);
+//         return;
+//       }
+
+//       if (!res.ok) {
+//         console.warn("/api/me returned", res.status, "— signing out");
+//         await signOutRef.current();
+//         return;
+//       }
+
+//       const dbUser    = await res.json();
+//       const loginTime = Number(localStorage.getItem("loginTime") ?? "0");
+
+//       if (dbUser.status && dbUser.status !== "Active") {
+//         await signOutRef.current();
+//         return;
+//       }
+
+//       if (
+//         dbUser.forceLogoutAt &&
+//         new Date(dbUser.forceLogoutAt).getTime() > loginTime
+//       ) {
+//         await signOutRef.current();
+//         return;
+//       }
+
+//       console.log("loadUser success", dbUser.role);
+
+//       setUser({
+//         id:     dbUser.id,
+//         email:  dbUser.email,
+//         name:
+//           dbUser.name ||
+//           (supabaseMeta?.full_name as string) ||
+//           (supabaseMeta?.name     as string) ||
+//           dbUser.email?.split("@")[0] ||
+//           "User",
+//         avatar:
+//           dbUser.avatarUrl ||
+//           (supabaseMeta?.avatar_url as string) ||
+//           (supabaseMeta?.picture   as string) ||
+//           undefined,
+//         role:   dbUser.role,
+//         status: dbUser.status,
+//       });
+//     } catch (err) {
+//       console.error("loadUser error:", err);
+//       await signOutRef.current();
+//     } finally {
+//       loadingUserRef.current = false;
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     supabase.auth.getSession().then(({ data: { session } }) => {
+//       if (session) {
+//         if (!localStorage.getItem("loginTime")) {
+//           localStorage.setItem("loginTime", String(Date.now()));
+//         }
+//         loadUser(session.access_token, session.user.user_metadata);
+//       } else {
+//         setLoading(false);
+//       }
+//     });
+
+//     const { data: { subscription } } = supabase.auth.onAuthStateChange(
+//       async (event, session: Session | null) => {
+//         if (event === "SIGNED_IN" && session) {
+//           localStorage.setItem("loginTime", String(Date.now()));
+//           await loadUser(session.access_token, session.user.user_metadata);
+//         }
+
+//         if (event === "TOKEN_REFRESHED" && session) {
+//           setToken(session.access_token);
+//         }
+
+//         if (event === "SIGNED_OUT") {
+//           setUser(null);
+//           setToken(null);
+//           setLoading(false);
+//         }
+//       },
+//     );
+
+//     return () => subscription.unsubscribe();
+//     // eslint-disable-next-line react-hooks/exhaustive-deps
+//   }, []);
+
+//   // ── Background validation every 30s ───────────────────────────────────────
+//   useEffect(() => {
+//     if (!token) return;
+
+//     const interval = setInterval(async () => {
+//       try {
+//         const res = await fetch("/api/me", {
+//           headers: { Authorization: `Bearer ${token}` },
+//           cache:   "no-store",
+//         });
+
+//         if (!res.ok) {
+//           await signOutRef.current();
+//           return;
+//         }
+
+//         const dbUser    = await res.json();
+//         const loginTime = Number(localStorage.getItem("loginTime") ?? "0");
+
+//         if (dbUser.status && dbUser.status !== "Active") {
+//           await signOutRef.current();
+//           return;
+//         }
+
+//         if (
+//           dbUser.forceLogoutAt &&
+//           new Date(dbUser.forceLogoutAt).getTime() > loginTime
+//         ) {
+//           await signOutRef.current();
+//         }
+//       } catch (err) {
+//         console.error("Background auth check failed:", err);
+//       }
+//     }, 30_000);
+
+//     return () => clearInterval(interval);
+//   }, [token]);
+
+//   return (
+//     <AuthContext.Provider value={{ user, token, loading, signOut }}>
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// }
+
+// export function useAuth() {
+//   return useContext(AuthContext);
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // context/AuthContext.tsx
 "use client";
 
@@ -984,12 +1446,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token,   setToken]   = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const signOutRef = useRef<() => Promise<void>>(async () => {});
+  const signOutRef     = useRef<() => Promise<void>>(async () => {});
+  const loadingUserRef = useRef(false);
 
   const signOut = async () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem("loginTime");                // ← was sessionStorage
+    localStorage.removeItem("loginTime");
     await supabase.auth.signOut();
   };
 
@@ -1000,7 +1463,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadUser = async (
     accessToken: string,
     supabaseMeta: Record<string, unknown> = {},
+    retryCount = 0,
   ) => {
+    if (loadingUserRef.current) return;
+    loadingUserRef.current = true;
+
+    console.log(`loadUser start (attempt ${retryCount + 1})`);
+
     setToken(accessToken);
     try {
       const res = await fetch("/api/me", {
@@ -1008,14 +1477,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         cache:   "no-store",
       });
 
+      console.log("/api/me status", res.status);
+
+      if (res.status === 404) {
+        if (retryCount >= 5) {
+          console.error("User sync failed after 5 retries, signing out");
+          await signOutRef.current();
+          return;
+        }
+        console.log(`User not synced yet, retrying in 1s... (${retryCount + 1}/5)`);
+        loadingUserRef.current = false;
+        setTimeout(() => {
+          loadUser(accessToken, supabaseMeta, retryCount + 1);
+        }, 1000);
+        return;
+      }
+
+      if (res.status === 500) {
+        if (retryCount >= 5) {
+          console.error("Server error persisted after 5 retries, signing out");
+          await signOutRef.current();
+          return;
+        }
+        console.warn(`Server error on /api/me, retrying in 2s... (${retryCount + 1}/5)`);
+        loadingUserRef.current = false;
+        setTimeout(() => {
+          loadUser(accessToken, supabaseMeta, retryCount + 1);
+        }, 2000);
+        return;
+      }
+
       if (!res.ok) {
-        console.warn("/api/me returned", res.status);
+        console.warn("/api/me returned", res.status, "— signing out");
         await signOutRef.current();
         return;
       }
 
-      const dbUser = await res.json();
-      const loginTime = Number(localStorage.getItem("loginTime") ?? "0"); // ← was sessionStorage
+      const dbUser    = await res.json();
+      const loginTime = Number(localStorage.getItem("loginTime") ?? "0");
 
       if (dbUser.status && dbUser.status !== "Active") {
         await signOutRef.current();
@@ -1030,9 +1529,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
+      console.log("loadUser success", dbUser.role);
+
       setUser({
-        id:     dbUser.id,
-        email:  dbUser.email,
+        id:    dbUser.id,
+        email: dbUser.email,
         name:
           dbUser.name ||
           (supabaseMeta?.full_name as string) ||
@@ -1051,15 +1552,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("loadUser error:", err);
       await signOutRef.current();
     } finally {
+      loadingUserRef.current = false;
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    // On page load — session already exists (e.g. returning user, page refresh).
+    // No delay needed here because the DB row already exists.
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        // Survive page refresh + server restarts — localStorage persists
-        if (!localStorage.getItem("loginTime")) {        // ← was sessionStorage
+        if (!localStorage.getItem("loginTime")) {
           localStorage.setItem("loginTime", String(Date.now()));
         }
         loadUser(session.access_token, session.user.user_metadata);
@@ -1069,10 +1572,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session: Session | null) => {
+      (event, session: Session | null) => {
         if (event === "SIGNED_IN" && session) {
-          localStorage.setItem("loginTime", String(Date.now())); // ← was sessionStorage
-          await loadUser(session.access_token, session.user.user_metadata);
+          localStorage.setItem("loginTime", String(Date.now()));
+
+          // Delay gives syncCurrentUser() on the login/register/callback page
+          // time to finish writing the Prisma row before we call /api/me.
+          // Without this, AuthContext races ahead and hits a 404 on new signups.
+          setTimeout(() => {
+            loadUser(session.access_token, session.user.user_metadata);
+          }, 1500);
         }
 
         if (event === "TOKEN_REFRESHED" && session) {
@@ -1108,7 +1617,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         const dbUser    = await res.json();
-        const loginTime = Number(localStorage.getItem("loginTime") ?? "0"); // ← was sessionStorage
+        const loginTime = Number(localStorage.getItem("loginTime") ?? "0");
 
         if (dbUser.status && dbUser.status !== "Active") {
           await signOutRef.current();

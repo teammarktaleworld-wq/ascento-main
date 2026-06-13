@@ -1,3 +1,4 @@
+// C:\Tony\009\Mentor Leap\My Acento\my-ascento\src\lib\auth\syncUser.ts
 import { prisma } from "@/lib/helpers/prisma";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 

@@ -1,4 +1,3 @@
-// // src/app/api/admin/portal/papers/[id]/route.ts
 // import { NextRequest, NextResponse } from "next/server";
 // import { prisma } from "@/lib/helpers/prisma";
 // import { requireAdmin } from "@/lib/helpers/auth-helpers";
@@ -78,6 +77,7 @@
 
 
 
+// // src/app/api/admin/portal/papers/[id]/route.ts
 
 
 

@@ -1,5 +1,5 @@
 
-
+// src\app\api\auth\upsert-user\route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { syncUser } from "@/lib/auth/syncUser";
 import { supabaseAdmin } from "@/lib/helpers/supabaseAdmin"; // ← replaced
