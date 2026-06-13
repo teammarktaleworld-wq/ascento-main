@@ -129,33 +129,51 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/helpers/supabaseAdmin";
 import { prisma } from "@/lib/helpers/prisma";
 
+
+
 export async function GET(req: NextRequest) {
   try {
+    console.log("API /me called");
+
     const token = req.headers.get("authorization")?.replace("Bearer ", "");
-    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
-    if (error || !user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
-    if (!dbUser) return NextResponse.json({ error: "User not found" }, { status: 404 });
-
-    // ← ADD THESE TWO CHECKS
-    if (dbUser.status !== "Active") {
-      return NextResponse.json({ error: "Account disabled" }, { status: 403 });
+    if (!token) {
+      console.log("No token");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    return NextResponse.json({
-      id:           dbUser.id,
-      email:        dbUser.email,
-      name:         dbUser.name,
-      avatarUrl:    dbUser.avatarUrl,
-      role:         dbUser.role,
-      status:       dbUser.status,
-      forceLogoutAt: dbUser.forceLogoutAt, // ← AuthContext needs this
+    const {
+      data: { user },
+      error,
+    } = await supabaseAdmin.auth.getUser(token);
+
+    if (error || !user) {
+      console.log("Supabase user error", error);
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    console.log("Supabase user:", user.id);
+
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
     });
+
+    console.log("DB User:", dbUser);
+
+    if (!dbUser) {
+      console.log("User not found in Prisma");
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(dbUser);
   } catch (err) {
-    console.error("/api/me error:", err);
+    console.error(err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+
+
+
+
+

@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model SummerCampEnrollment {
@@ -55,6 +56,7 @@ model User {
   student       Student?
   teacher       Teacher?
     emailLogs  AnnouncementEmailLog[]
+     portalRegistrations  PortalRegistration[]  @relation("PortalRegistrations")
 
 
   @@map("users")
@@ -301,6 +303,139 @@ model Exam {
   @@map("exams")
 }
 
+// ═══════════════════════════════════════════════════════════════════════
+// ADD THESE MODELS TO YOUR EXISTING schema.prisma
+// ═══════════════════════════════════════════════════════════════════════
+//
+// Paste these below your existing models.
+// Then run:
+//   npx prisma migrate dev --name add_portal_exam
+//   npx prisma generate
+//
+// ═══════════════════════════════════════════════════════════════════════
+
+model PortalCategory {
+  id          String       @id @default(cuid())
+  name        String       @unique
+  description String       @default("")
+  slug        String       @unique
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  portalPapers PortalPaper[]
+
+  @@map("portal_categories")
+}
+
+model PortalPaper {
+  id                    String    @id @default(cuid())
+  title                 String
+  description           String    @default("")
+  categoryId            String
+  duration              Int       @default(60)    // minutes
+  totalMarks            Int       @default(100)
+  passingMarks          Int       @default(40)
+  isActive              Boolean   @default(true)
+  isPublished           Boolean   @default(false)
+  shuffleQuestions      Boolean   @default(false)
+  allowReview           Boolean   @default(true)
+  showResultImmediately Boolean   @default(true)
+  maxAttempts           Int       @default(1)
+  startDate             DateTime?
+  endDate               DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  category              PortalCategory       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  portalQuestions       PortalQuestion[]
+  portalRegistrations   PortalRegistration[]
+
+  @@index([categoryId])
+  @@index([isPublished])
+  @@index([startDate])
+  @@map("portal_papers")
+}
+
+model PortalQuestion {
+  id                 String   @id @default(cuid())
+  paperId            String
+  questionText       String   @db.Text
+  // Stored as JSON string: [{"text":"Option A"},{"text":"Option B"},...]
+  options            String   @db.Text
+  correctOptionIndex Int
+  marks              Int      @default(1)
+  explanation        String   @default("") @db.Text
+  order              Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  paper              PortalPaper           @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  portalAnswers      PortalAnswer[]
+
+  @@index([paperId])
+  @@index([order])
+  @@map("portal_questions")
+}
+
+model PortalRegistration {
+  id            String                   @id @default(cuid())
+  userId        String
+  paperId       String
+  status        PortalRegistrationStatus @default(registered)
+  score         Int?
+  totalMarks    Int                      @default(0)
+  percentage    Float?
+  passed        Boolean?
+  startedAt     DateTime?
+  submittedAt   DateTime?
+  timeTaken     Int?                     // seconds
+  attemptNumber Int                      @default(1)
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+
+  user          User           @relation("PortalRegistrations", fields: [userId], references: [id], onDelete: Cascade)
+  paper         PortalPaper    @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  portalAnswers PortalAnswer[]
+
+  @@unique([userId, paperId, attemptNumber])
+  @@index([userId])
+  @@index([paperId])
+  @@index([status])
+  @@map("portal_registrations")
+}
+
+model PortalAnswer {
+  id             String   @id @default(cuid())
+  registrationId String
+  questionId     String
+  selectedIndex  Int?     // null = skipped
+  isCorrect      Boolean?
+  marksAwarded   Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  registration   PortalRegistration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  question       PortalQuestion     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([registrationId, questionId])
+  @@index([registrationId])
+  @@map("portal_answers")
+}
+
+enum PortalRegistrationStatus {
+  registered
+  in_progress
+  submitted
+  expired
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// ADD THIS RELATION TO THE EXISTING User model:
+//
+//  
+//
+// ═══════════════════════════════════════════════════════════════════════
+
+
 model Teacher {
   id              String           @id @default(uuid())
   userId          String           @unique
@@ -404,6 +539,9 @@ model WebinarNotificationLog {
   @@index([status])
   @@map("webinar_notification_logs")
 }
+
+
+
 
 model Notification {
   id        String           @id @default(cuid())
@@ -519,8 +657,6 @@ model AnnouncementEmailLog {
   announcementId String
   userId         String
   email          String
-    errorMsg       String?      // ← add this
-
   status         String       // "sent" | "failed"
   sentAt         DateTime?
   createdAt      DateTime     @default(now())

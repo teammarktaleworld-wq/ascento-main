@@ -3,7 +3,7 @@
 
 
 
-// lib/auth-helper.ts
+// lib/helpers/auth-helper.ts
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/helpers/prisma";

@@ -117,6 +117,10 @@ export async function POST(req: Request) {
     );
   }
 
+
+console.log("SUPABASE ERROR:", error);
+console.log("USER:", data?.user?.email);
+
   const { session, user } = data;
 
   // CHECK USER STATUS IN DB

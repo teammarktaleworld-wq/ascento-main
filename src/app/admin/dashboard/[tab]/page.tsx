@@ -339,35 +339,40 @@ import WebinarsView from "@/components/admin/modules/webinars/Webinarsview ";
 import NotificationsView from "@/components/admin/modules/notifications/Notificationsview ";
 import UsersView from "@/components/admin/modules/users/UsersView";
 import NotesLibraryAdmin from "@/components/admin/modules/notes/NotesLibraryAdmin";
+import PortalExamView from "@/components/admin/modules/portalExam/PortalExamView";
+
 
 const NAVBAR_HEIGHT = 80;
 
 function renderPage(tab: string, tabKey: string) {
   switch (tab) {
-    case "users":         return <UsersView         key={tabKey} />;
-    case "students":      return <StudentsView       key={tabKey} />;
-    case "teachers":      return <TeachersView       key={tabKey} />;
-    case "schedule":      return <ScheduleView       key={tabKey} />;
-    case "exams":         return <ExamsView          key={tabKey} />;
-    case "attendance":    return <AttendenceView     key={tabKey} />;
-    case "fees":          return <FeesView           key={tabKey} />;
-    case "announcements": return <AnnouncementsView  key={tabKey} />;
-    case "enquiries":     return <EnquiriesView      key={tabKey} />;
-    case "webinars":      return <WebinarsView       key={tabKey} />;
-    case "notifications": return <NotificationsView  key={tabKey} />;
-    case "reports":       return <ReportsView        key={tabKey} />;
-    case "settings":      return <SettingsView       key={tabKey} />;
-    case "notes":         return <NotesLibraryAdmin  key={tabKey} />;
-    case "homework":      return <HomeworkView       key={tabKey} />;
-    default:              return <DashboardView      key={tabKey} />;
+    case "users": return <UsersView key={tabKey} />;
+    case "students": return <StudentsView key={tabKey} />;
+    case "teachers": return <TeachersView key={tabKey} />;
+    case "schedule": return <ScheduleView key={tabKey} />;
+    case "exams": return <ExamsView key={tabKey} />;
+    case "attendance": return <AttendenceView key={tabKey} />;
+    case "fees": return <FeesView key={tabKey} />;
+    case "announcements": return <AnnouncementsView key={tabKey} />;
+    case "enquiries": return <EnquiriesView key={tabKey} />;
+    case "webinars": return <WebinarsView key={tabKey} />;
+    case "notifications": return <NotificationsView key={tabKey} />;
+    case "reports": return <ReportsView key={tabKey} />;
+    case "portal-exam": return <PortalExamView key={tabKey} />;
+
+
+    case "settings": return <SettingsView key={tabKey} />;
+    case "notes": return <NotesLibraryAdmin key={tabKey} />;
+    case "homework": return <HomeworkView key={tabKey} />;
+    default: return <DashboardView key={tabKey} />;
   }
 }
 
 export default function AdminDashboardPage() {
-  const params                   = useParams();
-  const tab                      = (params?.tab as string) || "dashboard";
+  const params = useParams();
+  const tab = (params?.tab as string) || "dashboard";
   const { user, token, loading } = useAuth();
-  const router                   = useRouter();
+  const router = useRouter();
   const [unreadCount, setUnreadCount] = useState(0);
 
   // ── Token-gated notification polling ─────────────────────────────────────
@@ -381,7 +386,7 @@ export default function AdminDashboardPage() {
       if (!res.ok) return;
       const data = await res.json();
       setUnreadCount(data.unreadCount ?? 0);
-    } catch {}
+    } catch { }
   }, [token]);
 
   // ── Only poll once token + admin confirmed ────────────────────────────────
@@ -405,7 +410,7 @@ export default function AdminDashboardPage() {
   // ── Auth redirect — wait for loading to finish before acting ──────────────
   useEffect(() => {
     if (loading) return;                             // ← was: if (!ready) return
-    if (!user)                 { router.replace("/login");     return; }
+    if (!user) { router.replace("/login"); return; }
     if (user.role !== "admin") { router.replace("/dashboard"); return; }
   }, [loading, user, router]);                       // ← was: [ready, user, router]
 
