@@ -201,20 +201,26 @@ import { Search, X, ChevronRight, School } from "lucide-react";
 
 export type NavPage =
   | "home" | "announcements" | "schedule" | "notes"
-  | "homework" | "attendance" | "exams" | "profile" | "notifications";
+  | "homework" | "attendance" | "exams" | "user-exams" | "profile" | "notifications";
 
 interface NavItem { id: NavPage; icon: string; label: string; group: string }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: "home",          icon: "⊞",  label: "Dashboard",       group: "Main" },
-  { id: "announcements", icon: "📢", label: "Announcements",   group: "Main" },
-  { id: "schedule",      icon: "📅", label: "Schedule",        group: "Main" },
-  { id: "notifications", icon: "🔔", label: "Notifications",   group: "Main" },
-  { id: "notes",         icon: "📚", label: "Notes",           group: "Academics" },
-  { id: "homework",      icon: "📂", label: "Homework Files",  group: "Academics" },
-  { id: "attendance",    icon: "✅", label: "Attendance",      group: "Academics" },
-  { id: "exams",         icon: "📝", label: "Exams",           group: "Academics" },
-  { id: "profile",       icon: "👤", label: "My Profile",      group: "Account" },
+  { id: "home", icon: "⊞", label: "Dashboard", group: "Main" },
+  { id: "announcements", icon: "📢", label: "Announcements", group: "Main" },
+  { id: "schedule", icon: "📅", label: "Schedule", group: "Main" },
+  { id: "notifications", icon: "🔔", label: "Notifications", group: "Main" },
+  { id: "notes", icon: "📚", label: "Notes", group: "Academics" },
+  { id: "homework", icon: "📂", label: "Homework Files", group: "Academics" },
+  { id: "attendance", icon: "✅", label: "Attendance", group: "Academics" },
+  {
+    id: "user-exams",
+    icon: "🎯",
+    label: "Exam Dashboard",
+    group: "Academics",
+  },
+  { id: "exams", icon: "📝", label: "Exams", group: "Academics" },
+  { id: "profile", icon: "👤", label: "My Profile", group: "Account" },
 ];
 
 interface SidebarProps {
@@ -228,7 +234,7 @@ export default function Sidebar({
   onClose,
   notificationCount = 0,
 }: SidebarProps) {
-  const router   = useRouter();
+  const router = useRouter();
   const pathname = usePathname();
   const [search, setSearch] = useState("");
 
@@ -245,26 +251,26 @@ export default function Sidebar({
     const q = search.toLowerCase();
     return NAV_ITEMS.filter((m) => m.label.toLowerCase().includes(q));
   }, [search]);
-const navigate = (id: NavPage) => {
-  if (id === "profile") {
-    router.push("/profile");
-  } else {
-    router.push(`/dashboard/${id}`);
-  }
-  onClose?.();
-};
+  const navigate = (id: NavPage) => {
+    if (id === "profile") {
+      router.push("/profile");
+    } else {
+      router.push(`/dashboard/${id}`);
+    }
+    onClose?.();
+  };
 
   const isActive = (id: NavPage) => {
-  if (id === "profile") {
-    return pathname === "/profile";
-  }
+    if (id === "profile") {
+      return pathname === "/profile";
+    }
 
-  return (
-    pathname === `/dashboard/${id}` ||
-    (id === "home" &&
-      (pathname === "/dashboard" || pathname === "/dashboard/home"))
-  );
-};
+    return (
+      pathname === `/dashboard/${id}` ||
+      (id === "home" &&
+        (pathname === "/dashboard" || pathname === "/dashboard/home"))
+    );
+  };
 
   const renderItem = (item: NavItem) => {
     const active = isActive(item.id);
@@ -369,15 +375,15 @@ const navigate = (id: NavPage) => {
               ? filtered.map(renderItem)
               : <p className="text-center text-[11px] text-[#3A3D5C] font-semibold mt-6">No results for "{search}"</p>
             : Object.entries(groups).map(([group, items]) => (
-                <div key={group} className="mb-4">
-                  <p className="text-[9px] font-black text-[#3A3D5C] uppercase tracking-[2px] px-3 py-1.5">
-                    {group}
-                  </p>
-                  <div className="space-y-0.5">
-                    {items.map(renderItem)}
-                  </div>
+              <div key={group} className="mb-4">
+                <p className="text-[9px] font-black text-[#3A3D5C] uppercase tracking-[2px] px-3 py-1.5">
+                  {group}
+                </p>
+                <div className="space-y-0.5">
+                  {items.map(renderItem)}
                 </div>
-              ))
+              </div>
+            ))
           }
         </nav>
 

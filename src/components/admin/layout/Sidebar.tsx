@@ -281,7 +281,6 @@ const MENU = [
   { id: "schedule",      label: "Schedule",        icon: Calendar,        group: "Academic" },
   { id: "exams",         label: "Exams",           icon: BookOpen,        group: "Academic" },
   { id: "attendance",    label: "Attendance",      icon: CheckSquare,     group: "Academic" },
-  { id: "fees",          label: "Fees",            icon: DollarSign,      group: "Academic" },
   { id: "announcements", label: "Announcements",   icon: Megaphone,       group: "Communication" },
   { id: "enquiries",     label: "Enquiries",       icon: Inbox,           group: "Communication" },
   { id: "webinars",      label: "Webinars",        icon: Video,           group: "Communication" },

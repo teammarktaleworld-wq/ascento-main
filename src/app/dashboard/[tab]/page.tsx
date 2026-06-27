@@ -166,6 +166,7 @@ import HomeworkFilesPage from "@/components/userdashboard/HomeworkFilesPage";
 import AttendancePage from "@/components/userdashboard/AttendancePage";
 import ExamsPage from "@/components/userdashboard/ExamsPage";
 import NotificationsView from "@/components/admin/modules/notifications/Notificationsview ";
+import UserExamDashboard from "@/components/userdashboard/UserExamDashboard";
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -175,10 +176,10 @@ function getGreeting() {
 }
 
 export default function TabPage() {
-  const params        = useParams();
-  const router        = useRouter();
+  const params = useParams();
+  const router = useRouter();
   const { user, token } = useAuth(); // ← token available for any child that needs it
-  const tab           = (params?.tab as string) || "home";
+  const tab = (params?.tab as string) || "home";
 
   const onToast = (msg: string, type: "success" | "error" = "success") => {
     const el = document.createElement("div");
@@ -198,9 +199,9 @@ export default function TabPage() {
   };
 
   const sharedProps = {
-    greeting:      getGreeting(),
+    greeting: getGreeting(),
     attendancePct: 82,
-    onNavigate:    (page: string) => router.push(`/dashboard/${page}`),
+    onNavigate: (page: string) => router.push(`/dashboard/${page}`),
     onToast,
   };
 
@@ -209,14 +210,24 @@ export default function TabPage() {
   const tabKey = `${user?.id ?? "guest"}-${tab}`;
 
   switch (tab) {
-    case "home":          return <DashboardPage     key={tabKey} {...sharedProps} />;
+    case "home": return <DashboardPage key={tabKey} {...sharedProps} />;
     case "announcements": return <AnnouncementsPage key={tabKey} {...sharedProps} />;
-    case "schedule":      return <SchedulePage      key={tabKey} {...sharedProps} />;
-    case "notes":         return <NotesPage         key={tabKey} {...sharedProps} />;
-    case "homework":      return <HomeworkFilesPage key={tabKey} />;
-    case "attendance":    return <AttendancePage    key={tabKey} {...sharedProps} />;
-    case "exams":         return <ExamsPage         key={tabKey} />;
+    case "schedule": return <SchedulePage key={tabKey} {...sharedProps} />;
+    case "notes": return <NotesPage key={tabKey} {...sharedProps} />;
+    case "homework": return <HomeworkFilesPage key={tabKey} />;
+    case "attendance": return <AttendancePage key={tabKey} {...sharedProps} />;
+    case "exams": return <ExamsPage key={tabKey} />;
     case "notifications": return <NotificationsView key={tabKey} />;
-    default:              return <DashboardPage     key={tabKey} {...sharedProps} />;
+    case "user-exams":
+      return (
+        <UserExamDashboard
+          key={tabKey}
+          user={user}
+          token={token}
+        />
+      );
+    default: return <DashboardPage key={tabKey} {...sharedProps} />;
+
+
   }
 }

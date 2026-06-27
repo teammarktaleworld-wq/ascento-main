@@ -1,3 +1,5 @@
+// src\app\api\admin\teachers\[id]\route.ts
+
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/helpers/prisma";
 import { requireAdmin } from "@/lib/helpers/auth-helpers";

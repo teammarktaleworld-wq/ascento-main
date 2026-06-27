@@ -329,7 +329,6 @@ import TeachersView from "@/components/admin/modules/teachers/TeachersView";
 import ScheduleView from "@/components/admin/modules/schedule/ScheduleView";
 import ExamsView from "@/components/admin/modules/exams/ExamsView";
 import AttendenceView from "@/components/admin/modules/attendance/AttendenceView";
-import FeesView from "@/components/admin/modules/fees/FeesView";
 import ReportsView from "@/components/admin/modules/reports/ReportsView";
 import SettingsView from "@/components/admin/modules/settings/SettingsView";
 import EnquiriesView from "@/components/admin/modules/enquiries/EnquiriesView";
@@ -352,7 +351,6 @@ function renderPage(tab: string, tabKey: string) {
     case "schedule": return <ScheduleView key={tabKey} />;
     case "exams": return <ExamsView key={tabKey} />;
     case "attendance": return <AttendenceView key={tabKey} />;
-    case "fees": return <FeesView key={tabKey} />;
     case "announcements": return <AnnouncementsView key={tabKey} />;
     case "enquiries": return <EnquiriesView key={tabKey} />;
     case "webinars": return <WebinarsView key={tabKey} />;

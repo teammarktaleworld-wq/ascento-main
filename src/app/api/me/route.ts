@@ -167,13 +167,14 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(dbUser);
   } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
-  }
-}
+  console.error("API /me ERROR:", err);
 
-
-
-
-
-
+  return NextResponse.json(
+    {
+      error: err instanceof Error ? err.message : String(err),
+    },
+    {
+      status: 500,
+    }
+  );
+}}
