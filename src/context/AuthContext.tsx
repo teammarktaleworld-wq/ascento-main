@@ -1513,21 +1513,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      const dbUser    = await res.json();
-      const loginTime = Number(localStorage.getItem("loginTime") ?? "0");
+      // const dbUser    = await res.json();
+      // const loginTime = Number(localStorage.getItem("loginTime") ?? "0");
 
-      if (dbUser.status && dbUser.status !== "Active") {
-        await signOutRef.current();
-        return;
-      }
+      // if (dbUser.status && dbUser.status !== "Active") {
+      //   await signOutRef.current();
+      //   return;
+      // }
 
-      if (
-        dbUser.forceLogoutAt &&
-        new Date(dbUser.forceLogoutAt).getTime() > loginTime
-      ) {
-        await signOutRef.current();
-        return;
-      }
+//       const loginTimeStr = localStorage.getItem("loginTime");
+// if (loginTimeStr && dbUser.forceLogoutAt) {
+//   const loginTime = Number(loginTimeStr);
+//   if (new Date(dbUser.forceLogoutAt).getTime() > loginTime) {
+//     await signOutRef.current();
+//     return;
+//   }
+// }
+
+      // if (
+      //   dbUser.forceLogoutAt &&
+      //   new Date(dbUser.forceLogoutAt).getTime() > loginTime
+      // ) {
+      //   await signOutRef.current();
+      //   return;
+      // }
+
+const dbUser = await res.json();
+
+if (dbUser.status && dbUser.status !== "Active") {
+  await signOutRef.current();
+  return;
+}
+
+const loginTimeStr = localStorage.getItem("loginTime");
+if (loginTimeStr && dbUser.forceLogoutAt) {
+  const loginTime = Number(loginTimeStr);
+  if (new Date(dbUser.forceLogoutAt).getTime() > loginTime) {
+    await signOutRef.current();
+  }
+}
 
       console.log("loadUser success", dbUser.role);
 
@@ -1633,7 +1657,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (err) {
         console.error("Background auth check failed:", err);
       }
-    }, 30_000);
+    }, 
+    // 30_000);
+        60_000);
+
 
     return () => clearInterval(interval);
   }, [token]);

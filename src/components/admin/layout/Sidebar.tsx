@@ -250,7 +250,8 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
+// import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react"; //priya
 import { useRouter, usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -300,6 +301,28 @@ export default function Sidebar({
   const pathname = usePathname();
   const [search, setSearch] = useState("");
 
+  // priya !>
+  const navRef = useRef<HTMLElement>(null);
+
+useEffect(() => {
+  const nav = navRef.current;
+  if (!nav) return;
+
+  const saved = sessionStorage.getItem("sidebar-scroll");
+  if (saved) {
+    setTimeout(() => {
+      nav.scrollTop = Number(saved);
+    }, 0);
+  }
+
+  const handleScroll = () => {
+    sessionStorage.setItem("sidebar-scroll", String(nav.scrollTop));
+  };
+  nav.addEventListener("scroll", handleScroll);
+  return () => nav.removeEventListener("scroll", handleScroll);
+}, []);
+
+
   const filtered = useMemo(() => {
     if (!search.trim()) return null;
     const q = search.toLowerCase();
@@ -315,9 +338,12 @@ export default function Sidebar({
     return map;
   }, []);
 
+  // const navigate = (id: string) => {
+  //   router.push(id === "dashboard" ? "/admin/dashboard" : `/admin/dashboard/${id}`);
+  // };
   const navigate = (id: string) => {
-    router.push(id === "dashboard" ? "/admin/dashboard" : `/admin/dashboard/${id}`);
-  };
+  router.push(id === "dashboard" ? "/admin/dashboard" : `/admin/dashboard/${id}`);
+}; //priya
 
   const renderItem = (item: (typeof MENU)[0]) => {
     const Icon    = item.icon;
@@ -402,9 +428,12 @@ export default function Sidebar({
         style={{
           width: 260,
           minWidth: 260,
-          height: "100vh",
-          position: "sticky",
-          top: 0,
+          // height: "100vh",
+          height :"100%",  //priya 
+          // position: "sticky",
+          // top: 0,
+          position:"relative",
+          
           flexShrink: 0,
           overflow: "hidden",
         }}
@@ -446,14 +475,19 @@ export default function Sidebar({
         </div>
 
         {/* Nav */}
-        <nav className="sidebar-nav flex-1 overflow-y-auto overflow-x-hidden py-3 px-3">
+        {/* <nav className="sidebar-nav flex-1 overflow-y-auto overflow-x-hidden py-3 px-3">
+         */}
+         <nav ref={navRef} className="sidebar-nav flex-1 overflow-y-auto overflow-x-hidden py-3 px-3">
+
           {filtered
             ? (
               filtered.length > 0
                 ? filtered.map(renderItem)
                 : (
                   <p className="text-center text-[11px] text-[#3A3D5C] font-semibold mt-6">
-                    No results for "{search}"
+                    {/* No results for "{search}" */}
+  {`No results for "${search}"`}
+                    
                   </p>
                 )
             )
